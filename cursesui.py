@@ -7,6 +7,11 @@ def flipyx(yx): return yx[1], yx[0]
 class ResizedException:
     pass
 
+class KeypressEvent:
+    def __init__(self, key):
+        self.type = "keypress"
+        self.key = key
+
 class CursesInterface:
     def __init__(self, debug = False):
         self.stdscr = curses.initscr()
@@ -16,6 +21,8 @@ class CursesInterface:
         self.previousCursorState = curses.curs_set(0)
         self.warnfile = None
         self.warn( "session start at %s" % (str( time.time())))
+        avail, self.previousMouseMask = curses.mousemask( curses.BUTTON1_PRESSED )
+        self.warn( "mouse mask reported %d" % avail )
     def inside(self, x, y):
         if x < 0 or y < 0:
             return False
@@ -70,16 +77,19 @@ class CursesInterface:
             rv = self.stdscr.getch()
             if rv == curses.KEY_RESIZE:
                 raise ResizedException()
+            if rv == curses.KEY_MOUSE:
+                id, x, y, z, bstate = curses.getmouse()
             try:
                 ch = self.keymap[ rv ]
                 if ch != None:
-                    return ch
+                    return KeypressEvent( ch )
             except KeyError:
                 self.warn( "unknown input %d" % rv )
     def shutdown(self):
         self.clear()
         curses.endwin()
         curses.curs_set( self.previousCursorState )
+        curses.mousemask( self.previousMouseMask )
         self.warn( "session end at %s" % (str( time.time())))
         if self.warnfile:
             self.warnfile.close()
@@ -109,16 +119,16 @@ if __name__ == '__main__':
                 rv = cui.get()
             except ResizedException:
                 w, h = cui.dimensions()
-            if rv:
-                if rv == 'q': break
-                if controls.has_key( rv ):
-                    dx, dy = controls[ rv ]
+            if rv.type == "keypress":
+                if rv.key == 'q': break
+                if controls.has_key( rv.key ):
+                    dx, dy = controls[ rv.key ]
                     x += dx
                     y += dy
-                    x = max( x, 0 )
-                    x = min( x, w - 1 )
-                    y = max( y, 0 )
-                    y = min( y, h - 1 )
+            x = max( x, 0 )
+            x = min( x, w - 1 )
+            y = max( y, 0 )
+            y = min( y, h - 1 )
         cui.shutdown()
     except:
         if not curses.isendwin():
