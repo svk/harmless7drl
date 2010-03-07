@@ -1,0 +1,59 @@
+To cast a spell, you first need to construct it from its runes.
+The names of the runes are scrambled. To be able to use a rune
+in construction, you need to "learn" it which is how the player
+progresses in power. This associates the rune with a thematically
+appropriate english word.
+
+Once you know all the runes in a spell and have them available,
+the recipe appears automatically. (Guess-the-spell is not so fun.)
+
+The "negate" rune, once identified, can also be used (consumed)
+to change another identified rune into its opposite (assuming it
+has one and only one). If the opposite is not identified, this
+process identifies it.
+
+    === Runes ===
+    (mapping should be scrambled)
+
+Me      Self
+Im      Creature
+Taz     Object
+
+Ka      Life [oppose: Death]
+Xe      Death [oppose: Life]
+
+Mon     Earth [oppose: Air]
+Wil     Fire [oppose: Water]
+Vi      Air [oppose: Earth]
+Fon     Water [oppose: Fire]
+
+Bri     Light [oppose: Darkness]
+Mos     Darkness [oppose: Light]
+
+Han     Create [oppose: Destroy]
+Osh     Destroy [oppose: Create]
+
+Us      Cold [oppose: Heat]
+Ik      Heat [oppose: Cold]
+
+Mav     Greater
+
+Ex      Negate
+
+    === Spells ===
+
+"Aura of Light" - Light Me
+"Pebble" - Create Earth
+"Boulder" - Greater Create Earth
+"Flame" - Create Fire
+"Extinguish Flame" - Fire Death
+"Fire" - Greater Create Fire
+"Waterspray" - Create Water
+"Lake" - Greater Create Water
+"Levitate" - Air Me
+"Levitate Thing" - Air Object
+"Levitate Other" - Air Creature
+"Aura of Cold" - Cold Me
+"Aura of Heat" - Heat Me
+"Hole" - Destroy Earth
+
