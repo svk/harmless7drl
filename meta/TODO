@@ -1,0 +1,11 @@
+- widgets
+    - text input
+    - menu system
+        - inventory menus
+- field of vision
+- pathfinding
+- moving @ skeleton
+    - simple level generator
+    - pick up and put down (unusable) items
+    - seeker drone (that does not attack, just hugs)
+    - stairs up, stairs down
