@@ -3,12 +3,15 @@ import string
 # Should support spaces, newlines, tabs (= 4 spaces don't glob at beginning of line)
 
 class TextWrapper:
-    def __init__(self, width):
+    def __init__(self, width, height = None, more = " [more]" ):
         self.width = width
+        self.height = height
+        self.pages = []
         self.lines = []
         self.lastline = []
         self.breakAt = None
         self.tabbing = 0
+        self.more = more
     def lastlinelength(self):
         return len( "".join( self.lastline ) )
     def centeredline(self, i):
@@ -27,7 +30,7 @@ class TextWrapper:
             if len( self.lines ) == i:
                 return "".join( self.lastline )
             return ""
-    def height(self):
+    def numberOfLines(self):
         rv = len( self.lines )
         if self.haslastline():
             rv += 1
@@ -51,7 +54,10 @@ class TextWrapper:
         else:
             accept = ch
         if accept:
-            if self.lastlinelength() + len( accept ) > self.width:
+            morewidth = 0
+            if len( self.lines ) + 1 == self.height:
+                morewidth = len( self.more )
+            if self.lastlinelength() + len( accept ) > self.width - morewidth:
                 newline = [ " " * self.tabbing ]
                 if not self.breakAt:
                     self.lines.append( "".join( self.lastline ) )
@@ -62,12 +68,16 @@ class TextWrapper:
                     newline.append( accept )
                 self.lastline = newline
                 self.breakAt = None
+                if morewidth > 0:
+                    self.lines[-1] += self.more
+                    self.pages.append( self.lines )
+                    self.lines = []
             else:
                 self.lastline.append( accept )
 
 if __name__ == '__main__':
     w = 40
-    wr = TextWrapper( w )
+    wr = TextWrapper( w, 4 )
 
     for i in range(4):
         wr.feed( "0123456789" )
@@ -76,6 +86,9 @@ if __name__ == '__main__':
     wr.feed( "\tFusce ac nulla sit amet erat luctus sagittis. Duis lobortis condimentum risus, congue luctus justo ultricies non. Fusce et metus quis purus venenatis molestie quis vitae tellus. In molestie, mi eget elementum luctus, neque arcu vehicula lorem, ut rutrum sem arcu et lectus. Integer lacinia lacinia tortor, ut bibendum quam hendrerit sed. Aenean interdum, leo et accumsan mollis, ante nulla tristique mauris, sed porta lacus arcu tempor magna. Aliquam erat volutpat. Fusce leo felis, adipiscing id dictum ac, convallis eu dolor. Aenean tempor sapien magna. Etiam accumsan ipsum at arcu consectetur egestas. Maecenas tortor nibh, tempus in viverra vel, volutpat vitae eros. Sed convallis augue ac nisi consequat eget egestas erat placerat. Curabitur nec lacus auctor diam lobortis pulvinar. Aliquam porta imperdiet ornare.\n\n" )
     wr.feed( "Hi mom!\n" )
 
-    for i in range( wr.height() ):
-        l = wr.line(i)
-        print l.ljust( w, '.' )
+    for page in wr.pages:
+        for line in page:
+            print line.ljust( w, '.' )
+        print "<<<===>>>"
+    for line in wr.lines:
+        print line.ljust( w, '.' )
