@@ -66,12 +66,8 @@ class AngularInterval: #never full, sometimes empty
         # Check that this is safe instead of explicit left/right-adjoin.
         if self.end == that.begin:
             self.end = that.end
-        else:
-            print >> sys.stderr, "neq1", self.end, that.begin
         if self.begin == that.end:
             self.begin = that.begin
-        else:
-            print >> sys.stderr, "neq2", self.begin, that.end
         self.crosses = self.begin > self.end
         return self
 
@@ -125,35 +121,22 @@ class VisionField:
         for dx, dy in self.passOrderings[qxqy]:
             tile = next.getRelative( dx, dy )
             assert (tile.x, tile.y) not in self.visible
-            print >> sys.stderr, "passing from", rx, ry
             self.passLight( tile, light )
     def passLight(self, tile, lightIn):
         nrx, nry = tile.x - self.origin.x, tile.y - self.origin.y
-        print >> sys.stderr, "passing to", nrx, nry
         qx, qy = quadrant( nrx, nry )
         bx, by = -qy, qx
         ex, ey = qy, -qx
-        print >> sys.stderr, "b is", bx, by
-        print >> sys.stderr, "e is", ex, ey
         if qx == 0:
             by, ey = -qy, -qy
         if qy == 0:
             bx, ex = -qx, -qx
         ba = fromRadians( atan2( -(2 * nry + by), 2 * nrx + bx ) )
         ea = fromRadians( atan2( -(2 * nry + ey), 2 * nrx + ex ) )
-        print >> sys.stderr, "b is", bx, by
-        print >> sys.stderr, "e is", ex, ey
-        print >> sys.stderr, "B x, y is", 2 * nrx + bx, 2 * nry + by
-        print >> sys.stderr, "E x, y is", 2 * nrx + ex, 2 * nry + ey
-        print >> sys.stderr, "restricts to", ba, ea
-        print >> sys.stderr, "incoming is", lightIn.begin, lightIn.end
         light = AngularInterval( ba, ea ).intersect( lightIn )
-        print >> sys.stderr, "result is", light.begin, light.end
         if light.empty:
-            print >> sys.stderr, "empty"
             return
         try:
             self.tiles[ tile.x, tile.y ].adjoin( light )
-            print >> sys.stderr, "result final", self.tiles[ tile.x, tile.y ].begin, self.tiles[ tile.x, tile.y ].end
         except KeyError:
             self.addNew( tile, light )
