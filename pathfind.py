@@ -12,6 +12,7 @@ class PathfindingNode:
             self.cost = 0
         self.current = current
         self.estimate = heuristic( current )
+        self.beaten = False
     def __cmp__(self, that):
         return self.cost + self.estimate - that.cost - that.estimate
     def retrace(self, accumulator = []):
@@ -33,18 +34,29 @@ class Pathfinder:
         return self
     def seek(self):
         closed = set()
+        bestPathTo = {}
         while self.q:
             node = heappop( self.q )
             node.current.fgColour = "magenta"
+            if node.beaten:
+                continue
             if self.goal( node.current ):
                 return node.retrace()
             closed.add( node.current )
             for neighbour in node.current.neighbours():
-                if neighbour in closed:
-                    continue
                 cost = self.cost( neighbour )
                 if cost == infinity:
                     continue
+                try:
+                    oldCost = bestPathTo[ neighbour ].cost
+                    if oldCost < cost + node.cost:
+                        continue
+                    bestPathTo[ neighbour ].beaten = True
+                except KeyError:
+                    pass
+                if neighbour in closed:
+                    continue
                 next = PathfindingNode( node, neighbour, cost, self.heuristic )
+                bestPathTo[ neighbour ] = next
                 heappush( self.q, next )
         return None
