@@ -6,7 +6,6 @@ import timing
 class GameWidget ( Widget ):
     def __init__(self, level, player, sim, *args, **kwargs):
         Widget.__init__( self, *args, **kwargs )
-        self.lastKey = None
         self.name = None
         self.level = level
         self.player = player
@@ -71,5 +70,15 @@ class GameWidget ( Widget ):
             from widgets import TextInputWidget
             import string
             self.name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: " )
-        self.lastKey = key
-
+        elif key == 'P':
+            from pathfind import Pathfinder, infinity
+            import math
+            pf = Pathfinder(cost = lambda tile : infinity if tile.cannotEnterBecause( self.player ) else 1,
+                            goal = lambda tile : tile.x == 5 and tile.y == 5,
+                            heuristic = lambda tile : max( abs( tile.x - 5 ), abs( tile.y - 5 ) )
+            )
+            pf.addOrigin( self.player.tile )
+            path = pf.seek()
+            if path:
+                for tile in path:
+                    tile.fgColour = "blue"
