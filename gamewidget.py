@@ -29,7 +29,9 @@ class GameWidget ( Widget ):
         }
     def draw(self):
         import time
-        vp = Viewport( level = self.level, window = Subwindow( self.ui, 0, 0, *self.ui.dimensions() ) )
+        screenw, screenh = self.ui.dimensions()
+        textfieldheight = 3
+        vp = Viewport( level = self.level, window = Subwindow( self.ui, 0, textfieldheight, screenw, screenh - textfieldheight ) )
         vp.paint( self.player.tile.x, self.player.tile.y )
         self.ui.putString( 30, 10, "Hello world!" )
         self.ui.putString( 30, 11, "Time: %lf" % time.time() )

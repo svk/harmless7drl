@@ -158,17 +158,19 @@ if __name__ == '__main__':
             cui.putString( 10, 14, "COLOR_PAIRS: %d" % curses.COLOR_PAIRS )
             cui.putString( 10, 15, "can_change_color(): %s" % curses.can_change_color() )
             cui.put( x, y, "@", fg = 'red' )
+            cui.show()
             rv = None
             try:
                 rv = cui.get()
             except ResizedException:
                 w, h = cui.dimensions()
-            if rv.type == "keypress":
-                if rv.key == 'q': break
-                if controls.has_key( rv.key ):
-                    dx, dy = controls[ rv.key ]
-                    x += dx
-                    y += dy
+            if rv:
+                if rv.type == "keypress":
+                    if rv.key == 'q': break
+                    if controls.has_key( rv.key ):
+                        dx, dy = controls[ rv.key ]
+                        x += dx
+                        y += dy
             x = max( x, 0 )
             x = min( x, w - 1 )
             y = max( y, 0 )
