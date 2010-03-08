@@ -51,7 +51,6 @@ class MainLoop:
         return w.result
 
 if __name__ == '__main__':
-    import cursesui
     from level import *
     from widgets import *
     from gamewidget import GameWidget
@@ -61,4 +60,10 @@ if __name__ == '__main__':
     level.doRectangle( makeFloor, *innerRectangle( level, 1 ) )
     atman = Mobile( level.tiles[10,30], "at", "@", "green" )
 
-    cursesui.main( GameWidget, level = level, player = atman )
+    try:
+        import cursesui
+        main = cursesui.main
+    except ImportError:
+        import tcodui
+        main = tcodui.main
+    main( GameWidget, level = level, player = atman )
