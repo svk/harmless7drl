@@ -45,6 +45,10 @@ class AngularInterval: #never full, sometimes empty
         if not self.crosses:
             return angle > self.begin and angle < self.end
         return angle > self.begin or angle < self.end
+    def endIs(self, angle):
+        if self.empty:
+            return False
+        return angle == self.end
     def intersect(self, that):
         # This is not a generally correct implementation of
         # intersection; sometimes the intersection of two intervals
@@ -111,13 +115,26 @@ class VisionField:
         next = self.q.pop(0)
         self.visible.add( (next.x, next.y) )
         rx, ry = next.x - self.origin.x, next.y - self.origin.y
+        qxqy = quadrant( rx, ry )
+        try:
+            light = self.tiles[ next.x, next.y ]
+        except KeyError:
+            return # no light to pass
+        del self.tiles[ next.x, next.y ]
         if self.radiusSquared and rx*rx + ry*ry > self.radiusSquared:
             return
         if self.obstacle( next ):
+            qx, qy = qxqy
+            ex, ey = qy, -qx
+            if qx == 0:
+                ey = -qy
+            if qy == 0:
+                ex = -qx
+            maxa = fromRadians( atan2( -(2 * ry + ey), 2 * rx + ex ) )
+            if light.endIs( maxa ):
+                tile = next.getRelative( *self.passOrderings[qxqy][-1] )
+                self.q.append( tile )
             return
-        qxqy = quadrant( rx, ry )
-        light = self.tiles[ next.x, next.y ]
-        del self.tiles[ next.x, next.y ]
         for dx, dy in self.passOrderings[qxqy]:
             tile = next.getRelative( dx, dy )
             assert (tile.x, tile.y) not in self.visible
