@@ -1,3 +1,5 @@
+import sys
+
 class Speed:
     VeryQuick = 10
     Quick = 15
@@ -14,7 +16,9 @@ class EventWrapper:
         self.cancelled = True
     def trigger(self):
         if not self.cancelled:
-            self.event.trigger()
+            self.event.trigger( self.t )
+    def __cmp__(self, that):
+        return self.t - that.t
 
 # I don't envision any terribly fancy uses of this, mostly just scheduling
 # monsters to make sure stuff can move at different speeds.
@@ -28,8 +32,9 @@ class Simulator:
     def __init__(self, t0 = 0):
         self.q = []
         self.t = t0
-    def schedule(self, event, dt):
-        evw = EventWrapper( event, self.t + dt )
+    def schedule(self, event, t):
+        print >> sys.stderr, "scheduled for", t
+        evw = EventWrapper( event, t )
         heappush( self.q, evw )
         return evw
     def advance(self, dt):
@@ -38,6 +43,7 @@ class Simulator:
         # "during" the move. A slower player will advance less time per
         # move.
         self.t += dt
+        print >> sys.stderr, "now", self.t
     def next(self):
         if not self.q:
             return None

@@ -62,8 +62,9 @@ if __name__ == '__main__':
     level.doRectangle( makeWall, *innerRectangle( level ) )
     level.doRectangle( makeFloor, *innerRectangle( level, 1 ) )
     sim = Simulator()
-    atman = Mobile( level.tiles[10,30], "at", "@", fgColour = "green", speed = timing.Speed.Normal )
-    Mobile( level.tiles[20,30], "monster", "x", fgColour = "red", sim = sim, ai = RandomWalker() )
+    atman = level.spawnMobile( Mobile, "at", "@", fgColour = "green", speed = timing.Speed.Quick )
+    for i in range(10):
+        level.spawnMobile( Mobile, name = "monster", symbol = "x", fgColour = "red", sim = sim, ai = RandomWalker() )
 
     try:
         import cursesui

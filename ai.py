@@ -1,4 +1,5 @@
 import random
+import sys
 
 class RandomWalker:
     def trigger(self, mob):

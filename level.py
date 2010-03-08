@@ -72,11 +72,11 @@ class Mobile:
             'fg': self.fgColour
         }
     def schedule(self):
-        self.sim.schedule( self, self.speed )
-    def trigger(self):
+        self.sim.schedule( self, self.sim.t + self.speed )
+    def trigger(self, t):
         if self.ai:
             self.ai.trigger( self )
-        self.schedule()
+        self.sim.schedule( self, t + self.speed )
         
 
 class Map:
@@ -96,6 +96,19 @@ class Map:
             return self.tiles[x,y]
         except KeyError:
             return None
+    def randomTile(self, criterion = lambda tile : True):
+        import random
+        choices = list( filter( criterion, self.tiles.values() ) )
+        if not choices:
+            return None
+        return random.choice( choices )
+    def spawnMobile(self, cls, *args, **kwargs):
+        # this is a hack: monster shouldn't spawn on a tile where it couldn't move
+        tile = self.randomTile( lambda tile : tile.mobile == None and not tile.impassable )
+        assert tile != None
+        rv = cls( tile, *args, **kwargs )
+        return rv
+        
 
 def innerRectangle( o, n = 0):
     return o.x0 + n, o.y0 + n, o.w - 2*n, o.h - 2*n

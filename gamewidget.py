@@ -44,19 +44,25 @@ class GameWidget ( Widget ):
             if not ev:
                 break
             ev.trigger()
+    def wait(self):
+        self.advanceTime( self.player.speed )
+    def tryMoveAttack(self, dx, dy):
+        tile = self.player.tile.getRelative( dx, dy )
+        if not tile.cannotEnterBecause( self.player ):
+            self.player.moveto( tile )
+            self.advanceTime( self.player.speed )
     def keyboard(self, key):
         try:
             dx, dy = self.movementKeys[ key ]
-            tile = self.player.tile.getRelative( dx, dy )
-            if not tile.cannotEnterBecause( self.player ):
-                self.player.moveto( tile )
-                self.advanceTime( self.player.speed )
+            self.tryMoveAttack( dx, dy )
             return
         except KeyError:
             pass
-        if key == 'q':
+        if key == '.':
+            self.wait()
+        elif key == 'q':
             self.done = True
-        if key == 'N':
+        elif key == 'N':
             from widgets import TextInputWidget
             import string
             self.name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: " )
