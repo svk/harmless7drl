@@ -38,7 +38,7 @@ class TcodInterface:
         }
         self.keymap = {
             libtcod.KEY_BACKSPACE: 'backspace',
-            libtcod.KEY_KP1: 'southwest', # these don't work?
+            libtcod.KEY_KP1: 'southwest',
             libtcod.KEY_KP2: 'south',
             libtcod.KEY_KP3: 'southeast',
             libtcod.KEY_KP4: 'west',
