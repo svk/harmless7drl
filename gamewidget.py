@@ -29,11 +29,15 @@ class GameWidget ( Widget ):
             'southwest': (-1, 1),
             'southeast': (1, 1),
         }
+        self.playervision = None
     def draw(self):
         import time
         screenw, screenh = self.ui.dimensions()
         textfieldheight = 3
-        vp = Viewport( level = self.level, window = Subwindow( self.ui, 0, textfieldheight, screenw, screenh - textfieldheight ) )
+        if not self.playervision:
+            from vision import VisionField
+            self.playervision = VisionField( self.player.tile, lambda tile: tile.impassable)
+        vp = Viewport( level = self.level, window = Subwindow( self.ui, 0, textfieldheight, screenw, screenh - textfieldheight ), visibility = lambda tile : (tile.x, tile.y) in self.playervision.visible )
         vp.paint( self.player.tile.x, self.player.tile.y )
         self.ui.putString( 0, 0, "Time: %lf" % time.time() )
         self.ui.putString( 0, 1, "Your name: %s" % self.name )
@@ -49,6 +53,7 @@ class GameWidget ( Widget ):
     def tryMoveAttack(self, dx, dy):
         tile = self.player.tile.getRelative( dx, dy )
         if not tile.cannotEnterBecause( self.player ):
+            self.playervision = None
             self.player.moveto( tile )
             self.advanceTime( self.player.speed )
     def keyboard(self, key):
