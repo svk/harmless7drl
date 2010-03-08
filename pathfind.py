@@ -22,12 +22,13 @@ class PathfindingNode:
         return list( reversed( accumulator ) )
 
 class Pathfinder:
-    def __init__(self, cost, goal, heuristic):
+    def __init__(self, cost, goal, heuristic, limit = None):
         # goal and heuristic are functions tile -> Bool, tile -> comparable
         # cost is a function tile -> comparable or infinity
         self.goal = goal
         self.heuristic = heuristic
         self.cost = cost
+        self.limit = limit
         self.q = []
     def addOrigin(self, origin):
         heappush( self.q, PathfindingNode( None, origin, 0, self.heuristic ) )
@@ -42,6 +43,8 @@ class Pathfinder:
                 continue
             if self.goal( node.current ):
                 return node.retrace()
+            if self.limit and node.cost + node.estimate > self.limit:
+                return None
             closed.add( node.current )
             for neighbour in node.current.neighbours():
                 cost = self.cost( neighbour )

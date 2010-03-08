@@ -55,7 +55,7 @@ if __name__ == '__main__':
     from widgets import *
     from gamewidget import GameWidget
     from timing import Simulator
-    from ai import RandomWalker
+    from ai import *
     import timing
 
     level = Map( 100, 50 )
@@ -64,8 +64,10 @@ if __name__ == '__main__':
     level.doRectangle( makeWall, *innerRectangle( level, 20 ) )
     sim = Simulator()
     atman = level.spawnMobile( Mobile, "at", "@", fgColour = "green", speed = timing.Speed.Quick )
-    for i in range(10):
+    for i in range(5):
         level.spawnMobile( Mobile, name = "monster", symbol = "x", fgColour = "red", sim = sim, ai = RandomWalker() )
+    for i in range(5):
+        level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", sim = sim, ai = HugBot(target = atman, radius = 10), speed = timing.Speed.Quick )
 
     try:
         import cursesui
