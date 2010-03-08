@@ -58,7 +58,7 @@ if __name__ == '__main__':
     level = Map( 100, 50 )
     level.doRectangle( makeWall, *innerRectangle( level ) )
     level.doRectangle( makeFloor, *innerRectangle( level, 1 ) )
-    atman = Mobile( level.tiles[10,30], "at", "@", "green" )
+    atman = Mobile( level.tiles[10,30], "at", "@", "red" )
 
     try:
         import cursesui
