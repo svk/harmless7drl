@@ -61,6 +61,7 @@ if __name__ == '__main__':
     level = Map( 100, 50 )
     level.doRectangle( makeWall, *innerRectangle( level ) )
     level.doRectangle( makeFloor, *innerRectangle( level, 1 ) )
+    level.doRectangle( makeWall, *innerRectangle( level, 20 ) )
     sim = Simulator()
     atman = level.spawnMobile( Mobile, "at", "@", fgColour = "green", speed = timing.Speed.Quick )
     for i in range(10):

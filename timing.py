@@ -33,7 +33,6 @@ class Simulator:
         self.q = []
         self.t = t0
     def schedule(self, event, t):
-        print >> sys.stderr, "scheduled for", t
         evw = EventWrapper( event, t )
         heappush( self.q, evw )
         return evw
@@ -43,7 +42,6 @@ class Simulator:
         # "during" the move. A slower player will advance less time per
         # move.
         self.t += dt
-        print >> sys.stderr, "now", self.t
     def next(self):
         if not self.q:
             return None
