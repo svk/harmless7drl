@@ -38,7 +38,6 @@ class Pathfinder:
         bestPathTo = {}
         while self.q:
             node = heappop( self.q )
-            node.current.fgColour = "magenta"
             if node.beaten:
                 continue
             if self.goal( node.current ):
