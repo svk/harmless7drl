@@ -2,6 +2,17 @@ import curses
 import sys
 import time
 
+def main( rootwidget ):
+    from core import MainLoop
+    rv = None
+    try:
+        cui = CursesInterface()
+        rv = MainLoop( cui ).query( rootwidget )
+        cui.shutdown()
+    except:
+        handleException()
+    return rv
+
 def handleException():
     if not curses.isendwin():
         curses.endwin()

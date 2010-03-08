@@ -70,10 +70,5 @@ if __name__ == '__main__':
                 self.name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: " )
             self.lastKey = key
 
-    from cursesui import CursesInterface, handleException
-    try:
-        cui = CursesInterface()
-        main = MainLoop( cui )
-        main.query( HelloWorldWidget )
-    except:
-        handleException()
+    import cursesui
+    cursesui.main( HelloWorldWidget )
