@@ -36,8 +36,6 @@ class CursesInterface:
         self.previousCursorState = curses.curs_set(0)
         self.warnfile = None
         self.warn( "session start at %s" % (str( time.time())))
-        avail, self.previousMouseMask = curses.mousemask( curses.BUTTON1_PRESSED )
-        self.warn( "mouse mask reported %d" % avail )
     def inside(self, x, y):
         if x < 0 or y < 0:
             return False
@@ -133,7 +131,6 @@ class CursesInterface:
         self.clear()
         curses.endwin()
         curses.curs_set( self.previousCursorState )
-        curses.mousemask( self.previousMouseMask )
         self.warn( "session end at %s" % (str( time.time())))
         if self.warnfile:
             self.warnfile.close()
