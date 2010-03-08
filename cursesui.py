@@ -2,15 +2,19 @@ import curses
 import sys
 import time
 
-def flipyx(yx): return yx[1], yx[0]
+def handleException():
+    if not curses.isendwin():
+        curses.endwin()
+    raise
 
-class ResizedException:
-    pass
+def flipyx(yx): return yx[1], yx[0]
 
 class KeypressEvent:
     def __init__(self, key):
         self.type = "keypress"
         self.key = key
+
+from core import ResizedException
 
 class CursesInterface:
     def __init__(self, debug = False):
@@ -39,9 +43,9 @@ class CursesInterface:
             print >>self.warnfile, warning
             self.warnfile.flush()
     def setupKeyboard(self):
+        curses.raw()
         curses.halfdelay(1)
         curses.noecho()
-        curses.raw()
         self.keymap = {}
         import string
         for ch in string.printable:
@@ -53,38 +57,54 @@ class CursesInterface:
             'white': curses.COLOR_WHITE,
             'black': curses.COLOR_BLACK,
             'red': curses.COLOR_RED,
+            'blue': curses.COLOR_BLUE,
+            'cyan': curses.COLOR_CYAN,
+            'green': curses.COLOR_GREEN,
+            'magenta': curses.COLOR_MAGENTA,
+            'yellow': curses.COLOR_YELLOW,
         }
         self.pairs = {}
         i = 1
         for fgName,fg in self.colours.items():
             for bgName,bg in self.colours.items():
+                if fg == curses.COLOR_WHITE and bg == curses.COLOR_BLACK:
+                    self.pairs[ fgName, bgName ] = 0
+                elif fg == bg:
+                    continue
                 curses.init_pair( i, fg, bg )
                 self.pairs[ fgName, bgName ] = i
                 i += 1
-    def put(self, x, y, ch, fg = 'white', bg = 'black'):
+    def put(self, x, y, ch, fg = 'white', bg = 'black', attrs = 0):
+        if fg == bg:
+            fg = "white" if fg != "white" else "black"
+            ch = ' '
         if not self.inside( x, y ):
             self.warn( "put character at %d, %d (out of bounds)" % (x,y) )
         else:
-            self.stdscr.addch( y, x, ch, curses.color_pair( self.pairs[ fg, bg ]) )
-    def putString(self, x, y, s, fg = 'white', bg = 'black'):
+            try:
+                self.stdscr.addch( y, x, ch, curses.color_pair( self.pairs[ fg, bg ]) | attrs )
+            except:
+                # An error is triggered when we write to the last char on the screen?
+                pass
+    def putString(self, x, y, s, fg = 'white', bg = 'black', attrs = 0):
         for ch in s:
-            self.put( x, y, ch, fg, bg)
+            self.put( x, y, ch, fg, bg, attrs)
             x += 1
     def show(self):
         self.stdscr.refresh()
     def get(self):
-        while True:
-            rv = self.stdscr.getch()
-            if rv == curses.KEY_RESIZE:
-                raise ResizedException()
-            if rv == curses.KEY_MOUSE:
-                id, x, y, z, bstate = curses.getmouse()
-            try:
-                ch = self.keymap[ rv ]
-                if ch != None:
-                    return KeypressEvent( ch )
-            except KeyError:
-                self.warn( "unknown input %d" % rv )
+        rv = self.stdscr.getch()
+        if rv == curses.KEY_RESIZE:
+            raise ResizedException()
+        if rv == curses.KEY_MOUSE:
+            id, x, y, z, bstate = curses.getmouse()
+        try:
+            ch = self.keymap[ rv ]
+            if ch != None:
+                return KeypressEvent( ch )
+        except KeyError:
+            self.warn( "unknown input %d" % rv )
+        return None
     def shutdown(self):
         self.clear()
         curses.endwin()
@@ -113,6 +133,9 @@ if __name__ == '__main__':
             cui.clear()
             cui.putString( 10, 10, "Hello world!" )
             cui.putString( 10, 11, "This window is %dx%d" % (w,h) )
+            cui.putString( 10, 13, "longname(): %s" % curses.longname() )
+            cui.putString( 10, 14, "COLOR_PAIRS: %d" % curses.COLOR_PAIRS )
+            cui.putString( 10, 15, "can_change_color(): %s" % curses.can_change_color() )
             cui.put( x, y, "@", fg = 'red' )
             rv = None
             try:
