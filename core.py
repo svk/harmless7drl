@@ -54,11 +54,16 @@ if __name__ == '__main__':
     from level import *
     from widgets import *
     from gamewidget import GameWidget
+    from timing import Simulator
+    from ai import RandomWalker
+    import timing
 
     level = Map( 100, 50 )
     level.doRectangle( makeWall, *innerRectangle( level ) )
     level.doRectangle( makeFloor, *innerRectangle( level, 1 ) )
-    atman = Mobile( level.tiles[10,30], "at", "@", "green" )
+    sim = Simulator()
+    atman = Mobile( level.tiles[10,30], "at", "@", fgColour = "green", speed = timing.Speed.Normal )
+    Mobile( level.tiles[20,30], "monster", "x", fgColour = "red", sim = sim, ai = RandomWalker() )
 
     try:
         import cursesui
@@ -66,4 +71,4 @@ if __name__ == '__main__':
     except ImportError:
         import tcodui
         main = tcodui.main
-    main( GameWidget, level = level, player = atman )
+    main( GameWidget, level = level, player = atman, sim = sim )

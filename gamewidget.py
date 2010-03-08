@@ -1,14 +1,16 @@
 from core import Widget
 from level import *
 from widgets import *
+import timing
 
 class GameWidget ( Widget ):
-    def __init__(self, level, player, *args, **kwargs):
+    def __init__(self, level, player, sim, *args, **kwargs):
         Widget.__init__( self, *args, **kwargs )
         self.lastKey = None
         self.name = None
         self.level = level
         self.player = player
+        self.sim = sim
         self.movementKeys = {
             'h': (-1, 0),
             'l': (1, 0),
@@ -33,16 +35,22 @@ class GameWidget ( Widget ):
         textfieldheight = 3
         vp = Viewport( level = self.level, window = Subwindow( self.ui, 0, textfieldheight, screenw, screenh - textfieldheight ) )
         vp.paint( self.player.tile.x, self.player.tile.y )
-        self.ui.putString( 30, 10, "Hello world!" )
-        self.ui.putString( 30, 11, "Time: %lf" % time.time() )
-        self.ui.putString( 30, 12, "Last keypress: %s" % self.lastKey )
-        self.ui.putString( 30, 13, "Your name: %s" % self.name )
+        self.ui.putString( 0, 0, "Time: %lf" % time.time() )
+        self.ui.putString( 0, 1, "Your name: %s" % self.name )
+    def advanceTime(self, dt):
+        self.sim.advance( dt )
+        while True:
+            ev = self.sim.next()
+            if not ev:
+                break
+            ev.trigger()
     def keyboard(self, key):
         try:
             dx, dy = self.movementKeys[ key ]
             tile = self.player.tile.getRelative( dx, dy )
             if not tile.cannotEnterBecause( self.player ):
                 self.player.moveto( tile )
+                self.advanceTime( self.player.speed )
             return
         except KeyError:
             pass

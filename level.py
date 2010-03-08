@@ -1,3 +1,4 @@
+from timing import Speed
 
 class Tile:
     # Yes, keeping each tile in its own object, because I intend to do funky
@@ -34,6 +35,8 @@ class Tile:
         return rv
     def getRelative(self, dx, dy):
         return self.level.get( self.x + dx, self.y + dy )
+    def neighbours(self):
+        return [ self.getRelative(dx,dy) for dx in (-1,0,1) for dy in (-1,0,1) if dx or dy ]
 
 def makeFloor( tile ):
     tile.name = "floor"
@@ -46,12 +49,17 @@ def makeWall( tile ):
     tile.impassable = True
 
 class Mobile:
-    def __init__(self, tile, name, symbol, fgColour = 'white'):
+    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, sim = None, fgColour = 'white'):
         self.name = name
         self.symbol = symbol
         self.fgColour = fgColour
         self.tile = None
         self.moveto( tile )
+        self.speed = speed
+        self.sim = sim
+        self.ai = ai
+        if self.sim:
+            self.schedule()
     def moveto(self, tile):
         if self.tile:
             self.tile.leaves()
@@ -63,6 +71,13 @@ class Mobile:
             'ch': self.symbol,
             'fg': self.fgColour
         }
+    def schedule(self):
+        self.sim.schedule( self, self.speed )
+    def trigger(self):
+        if self.ai:
+            self.ai.trigger( self )
+        self.schedule()
+        
 
 class Map:
     def __init__(self, width, height):
