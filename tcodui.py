@@ -83,7 +83,7 @@ class TcodInterface:
     def put(self, x, y, ch, fg = 'white', bg = 'black', attrs = 0):
         libtcod.console_set_foreground_color( 0, self.colours[ fg ] )
         libtcod.console_set_background_color( 0, self.colours[ bg ] )
-        libtcod.console_put_char( 0, x, y, ch, 0 )
+        libtcod.console_put_char( 0, x, y, ch, libtcod.BKGND_SET )
     def get(self):
         if libtcod.console_is_window_closed():
             raise WindowClosedException()
