@@ -2,12 +2,12 @@ import curses
 import sys
 import time
 
-def main( rootwidget ):
+def main( rootwidget, *args, **kwargs ):
     from core import MainLoop
     rv = None
     try:
         cui = CursesInterface( debug=True )
-        rv = MainLoop( cui ).query( rootwidget )
+        rv = MainLoop( cui ).query( rootwidget, *args, **kwargs )
         cui.shutdown()
     except:
         handleException()
@@ -57,11 +57,20 @@ class CursesInterface:
         curses.raw()
         curses.halfdelay(1)
         curses.noecho()
+        self.stdscr.keypad( 1 )
         self.keymap = {}
         import string
         for ch in string.printable:
             self.keymap[ ord(ch) ] = ch
         self.keymap[ 127 ] = 'backspace'
+        self.keymap[ curses.KEY_LEFT ] = 'west'
+        self.keymap[ curses.KEY_RIGHT ] = 'east'
+        self.keymap[ curses.KEY_UP ] = 'north'
+        self.keymap[ curses.KEY_DOWN ] = 'south'
+        self.keymap[ curses.KEY_A1 ] = 'northwest'
+        self.keymap[ curses.KEY_A3 ] = 'northeast'
+        self.keymap[ curses.KEY_C1 ] = 'southwest'
+        self.keymap[ curses.KEY_C3 ] = 'southeast'
         del self.keymap[ ord('\t') ] # hack because tab is bound to cause
                                      # trouble in various text input stuff
     def setupColours(self):

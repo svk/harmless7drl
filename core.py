@@ -51,25 +51,14 @@ class MainLoop:
         return w.result
 
 if __name__ == '__main__':
-    class HelloWorldWidget ( Widget ):
-        def __init__(self, *args, **kwargs):
-            Widget.__init__( self, *args, **kwargs )
-            self.lastKey = None
-            self.name = None
-        def draw(self):
-            import time
-            self.ui.putString( 10, 10, "Hello world!" )
-            self.ui.putString( 10, 11, "Time: %lf" % time.time() )
-            self.ui.putString( 10, 12, "Last keypress: %s" % self.lastKey )
-            self.ui.putString( 10, 13, "Your name: %s" % self.name )
-        def keyboard(self, key):
-            if key == 'q':
-                self.done = True
-            if key == 'N':
-                from widgets import TextInputWidget
-                import string
-                self.name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: " )
-            self.lastKey = key
-
     import cursesui
-    cursesui.main( HelloWorldWidget )
+    from level import *
+    from widgets import *
+    from gamewidget import GameWidget
+
+    level = Map( 100, 50 )
+    level.doRectangle( makeWall, *innerRectangle( level ) )
+    level.doRectangle( makeFloor, *innerRectangle( level, 1 ) )
+    atman = Mobile( level.tiles[10,30], "at", "@", "green" )
+
+    cursesui.main( GameWidget, level = level, player = atman )
