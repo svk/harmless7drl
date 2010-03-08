@@ -6,7 +6,7 @@ def main( rootwidget ):
     from core import MainLoop
     rv = None
     try:
-        cui = CursesInterface()
+        cui = CursesInterface( debug=True )
         rv = MainLoop( cui ).query( rootwidget )
         cui.shutdown()
     except:
@@ -61,6 +61,9 @@ class CursesInterface:
         import string
         for ch in string.printable:
             self.keymap[ ord(ch) ] = ch
+        self.keymap[ 127 ] = 'backspace'
+        del self.keymap[ ord('\t') ] # hack because tab is bound to cause
+                                     # trouble in various text input stuff
     def setupColours(self):
         assert curses.has_colors()
         curses.start_color()
@@ -105,6 +108,7 @@ class CursesInterface:
         self.stdscr.refresh()
     def get(self):
         rv = self.stdscr.getch()
+        self.warn( "getch returned: %d" % rv )
         if rv == curses.KEY_RESIZE:
             raise ResizedException()
         if rv == curses.KEY_MOUSE:

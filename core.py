@@ -1,11 +1,13 @@
 class Widget:
-    def __init__(self):
+    def __init__(self, main = None, ui = None):
         self.done = False
         self.result = None
         self.hidden = False
+        self.main = main
+        self.ui = ui
     def focus(self):
         pass
-    def draw(self, ui):
+    def draw(self):
         pass
     def keyboard(self, key):
         pass
@@ -23,15 +25,14 @@ class MainLoop:
         self.ui.clear()
         for widget in self.widgets:
             if not widget.hidden:
-                widget.draw( self.ui )
+                widget.draw()
         self.ui.show()
     def resize(self):
         w, h = self.ui.dimensions()
         for widget in self.widgets:
             widget.resized( w, h )
     def query(self, widget, *args, **kwargs):
-        w = widget( *args, **kwargs )
-        w.main = self
+        w = widget( ui = self.ui, main = self, *args, **kwargs )
         self.widgets.append( w )
         while not w.done:
             self.draw()
@@ -51,16 +52,16 @@ class MainLoop:
 
 if __name__ == '__main__':
     class HelloWorldWidget ( Widget ):
-        def __init__(self):
-            Widget.__init__( self )
+        def __init__(self, *args, **kwargs):
+            Widget.__init__( self, *args, **kwargs )
             self.lastKey = None
             self.name = None
-        def draw(self, ui):
+        def draw(self):
             import time
-            ui.putString( 10, 10, "Hello world!" )
-            ui.putString( 10, 11, "Time: %lf" % time.time() )
-            ui.putString( 10, 12, "Last keypress: %s" % self.lastKey )
-            ui.putString( 10, 13, "Your name: %s" % self.name )
+            self.ui.putString( 10, 10, "Hello world!" )
+            self.ui.putString( 10, 11, "Time: %lf" % time.time() )
+            self.ui.putString( 10, 12, "Last keypress: %s" % self.lastKey )
+            self.ui.putString( 10, 13, "Your name: %s" % self.name )
         def keyboard(self, key):
             if key == 'q':
                 self.done = True
