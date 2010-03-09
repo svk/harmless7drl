@@ -1,0 +1,26 @@
+an algorithm based on rooms
+
+after rooms themselves, generated use classification to populate:
+    the room with the up-stairs is the entry room
+    select a few rooms as danger rooms, with traps and obstacles
+        -rivers (water, lava)
+        -outgoing doors hidden
+    rooms that are hidden behind dangers rooms may be selected
+    as
+        -treasure rooms, with more treasure than normal
+        -exit room, with the down-stairs
+    
+
+choose entry room
+do dijkstra, (a room is 1 unit)
+choose most distant, select.
+do dijkstra again with the new as origin.
+repea generating an ordering of rooms (non-entry)
+first room is exit room
+the next few are reward rooms
+all other rooms are danger rooms (environment traps)
+
+monsters are placed everywhere 
+mostly-worthless loot is also placed everywhere
+    (notably, empty chests -- can't recognize a
+     reward room on sight)
