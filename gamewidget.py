@@ -74,11 +74,15 @@ class GameWidget ( Widget ):
         self.tookAction( 1 )
     def tryMoveAttack(self, dx, dy):
         tile = self.player.tile.getRelative( dx, dy )
-        if not tile.cannotEnterBecause( self.player ):
-            self.player.moveto( tile )
-            self.tookAction( 1 )
+        if not tile:
+            # At some point I encounteded this. Fairly sure that shouldn't happen.
+            print "warning: tile not present"
         else:
-            self.log( "You can't move there because %s." % tile.cannotEnterBecause( self.player ) )
+            if not tile.cannotEnterBecause( self.player ):
+                self.player.moveto( tile )
+                self.tookAction( 1 )
+            else:
+                self.log( "You can't move there because %s." % tile.cannotEnterBecause( self.player ) )
     def pickup(self):
         if self.player.tile.items:
             if len( self.player.tile.items ) == 1:
