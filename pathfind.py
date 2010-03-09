@@ -19,11 +19,20 @@ class PathfindingNode:
         if rv == 0:
             return self.tiebreaker - that.tiebreaker
         return rv
-    def retrace(self, accumulator = []):
-        accumulator.append( self.current )
-        if self.prev:
-            return self.prev.retrace( accumulator )
-        return list( reversed( accumulator ) )
+    def retrace(self):
+        rv = []
+        n = self
+        while n:
+            rv.insert( 0, n.current )
+            n = n.prev
+        return rv
+### vvv Hardest bug yet! Still haven't quite understood why it breaks.
+#    def retrace(self, accumulator = []):
+#       accumulator.append( self.current )
+#       print>>sys.stderr, "retracing through", self.current
+#       if self.prev:
+#           return self.prev.retrace( accumulator )
+#       return list( reversed( accumulator ) )
 
 class Pathfinder:
     def __init__(self, cost, goal, heuristic, neighbours = lambda x : x.neighbours(), limit = None, tiebreaker = lambda tile: 0):
