@@ -1,3 +1,9 @@
+# This module is definitely misnamed; in addition to level data it contains
+# the Mobile class and the Item class, as well as the viewport that
+# displays the map on screen.
+
+# It does not and will not contain the level generator.
+
 from timing import Speed
 
 class Tile:
@@ -10,8 +16,11 @@ class Tile:
         self.bgColour = "black" # be careful setting this, need contrast
         self.impassable = True
         self.mobile = None
+        self.spawnItems = False
+        self.spawnMonsters = False
         self.level = level
         self.x, self.y = x, y
+        self.items = []
     def cannotEnterBecause(self, mobile):
         if self.impassable:
             return "tile is impassable"
@@ -29,9 +38,10 @@ class Tile:
             'fg': self.fgColour,
             'bg': self.bgColour,
         }
+        if self.items:
+            mergeAppearance( rv, self.items[-1].appearance() )
         if self.mobile:
-            for key, val in self.mobile.appearance().items():
-                rv[ key ] = val
+            mergeAppearance( rv, self.mobile.appearance() )
         return rv
     def getRelative(self, dx, dy):
         return self.level.get( self.x + dx, self.y + dy )
@@ -42,22 +52,28 @@ def makeFloor( tile ):
     tile.name = "floor"
     tile.symbol = "."
     tile.impassable = False
+    tile.spawnMonsters = True
+    tile.spawnItems = True
 
 def makeWall( tile ):
     tile.name = "wall"
     tile.symbol = "#"
     tile.impassable = True
+    tile.spawnMonsters = False
+    tile.spawnItems = False
 
 class Mobile:
-    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, sim = None, fgColour = 'white'):
+    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, sim = None, fgColour = 'white', bgColour = None):
         self.name = name
         self.symbol = symbol
         self.fgColour = fgColour
+        self.bgColour = bgColour
         self.tile = None
         self.moveto( tile )
         self.speed = speed
         self.sim = sim
         self.ai = ai
+        self.inventory = []
         if self.sim:
             self.schedule()
     def moveto(self, tile):
@@ -67,17 +83,34 @@ class Mobile:
         self.tile = tile
         self.tile.enters( self )
     def appearance(self):
-        return {
+        rv = {
             'ch': self.symbol,
             'fg': self.fgColour
         }
+        if self.bgColour:
+            rv[ 'bg' ] = self.bgColour
+        return rv
     def schedule(self):
         self.sim.schedule( self, self.sim.t + self.speed )
     def trigger(self, t):
         if self.ai:
             self.ai.trigger( self )
         self.sim.schedule( self, t + self.speed )
-        
+
+class Item:
+    def __init__(self, name, symbol, fgColour, bgColour = None):
+        self.name = name
+        self.symbol = symbol
+        self.fgColour = fgColour
+        self.bgColour = bgColour
+    def appearance(self):
+        rv = {
+            'ch': self.symbol,
+            'fg': self.fgColour
+        }
+        if self.bgColour:
+            rv[ 'bg' ] = self.bgColour
+        return rv
 
 class Map:
     def __init__(self, width, height):
@@ -103,15 +136,24 @@ class Map:
             return None
         return random.choice( choices )
     def spawnMobile(self, cls, *args, **kwargs):
-        # this is a hack: monster shouldn't spawn on a tile where it couldn't move
-        tile = self.randomTile( lambda tile : tile.mobile == None and not tile.impassable )
+        tile = self.randomTile( lambda tile : tile.spawnMonsters )
         assert tile != None
         rv = cls( tile, *args, **kwargs )
+        return rv
+    def spawnItem(self, cls, *args, **kwargs):
+        tile = self.randomTile( lambda tile : tile.spawnItems )
+        assert tile != None
+        rv = cls( *args, **kwargs )
+        tile.items.append( rv )
         return rv
         
 
 def innerRectangle( o, n = 0):
     return o.x0 + n, o.y0 + n, o.w - 2*n, o.h - 2*n
+
+def mergeAppearance( result, target ):
+    for key, val in target.items():
+        result[ key ] = val
 
 class Viewport:
     def __init__(self, level, window, visibility = lambda tile : True ):

@@ -47,14 +47,26 @@ class GameWidget ( Widget ):
             if not ev:
                 break
             ev.trigger()
+    def tookAction(self, weight):
+        self.advanceTime( self.player.speed * weight)
     def wait(self):
-        self.advanceTime( self.player.speed )
+        self.tookAction( 1 )
     def tryMoveAttack(self, dx, dy):
         tile = self.player.tile.getRelative( dx, dy )
         if not tile.cannotEnterBecause( self.player ):
             self.playervision = None
             self.player.moveto( tile )
-            self.advanceTime( self.player.speed )
+            self.tookAction( 1 )
+    def pickup(self):
+        if self.player.tile.items:
+            item = self.player.tile.items.pop()
+            self.player.inventory.append( item )
+            self.tookAction( 1 )
+    def drop(self):
+        if self.player.inventory:
+            item = self.player.inventory.pop()
+            self.player.tile.items.append( item )
+            self.tookAction( 1 )
     def keyboard(self, key):
         try:
             dx, dy = self.movementKeys[ key ]
@@ -62,8 +74,17 @@ class GameWidget ( Widget ):
             return
         except KeyError:
             pass
-        if key == '.':
-            self.wait()
+        try:
+            standardAction = None
+            standardAction = {
+                '.': self.wait,
+                ',': self.pickup,
+                'd': self.drop,
+            }[key]
+        except KeyError:
+            pass
+        if standardAction:
+            standardAction()
         elif key == 'q':
             self.done = True
         elif key == 'N':

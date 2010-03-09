@@ -69,6 +69,9 @@ if __name__ == '__main__':
     for i in range(5):
         level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", sim = sim, ai = HugBot(target = atman, radius = 10), speed = timing.Speed.Quick )
 
+    for i in range(5):
+        level.spawnItem( Item, name = "book", symbol = "[", fgColour = "white" )
+
     try:
         import cursesui
         main = cursesui.main
