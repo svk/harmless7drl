@@ -71,7 +71,7 @@ if __name__ == '__main__':
     context = GameContext()
 
     from levelgen import GeneratorQueue
-    context.levelGenerator = GeneratorQueue( 3, 100, 100 )
+    context.levelGenerator = GeneratorQueue( 1, 100, 100 )
     level = mapFromGenerator( context )
     try:
 
