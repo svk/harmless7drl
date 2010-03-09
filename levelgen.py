@@ -193,14 +193,11 @@ class LevelGenerator:
         for key in walls:
             if key not in endpoints:
                 if random.random() < probability:
-                    print "Converting wall to door at", x, y
                     x, y = random.choice( walls[key] )
                     self.data[y][x] = '+'
                     for end in endpoints:
                         end.nowConnectedTo( key )
                     endpoints.append( key )
-                else:
-                    print "NOT converting wall to door at", x, y
     def makeSerendipitousDoors(self, probability = 1.0):
         did = True
         while did:
@@ -236,7 +233,6 @@ class LevelGenerator:
         ox, oy = alpha.floorpoint()
         assert self.data[oy][ox] == '.'
         assert self.data[ty][tx] == '.'
-        print "Trying to dig hallway between", (ox,oy), (tx,ty)
         costs = {
             '!': infinity,
             '*': infinity,
@@ -265,7 +261,6 @@ class LevelGenerator:
         if not path:
             return False
         protect = []
-        print "Digging hallway:", path
         for x, y in path:
             self.data[y][x] = {
                 '#': '+',
