@@ -85,13 +85,25 @@ class GameWidget ( Widget ):
             self.log( "You can't move there because %s." % tile.cannotEnterBecause( self.player ) )
     def pickup(self):
         if self.player.tile.items:
-            item = self.player.tile.items.pop()
+            if len( self.player.tile.items ) == 1:
+                item = self.player.tile.items.pop()
+            else:
+                item = self.main.query( SelectionMenuWidget, choices = [
+                    (item, item.name) for item in self.player.tile.items
+                ] + [ (None, "nothing") ], title = "Pick up which item?", padding = 5 )
+                if not item:
+                    return
+                self.player.tile.items.remove( item )
             self.player.inventory.append( item )
-            for i in range(40):
-                self.log( "You pick up the %s (%d)." % (item.name,i) )
+            self.log( "You pick up the %s." % (item.name) )
             self.tookAction( 1 )
     def drop(self):
         if self.player.inventory:
+            item = self.main.query( SelectionMenuWidget, choices = [
+                (item, item.name) for item in self.player.inventory
+            ] + [ (None, "nothing") ], title = "Drop which item?", padding = 5 )
+            if not item:
+                return
             item = self.player.inventory.pop()
             self.player.tile.items.append( item )
             self.log( "You drop the %s." % item.name )
