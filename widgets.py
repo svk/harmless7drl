@@ -46,6 +46,13 @@ def centeredSubwindow( ui, w, h ):
     h = min( h, hei - y0 )
     return Subwindow( ui, x0, y0, w, h )
 
+class HitEnterWidget (Widget):
+    def __init__(self, *args, **kwargs):
+        Widget.__init__(self, *args, **kwargs)
+    def keyboard(self, key):
+        if key == '\n' or key == ' ':
+            self.done = True
+
 class TextInputWidget (Widget):
     def __init__(self, width, okay = string.printable, query = None, acceptEmpty = False, *args, **kwargs):
         Widget.__init__(self, *args, **kwargs)

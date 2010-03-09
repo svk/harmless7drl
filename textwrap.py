@@ -14,6 +14,8 @@ class TextWrapper:
         self.more = more
     def lastlinelength(self):
         return len( "".join( self.lastline ) )
+    def popPage(self):
+        return self.pages.pop(0)
     def centeredline(self, i):
         l = self.line( i )
         if l:
