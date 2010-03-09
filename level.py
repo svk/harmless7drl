@@ -194,5 +194,5 @@ class Viewport:
                 if tile and self.visibility( tile ):
                     outgoing = tile.appearance()
                 else:
-                    outgoing = { 'ch': ' ', 'fg': 'magenta', 'bg': 'magenta' }
+                    outgoing = { 'ch': ' ', 'fg': 'black', 'bg': 'black' }
                 self.window.put( x - x0, y - y0, **outgoing )
