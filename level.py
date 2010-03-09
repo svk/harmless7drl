@@ -65,6 +65,32 @@ class Tile:
             return True
         return self.hindersLOS
 
+def makeImpenetrableRock( tile ):
+    tile.name = "rock"
+    tile.symbol = "#"
+    tile.fgColour = "white"
+    tile.impassable = True
+    tile.spawnMonsters = False
+    tile.spawnItems = False
+    tile.hindersLOS = True
+
+def makeOpenDoor( tile ):
+    tile.name = "open door"
+    tile.symbol = "-"
+    tile.fgColour = "yellow"
+    tile.impassable = False
+    tile.spawnMonsters = False
+    tile.spawnItems = False
+    tile.hindersLOS = False
+
+def makeHallway( tile ):
+    tile.name = "passage floor"
+    tile.symbol = "."
+    tile.impassable = False
+    tile.spawnMonsters = False
+    tile.spawnItems = False
+    tile.hindersLOS = False
+
 def makeFloor( tile ):
     tile.name = "floor"
     tile.symbol = "."
@@ -179,7 +205,22 @@ class Map:
         rv = cls( *args, **kwargs )
         tile.items.append( rv )
         return rv
-        
+
+def mapFromGenerator( context, lg ):
+    rv = Map( context, lg.width, lg.height )
+    # Ror now just the cell data is used; do recall that the lg object
+    # also contains .rooms; these make up a graph that can be used to
+    # classify the rooms.
+    for x in range( lg.width ):
+        for y in range( lg.height ):
+            {
+                ' ': makeImpenetrableRock,
+                '+': makeOpenDoor,
+                'o': makeHallway,
+                '.': makeFloor,
+                '#': makeWall,
+            }[ lg.data[y][x] ]( rv.tiles[x,y] )
+    return rv
 
 def innerRectangle( o, n = 0):
     return o.x0 + n, o.y0 + n, o.w - 2*n, o.h - 2*n

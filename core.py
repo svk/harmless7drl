@@ -68,18 +68,17 @@ if __name__ == '__main__':
 
     context = GameContext()
 
-    level = Map( context, 100, 50 )
-    level.doRectangle( makeWall, *innerRectangle( level ) )
-    level.doRectangle( makeFloor, *innerRectangle( level, 1 ) )
-    level.doRectangle( makeWall, *innerRectangle( level, 20 ) )
+    from levelgen import generateLevel
+    lg = generateLevel( 100, 100 )
+    level = mapFromGenerator( context, lg )
 
     context.sim = Simulator() # might want this to follow level instead?
     context.player = level.spawnMobile( Mobile, "at", "@", fgColour = "green", speed = timing.Speed.Quick, context = context, noSchedule = True )
 
     for i in range(5):
         level.spawnMobile( Mobile, name = "monster", symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )
-#    for i in range(5):
-#       level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context, hindersLOS = True )
+    for i in range(5):
+       level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context, hindersLOS = True )
 
     for i in range(5):
         level.spawnItem( Item, name = "book", symbol = "[", fgColour = "white" )
