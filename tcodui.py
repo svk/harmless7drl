@@ -54,6 +54,7 @@ class TcodInterface:
             libtcod.KEY_HOME: 'northwest',
             libtcod.KEY_UP: 'north',
             libtcod.KEY_PAGEUP: 'northeast',
+            libtcod.KEY_ENTER: '\n',
         }
         libtcod.console_set_custom_font( self.font_name,
                                          libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
