@@ -34,6 +34,7 @@ class GameWidget ( Widget ):
         screenw, screenh = self.ui.dimensions()
         self.turnlogWrapper = TextWrapper( screenw, self.textfieldheight )
         self.turnlogLines = []
+        self.restrictVisionByFov = True
     def log(self, s):
         self.turnlogWrapper.feed( s + " " )
         while self.turnlogWrapper.pages:
@@ -53,7 +54,17 @@ class GameWidget ( Widget ):
         import time
         screenw, screenh = self.ui.dimensions()
         fov = self.player.fov()
-        vp = Viewport( level = self.player.tile.level, window = Subwindow( self.ui, 0, self.textfieldheight, screenw, screenh - self.textfieldheight ), visibility = lambda tile : (tile.x, tile.y) in fov )
+        if self.restrictVisionByFov:
+            visibility = lambda tile : (tile.x, tile.y) in fov
+        else:
+            visibility = lambda tile : True
+        vp = Viewport( level = self.player.tile.level,
+                       window = Subwindow( self.ui, 0,
+                       self.textfieldheight,
+                       screenw,
+                       screenh - self.textfieldheight ),
+                       visibility = visibility
+        )
         vp.paint( self.player.tile.x, self.player.tile.y )
         for i in range( self.textfieldheight ):
             try:
@@ -119,6 +130,26 @@ class GameWidget ( Widget ):
             closeDoor( door )
             self.log( "You close the door." )
             self.tookAction( 1 )
+    def goUp(self):
+        if self.player.tile.name == "stairs up":
+            if self.player.tile.level.previousLevel:
+                spot = self.player.tile.level.previousLevel.getPlayerSpawnSpot( upwards = True )
+                self.player.moveto( spot )
+                self.tookAction( 1 )
+            else:
+                self.log( "For unspecified plot reasons, you don't want to turn back." )
+        else:
+            self.log( "You can't see any way to go up right here." )
+    def goDown(self):
+        if self.player.tile.name == "stairs down":
+            if not self.player.tile.level.nextLevel:
+                self.player.tile.level.nextLevel = mapFromGenerator( self.context )
+                self.player.tile.level.nextLevel.previousLevel = self.player.tile.level
+            spot = self.player.tile.level.nextLevel.getPlayerSpawnSpot()
+            self.player.moveto( spot )
+            self.tookAction( 1 )
+        else:
+            self.log( "You can't see any way to go down right here." )
     def drop(self):
         if self.player.inventory:
             stacked = countItems( self.player.inventory )
@@ -146,6 +177,8 @@ class GameWidget ( Widget ):
                 ',': self.pickup,
                 'd': self.drop,
                 'c': self.closeDoor,
+                '>': self.goDown,
+                '<': self.goUp,
             }[key]
         except KeyError:
             pass
@@ -154,6 +187,8 @@ class GameWidget ( Widget ):
             standardAction()
         elif key == 'q':
             self.done = True
+        elif key == 'V':
+            self.restrictVisionByFov = not self.restrictVisionByFov
         elif key == 'T':
             newLevel = mapFromGenerator( self.context )
             self.player.moveto( newLevel.getPlayerSpawnSpot() )

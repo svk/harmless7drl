@@ -69,13 +69,20 @@ if __name__ == '__main__':
     import sys
 
     context = GameContext()
+    context.levels = []
 
     from levelgen import GeneratorQueue
     context.levelGenerator = GeneratorQueue( 2, 100, 100 )
-    level = mapFromGenerator( context )
     try:
+        level = mapFromGenerator( context )
 
-        context.player = level.spawnMobile( Mobile, ProperNoun("at"), "@", fgColour = "green", speed = timing.Speed.Quick, context = context, noSchedule = True )
+        context.player = Mobile( level.getPlayerSpawnSpot(),
+                                 ProperNoun( "Atman" ),
+                                 "@",
+                                 speed = Speed.Normal,
+                                 context = context,
+                                 fgColour = "green",
+                                 noSchedule = True )
 
         for i in range(5):
             level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )

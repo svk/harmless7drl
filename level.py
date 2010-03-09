@@ -97,11 +97,30 @@ def openDoor( tile ):
     # this is done by bumping so we don't need error messages
     assert tile.isDoor
     makeOpenDoor( tile )
+
+def makeStairsDown( tile ):
+    tile.name = "stairs down"
+    tile.symbol = ">"
+    tile.fgColour = "white"
+    tile.bgColour = "black"
+    tile.impassable = False
+    tile.spawnMonsters = False
+    tile.spawnItems = False
+    tile.level.stairsDown = tile
     
+def makeStairsUp( tile ):
+    tile.name = "stairs up"
+    tile.symbol = "<"
+    tile.fgColour = "white"
+    tile.bgColour = "black"
+    tile.impassable = False
+    tile.spawnMonsters = False
+    tile.spawnItems = False
+    tile.level.stairsUp = tile
 
 def makeImpenetrableRock( tile ):
     tile.name = "rock"
-    tile.symbol = "#"
+    tile.symbol = " "
     tile.fgColour = "white"
     tile.bgColour = "black"
     tile.impassable = True
@@ -164,7 +183,7 @@ def makeWall( tile ):
     tile.hindersLOS = True
 
 class Mobile:
-    def __init__(self, tile, name, symbol, sim, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False, hindersLOS = False):
+    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False, hindersLOS = False):
         self.name = name
         self.hindersLOS = hindersLOS
         self.context = context
@@ -175,7 +194,7 @@ class Mobile:
         self.scheduledAction = None
         self.speed = speed
         self.ai = ai
-        self.sim = sim
+        self.sim = tile.level.sim
         self.inventory = []
         self.noSchedule = noSchedule
         self.moveto( tile )
@@ -245,6 +264,8 @@ class Map:
         self.mobiles = []
         self.items = [] # NOTE: items on ground, not items kept in mobiles, containers or otherwise
         self.sim = timing.Simulator()
+        self.previousLevel = None
+        self.nextLevel = None
     def doRectangle(self, f, x0, y0, w, h):
         for x in range(x0, x0 + w):
             for y in range(y0, y0 + h):
@@ -263,7 +284,7 @@ class Map:
     def spawnMobile(self, cls, *args, **kwargs):
         tile = self.randomTile( lambda tile : tile.spawnMonsters and not tile.mobile )
         assert tile != None
-        rv = cls( tile, sim = self.sim, *args, **kwargs )
+        rv = cls( tile, *args, **kwargs )
         return rv
     def spawnItem(self, cls, *args, **kwargs):
         tile = self.randomTile( lambda tile : tile.spawnItems )
@@ -271,9 +292,18 @@ class Map:
         rv = cls( *args, **kwargs )
         tile.items.append( rv )
         return rv
-    def getPlayerSpawnSpot(self):
+    def getPlayerSpawnSpot(self, upwards = False):
         # around the stairs?
-        return self.randomTile( lambda tile: tile.spawnMonsters and not tile.mobile )
+        origin = self.stairsDown if upwards else self.stairsUp
+        from pathfind import Pathfinder, infinity
+        import math
+        pf = Pathfinder(cost = lambda tile : 1,
+                        goal = lambda tile : not tile.impassable and not tile.mobile,
+                        heuristic = lambda tile : 0,
+        )
+        pf.addOrigin( origin )
+        path = pf.seek()
+        return path[-1]
 
 def mapFromGenerator( context ):
     lg = context.levelGenerator.get()
@@ -290,6 +320,9 @@ def mapFromGenerator( context ):
                 '.': makeFloor,
                 '#': makeWall,
             }[ lg.data[y][x] ]( rv.tiles[x,y] )
+    makeStairsUp( rv.tiles[ lg.entryRoom.internalFloorpoint() ] )
+    makeStairsDown( rv.tiles[ lg.exitRoom.internalFloorpoint() ] )
+    context.levels.append( rv )
     return rv
 
 def innerRectangle( o, n = 0):

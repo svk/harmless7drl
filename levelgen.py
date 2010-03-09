@@ -1,6 +1,7 @@
 import random
 import sys
 import time
+from heapq import heappush, heappop
 
 class Rectangle:
     def __init__(self, x0, y0, w, h):
@@ -60,7 +61,10 @@ class LevelGenerator:
                         self.data[-1].append( rect.data[y-rect.y0][x-rect.x0] )
                         wrote = True
                 if not wrote:
-                    self.data[-1].append( '-' )
+                    if x == 0 or y == 0 or x + 1 == self.width or y + 1 == self.height:
+                        self.data[-1].append( '=' )
+                    else:
+                        self.data[-1].append( '-' )
     def generateRooms(self):
         rooms = self.rooms
         for rect in self.generateRectangles( 32, 44, 32, 44, 1, rooms ):
@@ -96,14 +100,15 @@ class LevelGenerator:
         self.makeSerendipitousDoors()
         self.makeEmptyDoorways(0.1)
         self.simplify()
+        self.designateRooms()
     def generateRectangles(self, minWidth, maxWidth, minHeight, maxHeight, tries, prevs = []):
         rv = []
         triesLeft = tries
         while triesLeft > 0:
             w = random.randint( minWidth, maxWidth )
             h = random.randint( minHeight, maxHeight )
-            x = random.randint( 0, self.width - w )
-            y = random.randint( 0, self.height - h )
+            x = random.randint( 1, self.width - w - 1)
+            y = random.randint( 1, self.height - h - 1)
             r = Rectangle( x, y, w, h )
             failed = False
             for rec in rv + prevs:
@@ -303,6 +308,48 @@ class LevelGenerator:
                 if t == '-':
                     self.data[y+dy][x+dx] = '='
         return True
+    def generateRoomOrdering(self):
+        import copy
+        rooms = [ room for room in self.rooms if not room.vault ]
+        entryRoom = random.choice( rooms )
+        rooms.remove( entryRoom )
+        for room in rooms:
+            room.distance = 2**31
+        def exploreFrom( node ):
+            v = set()
+            q = []
+            node.distance = 0
+            heappush( q, (node.distance,node) )
+            while q:
+                dist, node = heappop( q )
+                for next in node.connections:
+                    if dist + 1 < next.distance:    
+                        next.distance = dist + 1
+                        heappush( q, (next.distance, next) )
+        exploreFrom( entryRoom )
+        ordered = []
+        while rooms:
+            rooms.sort( key = lambda v : v.distance )
+            distantRoom = rooms.pop()
+            exploreFrom( distantRoom )
+            ordered.append( distantRoom )
+        return entryRoom, ordered[0], ordered[1:]
+    def designateRooms(self):
+        maxRewardsRooms = 3
+        entry, exit, rewards = self.generateRoomOrdering()
+        noRewards = random.randint( 1, min( len( rewards ), 3 ))
+        danger = rewards[noRewards:]
+        rewards = rewards[:noRewards]
+        entry.role = 'entry'
+        exit.role = 'exit'
+        self.rewardRooms = rewards + [room for room in self.rooms if room.vault ]
+        for room in rewards:
+            room.role = 'reward'
+        for room in danger:
+            room.role = 'danger'
+        self.dangerRooms = danger
+        self.entryRoom = entry
+        self.exitRoom = exit
 
 class Room (Rectangle):
     def __init__(self, x0, y0, w, h, bigRoom = False, vault = False):
@@ -319,6 +366,18 @@ class Room (Rectangle):
             y = random.randint( 0, self.h - 1)
             if self.data[y][x] == '.':
                 return x + self.x0,y + self.y0
+    def internalFloorpoint(self):
+        nbs = [ (0,1), (1,0), (-1,0), (0,-1) ] + [ (1,1), (1,-1), (-1,1), (-1,-1) ]
+        while True:
+            x = random.randint( 0, self.w - 1)
+            y = random.randint( 0, self.h - 1)
+            if self.data[y][x] == '.':
+                noninternal = False
+                for dx, dy in nbs:
+                    if self.data[y+dy][x+dx] != '.':
+                        noninternal = True
+                if not noninternal:
+                    return x + self.x0,y + self.y0
     def createData(self):
         self.data = [ [ '.' for j in range(self.w) ] for i in range(self.h) ]
     def makeRectangular(self):
@@ -483,7 +542,8 @@ class GeneratorQueue (Queue.Queue):
         self.thread.start()
     def shutdown(self):
         self.thread.go = False
-        self.get() # epic hack
+        if not self.empty():
+            self.get() # epic hack
         self.thread.join()
 
 if __name__ == '__main__':
