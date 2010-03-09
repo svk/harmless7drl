@@ -158,7 +158,7 @@ class Map:
             return None
         return random.choice( choices )
     def spawnMobile(self, cls, *args, **kwargs):
-        tile = self.randomTile( lambda tile : tile.spawnMonsters )
+        tile = self.randomTile( lambda tile : tile.spawnMonsters and not tile.mobile )
         assert tile != None
         rv = cls( tile, *args, **kwargs )
         return rv

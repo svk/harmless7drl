@@ -5,6 +5,8 @@ def blinkphase(n = 2, phaselength = 0.5):
     import time
     return int( (time.time() % (n * phaselength)) / phaselength )
 
+PrimaryColour = 'white'
+SecondaryColour = 'blue'
 
 class ClippedException: pass
 
@@ -65,8 +67,8 @@ class TextInputWidget (Widget):
     def resize(self, w = None, h = None):
         self.dialog = centeredSubwindow( self.ui, self.width + 3, self.height )
     def draw(self):
-        bg = 'blue' # Swedish national text input dialog
-        fg = 'yellow'
+        bg = PrimaryColour
+        fg = SecondaryColour
         self.dialog.decorate( fg, bg )
         y = 1
         if self.query:
@@ -87,3 +89,45 @@ class TextInputWidget (Widget):
             elif key in self.okay:
                 if len( self.data ) < self.width:
                     self.data.append( key )
+
+class SelectionMenuWidget (Widget):
+    def __init__(self, choices = [], title = None, padding = 0, *args, **kwargs):
+        Widget.__init__(self, *args, **kwargs)
+        self.title = title
+        self.choices = choices # symbol, description
+        self.selection = 0
+        self.width = max( map( lambda syde : len(syde[1]), self.choices ) )
+        self.xoffset = 2
+        if self.title:
+            self.yoffset = 2
+            self.width = max( len(self.title), self.width )
+        else:
+            self.yoffset = 1
+        self.width += self.xoffset + 1
+        self.width += padding
+        self.height = len( self.choices ) + 1 + self.yoffset
+        self.resize()
+    def resize(self, w = None, h = None):
+        self.dialog = centeredSubwindow( self.ui, self.width, self.height )
+    def keyboard(self, key):
+        if key == 'north':
+            self.selection = max( 0, self.selection - 1 )
+        elif key == 'south':
+            self.selection = min( len(self.choices) - 1, self.selection + 1 )
+        elif key == '\n':
+            sym, desc = self.choices[ self.selection ]
+            self.result = sym
+            self.done = True
+    def draw(self):
+        bg = PrimaryColour
+        fg = SecondaryColour
+        self.dialog.decorate( fg, bg )
+        i = 0
+        if self.width:
+            self.dialog.putString( 1, 1, self.title.center( self.width - 2 ), fg, bg )
+        for sym, desc in self.choices:
+            bga, fga = bg, fg
+            if i == self.selection:
+                bga, fga = fg, bg
+            self.dialog.putString( self.xoffset, i + self.yoffset, desc, fga, bga )
+            i += 1

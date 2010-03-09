@@ -134,3 +134,12 @@ class GameWidget ( Widget ):
             if path:
                 for tile in path:
                     tile.fgColour = "blue"
+        elif key == 'M':
+            self.main.query( SelectionMenuWidget, [
+                (1, "Team Cake"),
+                (2, "Team Pie"),
+                (3, "Team Edward"),
+                (4, "Team Jacob"),
+                (5, "Team Bella"),
+                (6, "Team Buffy"),
+            ], title = "Choose your team", padding = 5)
