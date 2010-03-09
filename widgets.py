@@ -48,6 +48,34 @@ def centeredSubwindow( ui, w, h ):
     h = min( h, hei - y0 )
     return Subwindow( ui, x0, y0, w, h )
 
+class DirectionWidget (Widget):
+    def __init__(self, *args, **kwargs):
+        Widget.__init__(self, *args, **kwargs)
+        self.movementKeys = { # authoritative in gamewidget.py
+            'h': (-1, 0),
+            'l': (1, 0),
+            'j': (0, 1),
+            'k': (0, -1),
+            'y': (-1, -1),
+            'u': (1, -1),
+            'b': (-1, 1),
+            'n': (1, 1),
+            'west': (-1, 0),
+            'east': (1, 0),
+            'south': (0, 1),
+            'north': (0, -1),
+            'northwest': (-1, -1),
+            'northeast': (1, -1),
+            'southwest': (-1, 1),
+            'southeast': (1, 1),
+        }
+    def keyboard(self, key):
+        try:
+            self.result = self.movementKeys[key]
+            self.done = True
+        except KeyError:
+            pass
+
 class HitEnterWidget (Widget):
     def __init__(self, *args, **kwargs):
         Widget.__init__(self, *args, **kwargs)

@@ -81,6 +81,10 @@ class GameWidget ( Widget ):
             if not tile.cannotEnterBecause( self.player ):
                 self.player.moveto( tile )
                 self.tookAction( 1 )
+            elif tile.isDoor and tile.doorState == "closed":
+                self.log( "You open the door." )
+                openDoor( tile )
+                self.tookAction( 1 )
             else:
                 self.log( "You can't move there because %s." % tile.cannotEnterBecause( self.player ) )
     def pickup(self):
@@ -96,6 +100,23 @@ class GameWidget ( Widget ):
                 self.player.tile.items.remove( item )
             self.player.inventory.append( item )
             self.log( "You pick up the %s." % (item.name) )
+            self.tookAction( 1 )
+    def closeDoor(self):
+        eligibleDoors = [ n for n in self.player.tile.neighbours() if not cannotCloseDoorBecause(n) ]
+        if not eligibleDoors:
+            self.log( "There's no open door within reach." )
+        else:
+            if len( eligibleDoors ) > 1:
+                self.log( "Which door?" )
+                dx, dy = self.main.query( DirectionWidget )
+                door = self.player.tile.getRelative( dx, dy )
+                if cannotCloseDoorBecause( door ):
+                    self.log( "That's not an open door." )
+                    return
+            else:
+                door = eligibleDoors[-1]
+            closeDoor( door )
+            self.log( "You close the door." )
             self.tookAction( 1 )
     def drop(self):
         if self.player.inventory:
@@ -122,6 +143,7 @@ class GameWidget ( Widget ):
                 '.': self.wait,
                 ',': self.pickup,
                 'd': self.drop,
+                'c': self.closeDoor,
             }[key]
         except KeyError:
             pass

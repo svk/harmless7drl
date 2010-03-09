@@ -4,6 +4,7 @@
 
 # It does not and will not contain the level generator.
 
+import random
 from timing import Speed
 
 class Tile:
@@ -20,6 +21,7 @@ class Tile:
         self.spawnMonsters = False
         self.hindersLOS = True
         self.level = level
+        self.isDoor = False
         self.context = context
         self.x, self.y = x, y
         self.items = []
@@ -65,27 +67,66 @@ class Tile:
             return True
         return self.hindersLOS
 
+def cannotCloseDoorBecause( tile ):
+    if not tile.isDoor:
+        return "there's no door there"
+    if tile.doorState != "open":
+        return "it's already closed"
+    if tile.items:
+        return "there's something in the way"
+    if tile.mobile:
+        return "there's a creature in the way"
+    return ""
+
+def closeDoor( tile ):
+    assert not cannotCloseDoorBecause( tile )
+    makeClosedDoor( tile )
+
+def openDoor( tile ):
+    # this is done by bumping so we don't need error messages
+    assert tile.isDoor
+    makeOpenDoor( tile )
+    
+
 def makeImpenetrableRock( tile ):
     tile.name = "rock"
     tile.symbol = "#"
     tile.fgColour = "white"
+    tile.bgColour = "black"
     tile.impassable = True
     tile.spawnMonsters = False
     tile.spawnItems = False
     tile.hindersLOS = True
 
+def makeClosedDoor( tile ):
+    tile.name = "closed door"
+    tile.symbol = "+"
+    tile.fgColour = "black"
+    tile.bgColour = "yellow"
+    tile.impassable = True
+    tile.spawnMonsters = False
+    tile.spawnItems = False
+    tile.hindersLOS = True
+    tile.isDoor = True
+    tile.doorState = "closed"
+
 def makeOpenDoor( tile ):
     tile.name = "open door"
-    tile.symbol = "-"
+    tile.symbol = "+"
     tile.fgColour = "yellow"
+    tile.bgColour = "black"
     tile.impassable = False
     tile.spawnMonsters = False
     tile.spawnItems = False
     tile.hindersLOS = False
+    tile.isDoor = True
+    tile.doorState = "open"
 
 def makeHallway( tile ):
     tile.name = "passage floor"
     tile.symbol = "."
+    tile.fgColour = "white"
+    tile.bgColour = "black"
     tile.impassable = False
     tile.spawnMonsters = False
     tile.spawnItems = False
@@ -94,6 +135,8 @@ def makeHallway( tile ):
 def makeFloor( tile ):
     tile.name = "floor"
     tile.symbol = "."
+    tile.fgColour = "white"
+    tile.bgColour = "black"
     tile.impassable = False
     tile.spawnMonsters = True
     tile.spawnItems = True
@@ -102,6 +145,8 @@ def makeFloor( tile ):
 def makeWall( tile ):
     tile.name = "wall"
     tile.symbol = "#"
+    tile.fgColour = "white"
+    tile.bgColour = "black"
     tile.impassable = True
     tile.spawnMonsters = False
     tile.spawnItems = False
@@ -215,7 +260,7 @@ def mapFromGenerator( context, lg ):
         for y in range( lg.height ):
             {
                 ' ': makeImpenetrableRock,
-                '+': makeOpenDoor,
+                '+': lambda tile: makeOpenDoor(tile) if random.random() > 0.5 else makeClosedDoor(tile),
                 'o': makeHallway,
                 '.': makeFloor,
                 '#': makeWall,
