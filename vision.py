@@ -133,10 +133,13 @@ class VisionField:
             maxa = fromRadians( atan2( -(2 * ry + ey), 2 * rx + ex ) )
             if light.endIs( maxa ):
                 tile = next.getRelative( *self.passOrderings[qxqy][-1] )
-                self.q.append( tile )
+                if tile:
+                    self.q.append( tile )
             return
         for dx, dy in self.passOrderings[qxqy]:
             tile = next.getRelative( dx, dy )
+            if not tile:
+                continue
             assert (tile.x, tile.y) not in self.visible
             self.passLight( tile, light )
     def passLight(self, tile, lightIn):
