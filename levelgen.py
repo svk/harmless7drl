@@ -366,9 +366,10 @@ class Room (Rectangle):
             y = random.randint( 0, self.h - 1)
             if self.data[y][x] == '.':
                 return x + self.x0,y + self.y0
-    def internalFloorpoint(self):
+    def internalFloorpoint(self, tries = 100):
         nbs = [ (0,1), (1,0), (-1,0), (0,-1) ] + [ (1,1), (1,-1), (-1,1), (-1,-1) ]
-        while True:
+        while tries > 0:
+            tries -= 1
             x = random.randint( 0, self.w - 1)
             y = random.randint( 0, self.h - 1)
             if self.data[y][x] == '.':
@@ -378,6 +379,7 @@ class Room (Rectangle):
                         noninternal = True
                 if not noninternal:
                     return x + self.x0,y + self.y0
+        return self.floorpoint()
     def createData(self):
         self.data = [ [ '.' for j in range(self.w) ] for i in range(self.h) ]
     def makeRectangular(self):
