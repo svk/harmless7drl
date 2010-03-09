@@ -460,9 +460,9 @@ class GeneratorThread( threading.Thread ):
         lg = generateLevel( *self.args, **self.kwargs )
         self.q.put( lg )
         while self.go:
-            print "generating.."
-            lg = generateLevel( delay = lambda : time.sleep( 0.00001 ), *self.args, **self.kwargs )
-            print "done."
+            print>>sys.stderr, "generating.."
+            lg = generateLevel( delay = None, *self.args, **self.kwargs )
+            print>>sys.stderr, "done."
             self.q.put( lg )
 
 class GeneratorQueue (Queue.Queue):
