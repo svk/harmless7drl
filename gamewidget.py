@@ -5,12 +5,13 @@ from textwrap import TextWrapper
 import timing
 
 class GameWidget ( Widget ):
-    def __init__(self, level, player, sim, *args, **kwargs):
+    def __init__(self, level, context, *args, **kwargs):
         Widget.__init__( self, *args, **kwargs )
         self.name = None
         self.level = level
-        self.player = player
-        self.sim = sim
+        self.player = context.player
+        self.sim = context.sim
+        context.game = self
         self.movementKeys = {
             'h': (-1, 0),
             'l': (1, 0),
@@ -72,11 +73,9 @@ class GameWidget ( Widget ):
     def tookAction(self, weight):
         self.advanceTime( self.player.speed * weight )
     def wait(self):
-        self.clearlog()
         self.log( "You wait." )
         self.tookAction( 1 )
     def tryMoveAttack(self, dx, dy):
-        self.clearlog()
         tile = self.player.tile.getRelative( dx, dy )
         if not tile.cannotEnterBecause( self.player ):
             self.playervision = None
@@ -85,7 +84,6 @@ class GameWidget ( Widget ):
         else:
             self.log( "You can't move there because %s." % tile.cannotEnterBecause( self.player ) )
     def pickup(self):
-        self.clearlog()
         if self.player.tile.items:
             item = self.player.tile.items.pop()
             self.player.inventory.append( item )
@@ -101,6 +99,7 @@ class GameWidget ( Widget ):
     def keyboard(self, key):
         try:
             dx, dy = self.movementKeys[ key ]
+            self.clearlog()
             self.tryMoveAttack( dx, dy )
             return
         except KeyError:
@@ -115,6 +114,7 @@ class GameWidget ( Widget ):
         except KeyError:
             pass
         if standardAction:
+            self.clearlog()
             standardAction()
         elif key == 'q':
             self.done = True

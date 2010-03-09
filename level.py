@@ -63,7 +63,7 @@ def makeWall( tile ):
     tile.spawnItems = False
 
 class Mobile:
-    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, sim = None, fgColour = 'white', bgColour = None):
+    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False):
         self.name = name
         self.symbol = symbol
         self.fgColour = fgColour
@@ -71,11 +71,12 @@ class Mobile:
         self.tile = None
         self.moveto( tile )
         self.speed = speed
-        self.sim = sim
         self.ai = ai
+        self.sim = context.sim
+        self.context = context
         self.inventory = []
-        if self.sim:
-            self.schedule()
+        self.noSchedule = noSchedule
+        self.schedule()
     def moveto(self, tile):
         if self.tile:
             self.tile.leaves()
@@ -91,7 +92,8 @@ class Mobile:
             rv[ 'bg' ] = self.bgColour
         return rv
     def schedule(self):
-        self.sim.schedule( self, self.sim.t + self.speed )
+        if not self.noSchedule:
+            self.sim.schedule( self, self.sim.t + self.speed )
     def trigger(self, t):
         if self.ai:
             self.ai.trigger( self )

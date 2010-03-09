@@ -17,6 +17,14 @@ class Widget:
 class ResizedException:
     pass
 
+class GameContext:
+    def log(self, s):
+        try:
+            self.game.log( s )
+        except AttributeError:
+            pass
+    
+
 class MainLoop:
     def __init__(self, ui):
         self.widgets = []
@@ -62,12 +70,15 @@ if __name__ == '__main__':
     level.doRectangle( makeWall, *innerRectangle( level ) )
     level.doRectangle( makeFloor, *innerRectangle( level, 1 ) )
     level.doRectangle( makeWall, *innerRectangle( level, 20 ) )
-    sim = Simulator()
-    atman = level.spawnMobile( Mobile, "at", "@", fgColour = "green", speed = timing.Speed.Quick )
+
+    context = GameContext()
+    context.sim = Simulator() # might want this to follow level instead?
+    context.player = level.spawnMobile( Mobile, "at", "@", fgColour = "green", speed = timing.Speed.Quick, context = context, noSchedule = True )
+
     for i in range(5):
-        level.spawnMobile( Mobile, name = "monster", symbol = "x", fgColour = "red", sim = sim, ai = RandomWalker() )
+        level.spawnMobile( Mobile, name = "monster", symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )
     for i in range(5):
-        level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", sim = sim, ai = HugBot(target = atman, radius = 10), speed = timing.Speed.Quick )
+        level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context )
 
     for i in range(5):
         level.spawnItem( Item, name = "book", symbol = "[", fgColour = "white" )
@@ -78,4 +89,4 @@ if __name__ == '__main__':
     except ImportError:
         import tcodui
         main = tcodui.main
-    main( GameWidget, level = level, player = atman, sim = sim )
+    main( GameWidget, level = level, context = context )
