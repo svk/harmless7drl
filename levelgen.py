@@ -451,6 +451,9 @@ def generateLevel(width, height, delay = None ):
 
 import Queue
 import threading
+class ShutdownException:
+    pass
+
 class GeneratorThread( threading.Thread ):
     def __init__(self, q):
         threading.Thread.__init__(self)
@@ -459,9 +462,15 @@ class GeneratorThread( threading.Thread ):
     def run(self):
         lg = generateLevel( *self.args, **self.kwargs )
         self.q.put( lg )
+        def raiseOnShutdown():
+            if not self.go:
+                raise ShutdownException
         while self.go:
             print>>sys.stderr, "generating.."
-            lg = generateLevel( delay = None, *self.args, **self.kwargs )
+            try:
+                lg = generateLevel( delay = raiseOnShutdown, *self.args, **self.kwargs )
+            except ShutdownException:
+                break
             print>>sys.stderr, "done."
             self.q.put( lg )
 
