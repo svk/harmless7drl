@@ -135,7 +135,8 @@ class GameWidget ( Widget ):
             import math
             pf = Pathfinder(cost = lambda tile : infinity if tile.cannotEnterBecause( self.player ) else 1,
                             goal = lambda tile : tile.x == 5 and tile.y == 5,
-                            heuristic = lambda tile : max( abs( tile.x - 5 ), abs( tile.y - 5 ) )
+                            heuristic = lambda tile : max( abs( tile.x - 5 ), abs( tile.y - 5 ) ),
+                            tiebreaker = lambda tile : (tile.x - 5)**2 + (tile.y - 5)**2,
             )
             pf.addOrigin( self.player.tile )
             path = pf.seek()

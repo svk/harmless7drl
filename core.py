@@ -78,8 +78,8 @@ if __name__ == '__main__':
 
     for i in range(5):
         level.spawnMobile( Mobile, name = "monster", symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )
-    for i in range(5):
-        level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context, hindersLOS = True )
+#    for i in range(5):
+#       level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context, hindersLOS = True )
 
     for i in range(5):
         level.spawnItem( Item, name = "book", symbol = "[", fgColour = "white" )
