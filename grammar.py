@@ -53,6 +53,8 @@ class Noun:
         if self.the:
             return " ".join( [ "the", self.singular ] )
         return self.singular
+    def __str__(self):
+        return self.singular
 
 class ProperNoun ( Noun ):
     def __init__(self, name ):
