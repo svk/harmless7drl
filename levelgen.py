@@ -446,17 +446,38 @@ def generateLevel(width, height):
         except AgainException:
             print  >> sys.stderr, "warning: regenerating level -- should be unlikely"
 
+import Queue
+import thread
+class GeneratorThread (Queue.Queue):
+    def __init__(self, buffer, *args, **kwargs):
+        Queue.Queue.__init__(self, buffer)
+        self.args = args
+        self.kwargs = kwargs
+        thread.start_new_thread( self.work, () )
+    def work(self):
+        while True:
+            lg = generateLevel( *self.args, **self.kwargs )
+            self.put( lg )
+
 if __name__ == '__main__':
     import time
+    generator = GeneratorThread( 2, 100, 100 )
     times = []
+    print "Sleeping for 60 seconds to let the generator work.."
+    time.sleep( 60 )
+    t0 = time.time()
     while True:
-        t0 = time.time()
-        lg = generateLevel( 100, 100 )
+        lg = None
+        try:
+            lg = generator.get( timeout = 1.0 )
+        except Queue.Empty:
+            print "Waiting for level..."
+            continue
         dt = time.time() - t0
+        t0 = time.time()
         for line in lg.data:
             print "".join( line )
         times.append( dt )
         print "Generated in", dt, "seconds"
         print "Average", sum(times) / float( len( times ) ), "seconds"
         print "Maximum", max(times), "seconds"
-        
