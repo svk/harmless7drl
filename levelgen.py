@@ -447,17 +447,27 @@ def generateLevel(width, height):
             print  >> sys.stderr, "warning: regenerating level -- should be unlikely"
 
 import Queue
-import thread
-class GeneratorThread (Queue.Queue):
+import threading
+class GeneratorThread( threading.Thread ):
+    def __init__(self, q):
+        threading.Thread.__init__(self)
+        self.q = q
+        self.go = True
+    def run(self):
+        while self.go:
+            lg = generateLevel( *self.args, **self.kwargs )
+            self.q.put( lg )
+
+class GeneratorQueue (Queue.Queue):
     def __init__(self, buffer, *args, **kwargs):
         Queue.Queue.__init__(self, buffer)
-        self.args = args
-        self.kwargs = kwargs
-        thread.start_new_thread( self.work, () )
-    def work(self):
-        while True:
-            lg = generateLevel( *self.args, **self.kwargs )
-            self.put( lg )
+        self.thread = GeneratorThread( self )
+        self.thread.args = args
+        self.thread.kwargs = kwargs
+        self.thread.start()
+    def shutdown(self):
+        self.thread.go = False
+        self.thread.join()
 
 if __name__ == '__main__':
     import time

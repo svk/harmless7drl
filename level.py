@@ -6,6 +6,7 @@
 
 import random
 from timing import Speed
+import timing
 
 def countItems( l ):
     rv = {}
@@ -163,7 +164,7 @@ def makeWall( tile ):
     tile.hindersLOS = True
 
 class Mobile:
-    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False, hindersLOS = False):
+    def __init__(self, tile, name, symbol, sim, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False, hindersLOS = False):
         self.name = name
         self.hindersLOS = hindersLOS
         self.context = context
@@ -174,7 +175,7 @@ class Mobile:
         self.moveto( tile )
         self.speed = speed
         self.ai = ai
-        self.sim = context.sim
+        self.sim = sim
         self.inventory = []
         self.noSchedule = noSchedule
         self.schedule()
@@ -234,6 +235,9 @@ class Map:
         for i in range(self.w):
             for j in range(self.h):
                 self.tiles[i,j] = Tile(context,self, i,j)
+        self.mobiles = []
+        self.items = [] # NOTE: items on ground, not items kept in mobiles, containers or otherwise
+        self.sim = timing.Simulator()
     def doRectangle(self, f, x0, y0, w, h):
         for x in range(x0, x0 + w):
             for y in range(y0, y0 + h):
@@ -252,7 +256,7 @@ class Map:
     def spawnMobile(self, cls, *args, **kwargs):
         tile = self.randomTile( lambda tile : tile.spawnMonsters and not tile.mobile )
         assert tile != None
-        rv = cls( tile, *args, **kwargs )
+        rv = cls( tile, sim = self.sim, *args, **kwargs )
         return rv
     def spawnItem(self, cls, *args, **kwargs):
         tile = self.randomTile( lambda tile : tile.spawnItems )
@@ -261,7 +265,8 @@ class Map:
         tile.items.append( rv )
         return rv
 
-def mapFromGenerator( context, lg ):
+def mapFromGenerator( context ):
+    lg = context.levelGenerator.get()
     rv = Map( context, lg.width, lg.height )
     # Ror now just the cell data is used; do recall that the lg object
     # also contains .rooms; these make up a graph that can be used to

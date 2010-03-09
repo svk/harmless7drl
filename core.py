@@ -66,14 +66,14 @@ if __name__ == '__main__':
     from ai import *
     import timing
     from grammar import Noun, ProperNoun
+    import sys
 
     context = GameContext()
 
-    from levelgen import generateLevel
-    lg = generateLevel( 100, 100 )
-    level = mapFromGenerator( context, lg )
+    from levelgen import GeneratorQueue
+    context.levelGenerator = GeneratorQueue( 3, 100, 100 )
+    level = mapFromGenerator( context )
 
-    context.sim = Simulator() # might want this to follow level instead?
     context.player = level.spawnMobile( Mobile, ProperNoun("at"), "@", fgColour = "green", speed = timing.Speed.Quick, context = context, noSchedule = True )
 
     for i in range(5):
@@ -90,4 +90,5 @@ if __name__ == '__main__':
     except ImportError:
         import tcodui
         main = tcodui.main
-    main( GameWidget, level = level, context = context )
+    main( GameWidget, context = context )
+    context.levelGenerator.shutdown()

@@ -6,12 +6,10 @@ from grammar import *
 import timing
 
 class GameWidget ( Widget ):
-    def __init__(self, level, context, *args, **kwargs):
+    def __init__(self, context, *args, **kwargs):
         Widget.__init__( self, *args, **kwargs )
         self.name = None
-        self.level = level
         self.player = context.player
-        self.sim = context.sim
         context.game = self
         self.movementKeys = {
             'h': (-1, 0),
@@ -54,7 +52,7 @@ class GameWidget ( Widget ):
         import time
         screenw, screenh = self.ui.dimensions()
         fov = self.player.fov()
-        vp = Viewport( level = self.level, window = Subwindow( self.ui, 0, self.textfieldheight, screenw, screenh - self.textfieldheight ), visibility = lambda tile : (tile.x, tile.y) in fov )
+        vp = Viewport( level = self.player.tile.level, window = Subwindow( self.ui, 0, self.textfieldheight, screenw, screenh - self.textfieldheight ), visibility = lambda tile : (tile.x, tile.y) in fov )
         vp.paint( self.player.tile.x, self.player.tile.y )
         for i in range( self.textfieldheight ):
             try:
@@ -62,9 +60,9 @@ class GameWidget ( Widget ):
             except IndexError:
                 pass
     def advanceTime(self, dt):
-        self.sim.advance( dt )
+        self.player.tile.level.sim.advance( dt )
         while True:
-            ev = self.sim.next()
+            ev = self.player.tile.level.sim.next()
             if not ev:
                 break
             ev.trigger()
