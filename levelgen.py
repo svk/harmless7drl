@@ -467,6 +467,7 @@ class GeneratorQueue (Queue.Queue):
         self.thread.start()
     def shutdown(self):
         self.thread.go = False
+        self.get() # epic hack
         self.thread.join()
 
 if __name__ == '__main__':

@@ -11,6 +11,7 @@ class GameWidget ( Widget ):
         self.name = None
         self.player = context.player
         context.game = self
+        self.context = context
         self.movementKeys = {
             'h': (-1, 0),
             'l': (1, 0),
@@ -153,6 +154,9 @@ class GameWidget ( Widget ):
             standardAction()
         elif key == 'q':
             self.done = True
+        elif key == 'T':
+            newLevel = mapFromGenerator( self.context )
+            self.player.moveto( newLevel.getPlayerSpawnSpot() )
         elif key == 'N':
             from widgets import TextInputWidget
             import string

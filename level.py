@@ -172,18 +172,25 @@ class Mobile:
         self.fgColour = fgColour
         self.bgColour = bgColour
         self.tile = None
-        self.moveto( tile )
+        self.scheduledAction = None
         self.speed = speed
         self.ai = ai
         self.sim = sim
         self.inventory = []
         self.noSchedule = noSchedule
+        self.moveto( tile )
         self.schedule()
     def moveto(self, tile):
+        assert not tile.cannotEnterBecause( self )
         if self.tile:
             self.tile.leaves()
-        assert not tile.cannotEnterBecause( self )
-        self.tile = tile
+        if not self.tile or self.tile.level != tile.level:
+            if self.scheduledAction:
+                self.scheduledAction.cancel()
+            self.tile = tile
+            self.schedule()
+        else:
+            self.tile = tile
         self.tile.enters( self )
         if self.isPlayer():
             self.tile.describeHere()
@@ -202,11 +209,11 @@ class Mobile:
         return rv
     def schedule(self):
         if not self.noSchedule:
-            self.sim.schedule( self, self.sim.t + self.speed )
+            self.tile.level.sim.schedule( self, self.sim.t + self.speed )
     def trigger(self, t):
         if self.ai:
             self.ai.trigger( self )
-        self.sim.schedule( self, t + self.speed )
+        self.tile.level.sim.schedule( self, t + self.speed )
     def fov(self, radius = None):
         from vision import VisionField
         return VisionField( self.tile, lambda tile : tile.opaque() ).visible
@@ -264,6 +271,9 @@ class Map:
         rv = cls( *args, **kwargs )
         tile.items.append( rv )
         return rv
+    def getPlayerSpawnSpot(self):
+        # around the stairs?
+        return self.randomTile( lambda tile: tile.spawnMonsters and not tile.mobile )
 
 def mapFromGenerator( context ):
     lg = context.levelGenerator.get()
