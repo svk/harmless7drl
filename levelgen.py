@@ -44,11 +44,13 @@ class LevelGenerator:
         self.width = width
         self.height = height
         self.rooms = []
+        self.hallwayLimit = 10 * (width + height)/2.0
+        self.generate()
     def generateProtomap(self):
         self.data = []
-        for y in range(h):
+        for y in range(self.height):
             self.data.append( [] )
-            for x in range(w):
+            for x in range(self.width):
                 wrote = False
                 for rect in self.rooms:
                     if rect.contains( x, y ):
@@ -59,9 +61,9 @@ class LevelGenerator:
                     self.data[-1].append( '-' )
     def generateRooms(self):
         rooms = self.rooms
-        for rect in lg.generateRectangles( 32, 44, 32, 44, 1, rooms ):
+        for rect in self.generateRectangles( 32, 44, 32, 44, 1, rooms ):
             rooms.append( Room( bigRoom = True, *rect.shrink(1).values() ) )
-        for rect in lg.generateRectangles( 12, 32, 12, 22, 1000, rooms ):
+        for rect in self.generateRectangles( 12, 32, 12, 22, 1000, rooms ):
             rooms.append( Room( *rect.shrink(1).values() ) )
         for room in rooms:
             room.createData()
@@ -83,6 +85,15 @@ class LevelGenerator:
                         room.fillSubrectangleRectangular( subrect.shrink(dist) )
         self.rooms = rooms
         return self.rooms
+    def generate(self):
+        self.generateRooms()
+        self.generateProtomap()
+        self.markCorners()
+        if not self.tryConnectAllNonvaults():
+            raise AgainException()
+        self.makeSerendipitousDoors()
+        self.makeEmptyDoorways(0.1)
+        self.simplify()
     def generateRectangles(self, minWidth, maxWidth, minHeight, maxHeight, tries, prevs = []):
         rv = []
         triesLeft = tries
@@ -126,6 +137,7 @@ class LevelGenerator:
                 triesLeft = tries
             else:
                 tries -= 1
+        return len(connected) == len(nonvaults)
     def getUnconnected( self, alpha ): # directly
         l = [ room for room in self.rooms if not room in alpha.connections and room != alpha and not room.vault ]
         if not l:
@@ -209,6 +221,11 @@ class LevelGenerator:
                         did = True
                         break
                 if did: break
+    def makeEmptyDoorways(self, probability = 0.5):
+        for x in range(self.width):
+            for y in range(self.height):
+                if self.data[y][x] == '+' and random.random() < probability:
+                    self.data[y][x] = '.'
     def simplify(self):
         conversions = {
             '+': '+', # door
@@ -226,7 +243,7 @@ class LevelGenerator:
         for x in range(self.width):
             for y in range(self.height):
                 self.data[y][x] = conversions[ self.data[y][x] ]
-    def tryDigHallwayBetween( self, alpha, beta ):
+    def tryDigHallwayBetween( self, alpha, beta):
         from pathfind import Pathfinder, infinity
         import math
         tx, ty = beta.floorpoint()
@@ -254,7 +271,8 @@ class LevelGenerator:
         pf = Pathfinder(cost = cost,
                         goal = lambda (x,y) : beta.contains(x, y) and self.data[y][x] == '.',
                         heuristic = lambda (x,y) : math.sqrt( (x-tx)*(x-tx) + (y-tx)*(y-tx) ),
-                        neighbours = lambda (x,y) : [ (x+dx,y+dy) for (dx,dy) in ((0,1),(0,-1),(1,0),(-1,0)) if x+dx >= 0 and y+dy >= 0 and x+dx < self.width and y+dy < self.height ]
+                        neighbours = lambda (x,y) : [ (x+dx,y+dy) for (dx,dy) in ((0,1),(0,-1),(1,0),(-1,0)) if x+dx >= 0 and y+dy >= 0 and x+dx < self.width and y+dy < self.height ],
+                        limit = self.hallwayLimit,
         )
         pf.addOrigin( (ox,oy) )
         path = pf.seek()
@@ -419,14 +437,16 @@ class Room (Rectangle):
                             dot = '*'
                 self.data[y][x] = dot
 
+class AgainException: pass
+
+def generateLevel(width, height):
+    while True:
+        try:
+            return LevelGenerator( width, height )
+        except AgainException:
+            print  >> sys.stderr, "warning: regenerating level -- should be unlikely"
+
 if __name__ == '__main__':
-    w, h = 100, 100
-    lg = LevelGenerator( w, h )
-    lg.generateRooms()
-    lg.generateProtomap()
-    lg.markCorners()
-    lg.tryConnectAllNonvaults()
-    lg.makeSerendipitousDoors()
-    lg.simplify()
+    lg = generateLevel( 100, 100 )
     for line in lg.data:
         print "".join( line )
