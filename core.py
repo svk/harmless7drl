@@ -65,6 +65,7 @@ if __name__ == '__main__':
     from timing import Simulator
     from ai import *
     import timing
+    from grammar import Noun, ProperNoun
 
     context = GameContext()
 
@@ -73,15 +74,15 @@ if __name__ == '__main__':
     level = mapFromGenerator( context, lg )
 
     context.sim = Simulator() # might want this to follow level instead?
-    context.player = level.spawnMobile( Mobile, "at", "@", fgColour = "green", speed = timing.Speed.Quick, context = context, noSchedule = True )
+    context.player = level.spawnMobile( Mobile, ProperNoun("at"), "@", fgColour = "green", speed = timing.Speed.Quick, context = context, noSchedule = True )
 
     for i in range(5):
-        level.spawnMobile( Mobile, name = "monster", symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )
+        level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )
 #    for i in range(5):
 #       level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context, hindersLOS = True )
 
     for i in range(5):
-        level.spawnItem( Item, name = "book", symbol = "[", fgColour = "white" )
+        level.spawnItem( Item, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
 
     try:
         import cursesui

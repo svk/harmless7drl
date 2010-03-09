@@ -5,6 +5,12 @@ def makeList( l ):
         return l[0]
     return ", ".join( l[:-1]) + " and " + l[-1]
 
+def makeCountingList( d ):
+    rv = []
+    for thing, things in d.items():
+        rv.append( thing.amount( len(things) ) )
+    return makeList( rv )
+
 def capitalizeFirst( s ):
     return s[0].upper() + s[1:]
 
@@ -43,7 +49,7 @@ class Noun:
         if self.article:
             rv.insert( 0, self.article )
         return " ".join( rv )
-    def indefiniteAmount(self, n):
+    def amount(self, n):
         try:
             m = SmallNumbers[n]
         except KeyError:
@@ -55,6 +61,10 @@ class Noun:
         return self.singular
     def __str__(self):
         return self.singular
+    def __eq__(self, that):
+        return self.singular == that.singular
+    def __hash__(self):
+        return self.singular.__hash__()
 
 class ProperNoun ( Noun ):
     def __init__(self, name ):

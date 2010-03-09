@@ -7,6 +7,15 @@
 import random
 from timing import Speed
 
+def countItems( l ):
+    rv = {}
+    for item in l:
+        try:
+            rv[item.name].append( item )
+        except KeyError:
+            rv[item.name] = [item]
+    return rv
+
 class Tile:
     # Yes, keeping each tile in its own object, because I intend to do funky
     # stuff with the environment.
@@ -55,7 +64,8 @@ class Tile:
         import grammar
         if self.items:
             ent = []
-            ent.append( grammar.makeList( [ item.name for item in self.items ] ) )
+            stacked = countItems( self.items )
+            ent.append( grammar.makeCountingList( stacked ) )
             if len( self.items ) > 1:
                 ent.append( "are" )
             else:

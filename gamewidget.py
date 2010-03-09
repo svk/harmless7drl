@@ -2,6 +2,7 @@ from core import Widget
 from level import *
 from widgets import *
 from textwrap import TextWrapper
+from grammar import *
 import timing
 
 class GameWidget ( Widget ):
@@ -92,14 +93,15 @@ class GameWidget ( Widget ):
             if len( self.player.tile.items ) == 1:
                 item = self.player.tile.items.pop()
             else:
+                stacked = countItems( self.player.tile.items )
                 item = self.main.query( SelectionMenuWidget, choices = [
-                    (item, item.name) for item in self.player.tile.items
-                ] + [ (None, "nothing") ], title = "Pick up which item?", padding = 5 )
+                    (items[0], name.amount( len(items) )) for name, items in stacked.items()
+                ] + [ (None, "nothing") ], title = "Pick up what?", padding = 5 )
                 if not item:
                     return
                 self.player.tile.items.remove( item )
             self.player.inventory.append( item )
-            self.log( "You pick up the %s." % (item.name) )
+            self.log( "You pick up %s." % item.name.definite() )
             self.tookAction( 1 )
     def closeDoor(self):
         eligibleDoors = [ n for n in self.player.tile.neighbours() if not cannotCloseDoorBecause(n) ]
@@ -120,14 +122,15 @@ class GameWidget ( Widget ):
             self.tookAction( 1 )
     def drop(self):
         if self.player.inventory:
+            stacked = countItems( self.player.inventory )
             item = self.main.query( SelectionMenuWidget, choices = [
-                (item, item.name) for item in self.player.inventory
-            ] + [ (None, "nothing") ], title = "Drop which item?", padding = 5 )
+                (items[0], name.amount( len(items) )) for name, items in stacked.items()
+            ] + [ (None, "nothing") ], title = "Drop what?", padding = 5 )
             if not item:
                 return
             item = self.player.inventory.pop()
             self.player.tile.items.append( item )
-            self.log( "You drop the %s." % item.name )
+            self.log( "You drop %s." % item.name.definite() )
             self.tookAction( 1 )
     def keyboard(self, key):
         try:
