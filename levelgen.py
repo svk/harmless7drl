@@ -89,7 +89,7 @@ class LevelGenerator:
         self.generateRooms()
         self.generateProtomap()
         self.markCorners()
-        if not self.tryConnectAllNonvaults():
+        if not self.tryConnectAllNonvaults(tries=200):
             raise AgainException()
         self.makeSerendipitousDoors()
         self.makeEmptyDoorways(0.1)
