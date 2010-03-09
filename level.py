@@ -9,7 +9,7 @@ from timing import Speed
 class Tile:
     # Yes, keeping each tile in its own object, because I intend to do funky
     # stuff with the environment.
-    def __init__(self, level, x, y):
+    def __init__(self, context, level, x, y):
         self.name = "null" # e.g. "floor", "wall"
         self.symbol = "?"
         self.fgColour = "white"
@@ -19,6 +19,7 @@ class Tile:
         self.spawnItems = False
         self.spawnMonsters = False
         self.level = level
+        self.context = context
         self.x, self.y = x, y
         self.items = []
     def cannotEnterBecause(self, mobile):
@@ -47,6 +48,17 @@ class Tile:
         return self.level.get( self.x + dx, self.y + dy )
     def neighbours(self):
         return [ self.getRelative(dx,dy) for dx in (-1,0,1) for dy in (-1,0,1) if dx or dy ]
+    def describeHere(self):
+        import grammar
+        if self.items:
+            ent = []
+            ent.append( grammar.makeList( [ item.name for item in self.items ] ) )
+            if len( self.items ) > 1:
+                ent.append( "are" )
+            else:
+                ent.append( "is" )
+            ent.append( "here." )
+            self.context.log( grammar.capitalizeFirst( " ".join( ent ) ) )
 
 def makeFloor( tile ):
     tile.name = "floor"
@@ -65,6 +77,7 @@ def makeWall( tile ):
 class Mobile:
     def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False):
         self.name = name
+        self.context = context
         self.symbol = symbol
         self.fgColour = fgColour
         self.bgColour = bgColour
@@ -73,7 +86,6 @@ class Mobile:
         self.speed = speed
         self.ai = ai
         self.sim = context.sim
-        self.context = context
         self.inventory = []
         self.noSchedule = noSchedule
         self.schedule()
@@ -83,6 +95,13 @@ class Mobile:
         assert not tile.cannotEnterBecause( self )
         self.tile = tile
         self.tile.enters( self )
+        if self.isPlayer():
+            self.tile.describeHere()
+    def isPlayer(self):
+        try:
+            return self.context.player == self
+        except AttributeError:
+            return False
     def appearance(self):
         rv = {
             'ch': self.symbol,
@@ -115,13 +134,14 @@ class Item:
         return rv
 
 class Map:
-    def __init__(self, width, height):
+    def __init__(self, context, width, height):
         self.x0, self.y0 = 0, 0
+        self.context = context
         self.w, self.h = width, height
         self.tiles = {}
         for i in range(self.w):
             for j in range(self.h):
-                self.tiles[i,j] = Tile(self,i,j)
+                self.tiles[i,j] = Tile(context,self, i,j)
     def doRectangle(self, f, x0, y0, w, h):
         for x in range(x0, x0 + w):
             for y in range(y0, y0 + h):

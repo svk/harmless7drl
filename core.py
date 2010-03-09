@@ -66,12 +66,13 @@ if __name__ == '__main__':
     from ai import *
     import timing
 
-    level = Map( 100, 50 )
+    context = GameContext()
+
+    level = Map( context, 100, 50 )
     level.doRectangle( makeWall, *innerRectangle( level ) )
     level.doRectangle( makeFloor, *innerRectangle( level, 1 ) )
     level.doRectangle( makeWall, *innerRectangle( level, 20 ) )
 
-    context = GameContext()
     context.sim = Simulator() # might want this to follow level instead?
     context.player = level.spawnMobile( Mobile, "at", "@", fgColour = "green", speed = timing.Speed.Quick, context = context, noSchedule = True )
 
