@@ -447,6 +447,16 @@ def generateLevel(width, height):
             print  >> sys.stderr, "warning: regenerating level -- should be unlikely"
 
 if __name__ == '__main__':
-    lg = generateLevel( 100, 100 )
-    for line in lg.data:
-        print "".join( line )
+    import time
+    times = []
+    while True:
+        t0 = time.time()
+        lg = generateLevel( 100, 100 )
+        dt = time.time() - t0
+        for line in lg.data:
+            print "".join( line )
+        times.append( dt )
+        print "Generated in", dt, "seconds"
+        print "Average", sum(times) / float( len( times ) ), "seconds"
+        print "Maximum", max(times), "seconds"
+        
