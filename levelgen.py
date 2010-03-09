@@ -234,6 +234,9 @@ class LevelGenerator:
         import math
         tx, ty = beta.floorpoint()
         ox, oy = alpha.floorpoint()
+        assert self.data[oy][ox] == '.'
+        assert self.data[ty][tx] == '.'
+        print "Trying to dig hallway between", (ox,oy), (tx,ty)
         costs = {
             '!': infinity,
             '*': infinity,
@@ -262,6 +265,7 @@ class LevelGenerator:
         if not path:
             return False
         protect = []
+        print "Digging hallway:", path
         for x, y in path:
             self.data[y][x] = {
                 '#': '+',
@@ -295,12 +299,12 @@ class Room (Rectangle):
         that.connections.add( self )
     def floorpoint(self):
         while True:
-            x = random.randint( 0, self.w )
-            y = random.randint( 0, self.h )
+            x = random.randint( 0, self.w - 1)
+            y = random.randint( 0, self.h - 1)
             if self.data[y][x] == '.':
                 return x + self.x0,y + self.y0
     def createData(self):
-        self.data = [ [ '.' for j in range(w) ] for i in range(h) ]
+        self.data = [ [ '.' for j in range(self.w) ] for i in range(self.h) ]
     def makeRectangular(self):
         for x in range( self.w ):
             for y in range( self.h ):
@@ -430,4 +434,4 @@ if __name__ == '__main__':
     lg.makeSerendipitousDoors()
     lg.simplify()
     for line in lg.data:
-        print>>sys.stderr, "".join( line )
+        print "".join( line )
