@@ -92,11 +92,9 @@ if __name__ == '__main__':
             import tcodui
             main = tcodui.main
         main( GameWidget, context = context )
-    except:
-        # If there's an exception, I don't want to wait for the threads to shut down, just abort abort abort.
-        raise
-    print "Thanks for playing!"
-    print "Please wait, shutting down...",
-    sys.stdout.flush()
-    context.levelGenerator.shutdown()
-    print "done."
+    finally:
+        print "Thanks for playing!"
+        print "Please wait, shutting down...",
+        sys.stdout.flush()
+        context.levelGenerator.shutdown()
+        print "done."
