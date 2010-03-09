@@ -1,0 +1,16 @@
+There's no time to do anything but pickle, I think.
+
+PICKLE IS INSECURE FOR MALICIOUS DATA.
+
+This blog post by Nadia Alramli explains how to make safer
+by restricting the classes that can be unpickled.
+This will be implemented.
+    http://nadiana.com/python-pickle-insecure
+
+There will ALSO be a warning in the readme not to share
+save files, and it will state that save files will not
+be accepted in bug reports.
+
+This is a possibility:
+    http://home.gna.org/oomadness/en/cerealizer/index.html
+    Trusted? [vs. incompetence]

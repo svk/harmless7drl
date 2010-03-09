@@ -65,28 +65,38 @@ if __name__ == '__main__':
     from timing import Simulator
     from ai import *
     import timing
+    from grammar import Noun, ProperNoun
+    import sys
 
     context = GameContext()
 
-    from levelgen import generateLevel
-    lg = generateLevel( 100, 100 )
-    level = mapFromGenerator( context, lg )
-
-    context.sim = Simulator() # might want this to follow level instead?
-    context.player = level.spawnMobile( Mobile, "at", "@", fgColour = "green", speed = timing.Speed.Quick, context = context, noSchedule = True )
-
-    for i in range(5):
-        level.spawnMobile( Mobile, name = "monster", symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )
-#    for i in range(5):
-#       level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context, hindersLOS = True )
-
-    for i in range(5):
-        level.spawnItem( Item, name = "book", symbol = "[", fgColour = "white" )
-
+    from levelgen import GeneratorQueue
+    context.levelGenerator = GeneratorQueue( 3, 100, 100 )
+    level = mapFromGenerator( context )
     try:
-        import cursesui
-        main = cursesui.main
-    except ImportError:
-        import tcodui
-        main = tcodui.main
-    main( GameWidget, level = level, context = context )
+
+        context.player = level.spawnMobile( Mobile, ProperNoun("at"), "@", fgColour = "green", speed = timing.Speed.Quick, context = context, noSchedule = True )
+
+        for i in range(5):
+            level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )
+    #    for i in range(5):
+    #       level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context, hindersLOS = True )
+
+        for i in range(5):
+            level.spawnItem( Item, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
+
+        try:
+            import cursesui
+            main = cursesui.main
+        except ImportError:
+            import tcodui
+            main = tcodui.main
+        main( GameWidget, context = context )
+    except:
+        # If there's an exception, I don't want to wait for the threads to shut down, just abort abort abort.
+        raise
+    print "Thanks for playing!"
+    print "Please wait, shutting down...",
+    sys.stdout.flush()
+    context.levelGenerator.shutdown()
+    print "done."

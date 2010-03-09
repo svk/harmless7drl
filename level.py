@@ -6,6 +6,16 @@
 
 import random
 from timing import Speed
+import timing
+
+def countItems( l ):
+    rv = {}
+    for item in l:
+        try:
+            rv[item.name].append( item )
+        except KeyError:
+            rv[item.name] = [item]
+    return rv
 
 class Tile:
     # Yes, keeping each tile in its own object, because I intend to do funky
@@ -55,7 +65,8 @@ class Tile:
         import grammar
         if self.items:
             ent = []
-            ent.append( grammar.makeList( [ item.name for item in self.items ] ) )
+            stacked = countItems( self.items )
+            ent.append( grammar.makeCountingList( stacked ) )
             if len( self.items ) > 1:
                 ent.append( "are" )
             else:
@@ -153,7 +164,7 @@ def makeWall( tile ):
     tile.hindersLOS = True
 
 class Mobile:
-    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False, hindersLOS = False):
+    def __init__(self, tile, name, symbol, sim, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False, hindersLOS = False):
         self.name = name
         self.hindersLOS = hindersLOS
         self.context = context
@@ -161,18 +172,25 @@ class Mobile:
         self.fgColour = fgColour
         self.bgColour = bgColour
         self.tile = None
-        self.moveto( tile )
+        self.scheduledAction = None
         self.speed = speed
         self.ai = ai
-        self.sim = context.sim
+        self.sim = sim
         self.inventory = []
         self.noSchedule = noSchedule
+        self.moveto( tile )
         self.schedule()
     def moveto(self, tile):
+        assert not tile.cannotEnterBecause( self )
         if self.tile:
             self.tile.leaves()
-        assert not tile.cannotEnterBecause( self )
-        self.tile = tile
+        if not self.tile or self.tile.level != tile.level:
+            if self.scheduledAction:
+                self.scheduledAction.cancel()
+            self.tile = tile
+            self.schedule()
+        else:
+            self.tile = tile
         self.tile.enters( self )
         if self.isPlayer():
             self.tile.describeHere()
@@ -191,11 +209,11 @@ class Mobile:
         return rv
     def schedule(self):
         if not self.noSchedule:
-            self.sim.schedule( self, self.sim.t + self.speed )
+            self.tile.level.sim.schedule( self, self.sim.t + self.speed )
     def trigger(self, t):
         if self.ai:
             self.ai.trigger( self )
-        self.sim.schedule( self, t + self.speed )
+        self.tile.level.sim.schedule( self, t + self.speed )
     def fov(self, radius = None):
         from vision import VisionField
         return VisionField( self.tile, lambda tile : tile.opaque() ).visible
@@ -224,6 +242,9 @@ class Map:
         for i in range(self.w):
             for j in range(self.h):
                 self.tiles[i,j] = Tile(context,self, i,j)
+        self.mobiles = []
+        self.items = [] # NOTE: items on ground, not items kept in mobiles, containers or otherwise
+        self.sim = timing.Simulator()
     def doRectangle(self, f, x0, y0, w, h):
         for x in range(x0, x0 + w):
             for y in range(y0, y0 + h):
@@ -242,7 +263,7 @@ class Map:
     def spawnMobile(self, cls, *args, **kwargs):
         tile = self.randomTile( lambda tile : tile.spawnMonsters and not tile.mobile )
         assert tile != None
-        rv = cls( tile, *args, **kwargs )
+        rv = cls( tile, sim = self.sim, *args, **kwargs )
         return rv
     def spawnItem(self, cls, *args, **kwargs):
         tile = self.randomTile( lambda tile : tile.spawnItems )
@@ -250,8 +271,12 @@ class Map:
         rv = cls( *args, **kwargs )
         tile.items.append( rv )
         return rv
+    def getPlayerSpawnSpot(self):
+        # around the stairs?
+        return self.randomTile( lambda tile: tile.spawnMonsters and not tile.mobile )
 
-def mapFromGenerator( context, lg ):
+def mapFromGenerator( context ):
+    lg = context.levelGenerator.get()
     rv = Map( context, lg.width, lg.height )
     # Ror now just the cell data is used; do recall that the lg object
     # also contains .rooms; these make up a graph that can be used to
