@@ -95,7 +95,7 @@ class GameWidget ( Widget ):
             else:
                 stacked = countItems( self.player.tile.items )
                 item = self.main.query( SelectionMenuWidget, choices = [
-                    (items[0], name.amount( len(items) )) for name, items in stacked.items()
+                    (items[0], name.amount( len(items), informal = True )) for name, items in stacked.items()
                 ] + [ (None, "nothing") ], title = "Pick up what?", padding = 5 )
                 if not item:
                     return
@@ -124,7 +124,7 @@ class GameWidget ( Widget ):
         if self.player.inventory:
             stacked = countItems( self.player.inventory )
             item = self.main.query( SelectionMenuWidget, choices = [
-                (items[0], name.amount( len(items) )) for name, items in stacked.items()
+                (items[0], name.amount( len(items), informal = True )) for name, items in stacked.items()
             ] + [ (None, "nothing") ], title = "Drop what?", padding = 5 )
             if not item:
                 return

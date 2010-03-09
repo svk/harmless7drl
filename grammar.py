@@ -49,11 +49,13 @@ class Noun:
         if self.article:
             rv.insert( 0, self.article )
         return " ".join( rv )
-    def amount(self, n):
+    def amount(self, n, informal = False):
         try:
             m = SmallNumbers[n]
         except KeyError:
             m = "%d" % n
+        if informal and n == 1 and self.article:
+            m = self.article
         return " ".join( [ m, self.plural if n != 1 else self.singular ] )
     def definite(self):
         if self.the:
