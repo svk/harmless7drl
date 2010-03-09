@@ -31,7 +31,6 @@ class GameWidget ( Widget ):
             'southeast': (1, 1),
         }
         self.textfieldheight = 4
-        self.playervision = None
         screenw, screenh = self.ui.dimensions()
         self.turnlogWrapper = TextWrapper( screenw, self.textfieldheight )
         self.turnlogLines = []
@@ -53,10 +52,8 @@ class GameWidget ( Widget ):
     def draw(self):
         import time
         screenw, screenh = self.ui.dimensions()
-        if not self.playervision:
-            from vision import VisionField
-            self.playervision = VisionField( self.player.tile, lambda tile: tile.impassable)
-        vp = Viewport( level = self.level, window = Subwindow( self.ui, 0, self.textfieldheight, screenw, screenh - self.textfieldheight ), visibility = lambda tile : (tile.x, tile.y) in self.playervision.visible )
+        fov = self.player.fov()
+        vp = Viewport( level = self.level, window = Subwindow( self.ui, 0, self.textfieldheight, screenw, screenh - self.textfieldheight ), visibility = lambda tile : (tile.x, tile.y) in fov )
         vp.paint( self.player.tile.x, self.player.tile.y )
         for i in range( self.textfieldheight ):
             try:
@@ -78,7 +75,6 @@ class GameWidget ( Widget ):
     def tryMoveAttack(self, dx, dy):
         tile = self.player.tile.getRelative( dx, dy )
         if not tile.cannotEnterBecause( self.player ):
-            self.playervision = None
             self.player.moveto( tile )
             self.tookAction( 1 )
         else:

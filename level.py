@@ -18,6 +18,7 @@ class Tile:
         self.mobile = None
         self.spawnItems = False
         self.spawnMonsters = False
+        self.hindersLOS = True
         self.level = level
         self.context = context
         self.x, self.y = x, y
@@ -59,6 +60,10 @@ class Tile:
                 ent.append( "is" )
             ent.append( "here." )
             self.context.log( grammar.capitalizeFirst( " ".join( ent ) ) )
+    def opaque(self):
+        if self.mobile and self.mobile.hindersLOS:
+            return True
+        return self.hindersLOS
 
 def makeFloor( tile ):
     tile.name = "floor"
@@ -66,6 +71,7 @@ def makeFloor( tile ):
     tile.impassable = False
     tile.spawnMonsters = True
     tile.spawnItems = True
+    tile.hindersLOS = False
 
 def makeWall( tile ):
     tile.name = "wall"
@@ -73,10 +79,12 @@ def makeWall( tile ):
     tile.impassable = True
     tile.spawnMonsters = False
     tile.spawnItems = False
+    tile.hindersLOS = True
 
 class Mobile:
-    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False):
+    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False, hindersLOS = False):
         self.name = name
+        self.hindersLOS = hindersLOS
         self.context = context
         self.symbol = symbol
         self.fgColour = fgColour
@@ -117,6 +125,9 @@ class Mobile:
         if self.ai:
             self.ai.trigger( self )
         self.sim.schedule( self, t + self.speed )
+    def fov(self, radius = None):
+        from vision import VisionField
+        return VisionField( self.tile, lambda tile : tile.opaque() ).visible
 
 class Item:
     def __init__(self, name, symbol, fgColour, bgColour = None):
