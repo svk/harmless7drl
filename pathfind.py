@@ -35,7 +35,7 @@ class PathfindingNode:
 #       return list( reversed( accumulator ) )
 
 class Pathfinder:
-    def __init__(self, cost, goal, heuristic, neighbours = lambda x : x.neighbours(), limit = None, tiebreaker = lambda tile: 0):
+    def __init__(self, cost, goal, heuristic, neighbours = lambda x : x.neighbours(), limit = None, tiebreaker = lambda tile: 0, delay = None):
         # goal and heuristic are functions tile -> Bool, tile -> comparable
         # cost is a function tile -> comparable or infinity
         self.goal = goal
@@ -44,6 +44,7 @@ class Pathfinder:
         self.limit = limit
         self.tiebreaker = tiebreaker
         self.neighbours = neighbours
+        self.delay = delay
         self.q = []
     def addOrigin(self, origin):
         heappush( self.q, PathfindingNode( None, origin, 0, self.heuristic, self.tiebreaker ) )
@@ -52,6 +53,8 @@ class Pathfinder:
         closed = set()
         bestPathTo = {}
         while self.q:
+            if self.delay:
+                self.delay()
             node = heappop( self.q )
             if node.beaten:
                 continue

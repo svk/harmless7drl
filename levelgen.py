@@ -1,5 +1,6 @@
 import random
 import sys
+import time
 
 class Rectangle:
     def __init__(self, x0, y0, w, h):
@@ -40,11 +41,12 @@ class Rectangle:
         return self.x0 + int(self.w/2), self.y0 + int(self.h/2)
 
 class LevelGenerator:
-    def __init__(self, width, height):
+    def __init__(self, width, height, delay = None):
         self.width = width
         self.height = height
         self.rooms = []
         self.hallwayLimit = 10 * (width + height)/2.0
+        self.delay = delay
         self.generate()
     def generateProtomap(self):
         self.data = []
@@ -89,7 +91,7 @@ class LevelGenerator:
         self.generateRooms()
         self.generateProtomap()
         self.markCorners()
-        if not self.tryConnectAllNonvaults():
+        if not self.tryConnectAllNonvaults(tries=200):
             raise AgainException()
         self.makeSerendipitousDoors()
         self.makeEmptyDoorways(0.1)
@@ -273,6 +275,7 @@ class LevelGenerator:
                         heuristic = lambda (x,y) : math.sqrt( (x-tx)*(x-tx) + (y-tx)*(y-tx) ),
                         neighbours = lambda (x,y) : [ (x+dx,y+dy) for (dx,dy) in ((0,1),(0,-1),(1,0),(-1,0)) if x+dx >= 0 and y+dy >= 0 and x+dx < self.width and y+dy < self.height ],
                         limit = self.hallwayLimit,
+                        delay = self.delay
         )
         pf.addOrigin( (ox,oy) )
         path = pf.seek()
@@ -439,10 +442,10 @@ class Room (Rectangle):
 
 class AgainException: pass
 
-def generateLevel(width, height):
+def generateLevel(width, height, delay = None ):
     while True:
         try:
-            return LevelGenerator( width, height )
+            return LevelGenerator( width, height, delay )
         except AgainException:
             print  >> sys.stderr, "warning: regenerating level -- should be unlikely"
 
@@ -454,8 +457,12 @@ class GeneratorThread( threading.Thread ):
         self.q = q
         self.go = True
     def run(self):
+        lg = generateLevel( *self.args, **self.kwargs )
+        self.q.put( lg )
         while self.go:
-            lg = generateLevel( *self.args, **self.kwargs )
+            print "generating.."
+            lg = generateLevel( delay = lambda : time.sleep( 0.00001 ), *self.args, **self.kwargs )
+            print "done."
             self.q.put( lg )
 
 class GeneratorQueue (Queue.Queue):
