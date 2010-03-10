@@ -1,0 +1,23 @@
+    =staves=
+(staffs?)
+
+staves are mana reservoirs.
+they cannot be recharged.
+you can equip one at a time, but carry
+ as many as you like (significantly, limited by
+ weight -- staves are heavy)
+
+staves have the following attributes:
+        - power (SP)
+        - damage
+
+    =talismans=
+each talisman you _carry_ increases your trap
+spotting skill by one. limited by weight only.
+
+talismans of health similarly increase your HP
+by one, these are very rare.
+
+    =potions?=
+minor consumable healing items for players
+who haven't found a healing spell yet.
