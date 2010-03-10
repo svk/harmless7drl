@@ -233,6 +233,7 @@ def makeWall( tile ):
     tile.tileTypeDesc = "A wall."
 
 class Mobile:
+    # this class is a mess, there are several player-specific fields
     def __init__(self,
                  tile,
                  name,
@@ -246,6 +247,7 @@ class Mobile:
                  noSchedule = False,
                  attackVerb = Verb( "attack" ),
                  attackElaboration = "",
+                 spellpoints = 0,
                  hindersLOS = False, # behaviour flags
                  nonalive = False):
         assert fgColour != 'red' # used for traps
@@ -275,6 +277,9 @@ class Mobile:
             # (walking into a spike pit).
         self.attackVerb = attackVerb
         self.attackElaboration = attackElaboration
+        self.spellbook = []
+        self.spellpoints = spellpoints
+        self.maxSpellpoints = spellpoints
     def describe(self):
         return capitalizeFirst( "%s (%d/%d hp)." % (self.name.indefiniteSingular(), self.hitpoints, self.maxHitpoints ) )
     def damage(self, n, fromPlayer = False):
@@ -371,11 +376,12 @@ class Mobile:
         return rv
 
 class Item:
-    def __init__(self, name, symbol, fgColour, bgColour = None):
+    def __init__(self, name, symbol, fgColour, bgColour = None, itemType = None):
         self.name = name
         self.symbol = symbol
         self.fgColour = fgColour
         self.bgColour = bgColour
+        self.itemType = name if not itemType else itemType
     def appearance(self):
         rv = {
             'ch': self.symbol,
@@ -478,7 +484,17 @@ def mapFromGenerator( context ):
         if tries > 0:
             singleCell = random.choice( [ TrapDoor ] )
             trap = singleCell( point, context = context )
-    context.levels.append( rv )
+    for room in lg.rewardRooms:
+        # should be in chests: that way it's hard to
+        # distinguish between danger rooms and reward rooms
+        valueToGenerate = 10
+        maxRarity = 1000
+        eligible = [ rune for rune in context.protorunes if rune.rarity < maxRarity ]
+        while valueToGenerate > 0:
+            rune = random.choice( eligible ).spawn()
+            valueToGenerate -= rune.rarity
+            rv.tiles[ room.internalFloorpoint() ].items.append( rune )
+        context.levels.append( rv )
     return rv
 
 def innerRectangle( o, n = 0):

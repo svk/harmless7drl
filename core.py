@@ -61,6 +61,7 @@ if __name__ == '__main__':
     import timing
     from grammar import Noun, ProperNoun
     import sys
+    from magic import generateProtorunes
 
     context = GameContext()
     context.levels = []
@@ -73,6 +74,7 @@ if __name__ == '__main__':
             context = context.load( "test-savefile.gz" )
         except IOError:
             # hack up a little new environment for us.
+            context.protorunes = generateProtorunes()
             level = mapFromGenerator( context )
             context.player = Mobile( level.getPlayerSpawnSpot(),
                                      ProperNoun( "Atman", "male" ),
@@ -80,7 +82,9 @@ if __name__ == '__main__':
                                      speed = Speed.Normal,
                                      context = context,
                                      fgColour = "green",
-                                     noSchedule = True )
+                                     noSchedule = True,
+                                     spellpoints = 10,
+            )
             for i in range(5):
                 level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = RandomWalker(), context = context )
             for i in range(5):

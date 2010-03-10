@@ -92,6 +92,7 @@ class GameWidget ( Widget ):
         sby = screenh - 2
         self.ui.putString( 0, sby, str(self.player.name), 'bold-white' )
         self.ui.putString( 32, sby, "HP: %d/%d" % (self.player.hitpoints, self.player.maxHitpoints), 'bold-white' )
+        self.ui.putString( 64, sby, "SP: %d" % (self.player.spellpoints), 'bold-white' )
     def advanceTime(self, dt):
         self.player.tile.level.sim.advance( dt )
         while True:
@@ -187,6 +188,25 @@ class GameWidget ( Widget ):
             self.player.tile.items.append( item )
             self.log( "You drop %s." % item.name.definite() )
             self.tookAction( 1 )
+    def writeSpell(self):
+        from magic import Spells
+        goodSpells = list(filter( lambda spell: spell not in self.context.player.spellbook and spell.canBuild( self.context.player.inventory ), Spells ))
+        if not goodSpells:
+            self.log( "You don't have the runes at hand to write any new spells." )
+        else:
+            chosen = self.main.query( SelectionMenuWidget, choices = [
+                (spell,spell.description) for spell in goodSpells
+            ] + [ (None, "cancel") ], title = "Which spell do you want to write?", padding = 5 )
+            chosen.build( self.context.player.inventory )
+            self.log( "You enter a magical trance as you begin scribing the %s spell..." % chosen.name )
+            self.tookAction( 30 )
+            self.log( "You have written the %s spell into your spellbook." % chosen.name )
+            self.context.player.spellbook.append( chosen )
+    def castSpell(self):
+        if not self.context.player.spellbook:
+            self.log( "Your spellbook is blank." )
+        else:
+            self.log( "You've forgotten how to work magic!" )
     def keyboard(self, key):
         try:
             dx, dy = self.movementKeys[ key ]
@@ -204,6 +224,8 @@ class GameWidget ( Widget ):
                 'c': self.closeDoor,
                 '>': self.goDown,
                 '<': self.goUp,
+                'w': self.writeSpell,
+                'm': self.castSpell,
             }[key]
         except KeyError:
             pass
