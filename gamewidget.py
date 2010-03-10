@@ -206,6 +206,7 @@ class GameWidget ( Widget ):
         if not self.context.player.spellbook:
             self.log( "Your spellbook is blank." )
         else:
+            # TODO replace with hotkey menu
             chosen = self.main.query( SelectionMenuWidget, choices = [
                 (spell,"%c: %s" % (spell.hotkey,spell.name)) for spell in self.context.player.spellbook
             ] + [ (None, "cancel") ], title = "Which spell do you want to cast?", padding = 5 )
