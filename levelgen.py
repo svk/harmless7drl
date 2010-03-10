@@ -527,12 +527,10 @@ class GeneratorThread( threading.Thread ):
             if not self.go:
                 raise ShutdownException
         while self.go:
-            print>>sys.stderr, "generating.."
             try:
                 lg = generateLevel( delay = raiseOnShutdown, *self.args, **self.kwargs )
             except ShutdownException:
                 break
-            print>>sys.stderr, "done."
             self.q.put( lg )
 
 class GeneratorQueue (Queue.Queue):

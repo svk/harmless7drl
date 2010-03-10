@@ -205,3 +205,5 @@ class GameWidget ( Widget ):
                 (5, "Team Bella"),
                 (6, "Team Buffy"),
             ], title = "Choose your team", padding = 5)
+        elif key == 'S':
+            self.context.save( "test-savefile.gz" )

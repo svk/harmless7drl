@@ -17,13 +17,7 @@ class Widget:
 class ResizedException:
     pass
 
-class GameContext:
-    def log(self, s):
-        try:
-            self.game.log( s )
-        except AttributeError:
-            pass
-    
+from serialization import GameContext
 
 class MainLoop:
     def __init__(self, ui):
@@ -74,23 +68,25 @@ if __name__ == '__main__':
     from levelgen import GeneratorQueue
     context.levelGenerator = GeneratorQueue( 2, 100, 100 )
     try:
-        level = mapFromGenerator( context )
+        try:
+            context = context.load( "test-savefile.gz" )
+        except IOError:
+            # hack up a little new environment for us.
+            level = mapFromGenerator( context )
+            context.player = Mobile( level.getPlayerSpawnSpot(),
+                                     ProperNoun( "Atman" ),
+                                     "@",
+                                     speed = Speed.Normal,
+                                     context = context,
+                                     fgColour = "green",
+                                     noSchedule = True )
+            for i in range(5):
+                level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )
+        #    for i in range(5):
+        #       level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context, hindersLOS = True )
 
-        context.player = Mobile( level.getPlayerSpawnSpot(),
-                                 ProperNoun( "Atman" ),
-                                 "@",
-                                 speed = Speed.Normal,
-                                 context = context,
-                                 fgColour = "green",
-                                 noSchedule = True )
-
-        for i in range(5):
-            level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )
-    #    for i in range(5):
-    #       level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context, hindersLOS = True )
-
-        for i in range(5):
-            level.spawnItem( Item, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
+            for i in range(5):
+                level.spawnItem( Item, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
 
         try:
             import cursesui
