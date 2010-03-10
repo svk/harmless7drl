@@ -1,0 +1,3 @@
+moving wall:
+    moves extremely slowly. blocks FOV. pathfinds towards the player. never attacks and cannot be attacked.
+    (can be destroyed by means that would destroy a wall)
