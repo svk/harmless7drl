@@ -548,10 +548,8 @@ class GeneratorQueue (Queue.Queue):
 
 if __name__ == '__main__':
     import time
-    generator = GeneratorThread( 2, 100, 100 )
+    generator = GeneratorQueue( 2, 100, 100 )
     times = []
-    print "Sleeping for 60 seconds to let the generator work.."
-    time.sleep( 60 )
     t0 = time.time()
     while True:
         lg = None
