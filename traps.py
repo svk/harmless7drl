@@ -49,6 +49,8 @@ class Trap:
         self.lists = []
     def canSpot(self, mob):
         return mob.trapDetection >= self.difficulty
+    def describe(self):
+        return "A trap."
     def remove(self):
         for tile in self.tiles:
             assert tile.trap == self

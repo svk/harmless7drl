@@ -12,6 +12,7 @@ class GameWidget ( Widget ):
         self.player = context.player
         context.game = self
         self.context = context
+        self.cursor = None
         self.movementKeys = {
             'h': (-1, 0),
             'l': (1, 0),
@@ -76,9 +77,13 @@ class GameWidget ( Widget ):
                        self.textfieldheight,
                        screenw,
                        screenh - self.textfieldheight - statusbarHeight),
-                       visibility = visibility
+                       visibility = visibility,
         )
-        vp.paint( self.player.tile.x, self.player.tile.y, effects = self.visualEffects )
+        if self.cursor:
+            x, y = self.cursor
+        else:
+            x, y = self.player.tile.x, self.player.tile.y
+        vp.paint( x, y, effects = self.visualEffects, highlight = bool( self.cursor ) )
         for i in range( self.textfieldheight ):
             try:
                 self.ui.putString( 0, i, self.turnlogLines[i], 'bold-white')
@@ -205,6 +210,8 @@ class GameWidget ( Widget ):
         if standardAction:
             self.clearlog()
             standardAction()
+        elif key == ':': # Look command
+            self.main.query( CursorWidget, self )
         elif key == 'Q':
             self.done = True
         elif key == 'q':
@@ -234,6 +241,8 @@ class GameWidget ( Widget ):
             self.context.save( "test-savefile.gz" )
         elif key == 'C':
             self.showExplosion( (self.player.tile.x, self.player.tile.y), 5 )
+        elif key == 'X':
+            self.main.query( CursorWidget, self )
     def showEffects(self, effects, t = 0.05):
         fov = self.player.fov( setRemembered = True )
         seen = False

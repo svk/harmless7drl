@@ -1,6 +1,26 @@
 from core import Widget
 import string
 import time
+from textwrap import TextWrapper
+
+MovementKeys = { # authoritative in gamewidget.py
+    'h': (-1, 0),
+    'l': (1, 0),
+    'j': (0, 1),
+    'k': (0, -1),
+    'y': (-1, -1),
+    'u': (1, -1),
+    'b': (-1, 1),
+    'n': (1, 1),
+    'west': (-1, 0),
+    'east': (1, 0),
+    'south': (0, 1),
+    'north': (0, -1),
+    'northwest': (-1, -1),
+    'northeast': (1, -1),
+    'southwest': (-1, 1),
+    'southeast': (1, 1),
+}
 
 def blinkphase(n = 2, phaselength = 0.5):
     import time
@@ -61,24 +81,7 @@ class DelayWidget (Widget):
 class DirectionWidget (Widget):
     def __init__(self, *args, **kwargs):
         Widget.__init__(self, *args, **kwargs)
-        self.movementKeys = { # authoritative in gamewidget.py
-            'h': (-1, 0),
-            'l': (1, 0),
-            'j': (0, 1),
-            'k': (0, -1),
-            'y': (-1, -1),
-            'u': (1, -1),
-            'b': (-1, 1),
-            'n': (1, 1),
-            'west': (-1, 0),
-            'east': (1, 0),
-            'south': (0, 1),
-            'north': (0, -1),
-            'northwest': (-1, -1),
-            'northeast': (1, -1),
-            'southwest': (-1, 1),
-            'southeast': (1, 1),
-        }
+        self.movementKeys = MovementKeys
     def keyboard(self, key):
         try:
             self.result = self.movementKeys[key]
@@ -127,6 +130,48 @@ class TextInputWidget (Widget):
             elif key in self.okay:
                 if len( self.data ) < self.width:
                     self.data.append( key )
+
+class CursorWidget (Widget):
+    def __init__(self, game, *args, **kwargs):
+        Widget.__init__(self, *args, **kwargs)
+        self.game = game
+        self.game.cursor = self.game.player.tile.x, self.game.player.tile.y
+        self.fov = game.player.fov()
+        self.description = ""
+    def draw(self):
+        screenw, screenh = self.game.ui.dimensions()
+        tw = TextWrapper( screenw, self.game.textfieldheight )
+        tw.feed( self.description )
+        if tw.pages:
+            page = tw.popPage()
+        else:
+            lines = [ tw.line(0), tw.line(1) ]
+        for i in range(2):
+            try:
+                self.game.ui.putString( 0, i, " " * screenw, 'bold-white' )
+                self.game.ui.putString( 0, i, lines[i], 'bold-white' )
+            except IndexError:
+                pass
+    def keyboard(self, key):
+        try:
+            dx, dy = MovementKeys[ key ]
+            x, y = self.game.cursor
+            self.game.cursor = x+dx,y+dy
+            if self.game.cursor in self.fov:
+                self.description = self.game.player.tile.level.tiles[ self.game.cursor ].describe()
+            else:
+                self.description = ""
+                try:
+                    if self.game.player.tile.level.tiles[ self.game.cursor ].remembered:
+                        self.description = self.game.player.tile.level.tiles[ self.game.cursor ].describeRemembered()
+                except IndexError:
+                    pass
+        
+        except KeyError:
+            if key == '\n' or key == ' ':
+                self.result = self.game.cursor
+                self.game.cursor = None
+                self.done = True
 
 class SelectionMenuWidget (Widget):
     def __init__(self, choices = [], title = None, padding = 0, *args, **kwargs):

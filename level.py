@@ -45,6 +45,7 @@ class Tile:
         self.trap = None
         self.onEnter = []
         self.onOpen = []
+        self.tileTypeDesc = "A NULL tile."
     def cannotEnterBecause(self, mobile):
         if self.impassable:
             return "tile is impassable"
@@ -53,6 +54,19 @@ class Tile:
         return ""
     def leaves(self):
         self.mobile = None
+    def describe(self):
+        rv = []
+        if self.tileTypeDesc:
+            rv.append( self.tileTypeDesc )
+        if self.mobile:
+            rv.append( self.mobile.describe() )
+        if self.trap and self.trap.canSpot( self.context.player ):
+            rv.append( self.trap.describe() )
+        if self.items:
+            rv.append( self.describeItems() + "." )
+        return " ".join( rv )
+    def describeRemembered(self):
+        return self.tileTypeDesc
     def enters(self, mobile):
         self.mobile = mobile
         for trigger in self.onEnter:
@@ -81,18 +95,24 @@ class Tile:
         return self.level.get( self.x + dx, self.y + dy )
     def neighbours(self):
         return [ self.getRelative(dx,dy) for dx in (-1,0,1) for dy in (-1,0,1) if dx or dy ]
-    def describeHere(self):
+    def describeItems(self):
         import grammar
         if self.items:
             ent = []
             stacked = countItems( self.items )
-            ent.append( grammar.makeCountingList( stacked ) )
-            if len( self.items ) > 1:
-                ent.append( "are" )
-            else:
-                ent.append( "is" )
-            ent.append( "here." )
-            self.context.log( grammar.capitalizeFirst( " ".join( ent ) ) )
+            return capitalizeFirst( grammar.makeCountingList( stacked ) )
+        return ""
+    def describeHere(self):
+        itemlist = self.describeItems()
+        if not itemlist:
+            return
+        ent = [ itemlist]
+        if len( self.items ) > 1:
+            ent.append( "are" )
+        else:
+            ent.append( "is" )
+        ent.append( "here." )
+        self.context.log( " ".join( ent ) )
     def opaque(self):
         if self.mobile and self.mobile.hindersLOS:
             return True
@@ -129,6 +149,7 @@ def makeStairsDown( tile ):
     tile.spawnMonsters = False
     tile.spawnItems = False
     tile.level.stairsDown = tile
+    tile.tileTypeDesc = "Stairs leading down to the dungeon below."
     
 def makeStairsUp( tile ):
     tile.name = "stairs up"
@@ -139,6 +160,7 @@ def makeStairsUp( tile ):
     tile.spawnMonsters = False
     tile.spawnItems = False
     tile.level.stairsUp = tile
+    tile.tileTypeDesc = "Stairs leading up to the shallower parts of the dungeon."
 
 def makeImpenetrableRock( tile ):
     tile.name = "rock"
@@ -149,6 +171,7 @@ def makeImpenetrableRock( tile ):
     tile.spawnMonsters = False
     tile.spawnItems = False
     tile.hindersLOS = True
+    tile.tileTypeDesc = ""
 
 def makeClosedDoor( tile ):
     tile.name = "closed door"
@@ -161,6 +184,7 @@ def makeClosedDoor( tile ):
     tile.hindersLOS = True
     tile.isDoor = True
     tile.doorState = "closed"
+    tile.tileTypeDesc = "A closed door."
 
 def makeOpenDoor( tile ):
     tile.name = "open door"
@@ -173,6 +197,7 @@ def makeOpenDoor( tile ):
     tile.hindersLOS = False
     tile.isDoor = True
     tile.doorState = "open"
+    tile.tileTypeDesc = "An open door."
 
 def makeHallway( tile ):
     tile.name = "passage floor"
@@ -183,6 +208,7 @@ def makeHallway( tile ):
     tile.spawnMonsters = False
     tile.spawnItems = False
     tile.hindersLOS = False
+    tile.tileTypeDesc = "A narrow passage."
 
 def makeFloor( tile ):
     tile.name = "floor"
@@ -193,6 +219,7 @@ def makeFloor( tile ):
     tile.spawnMonsters = True
     tile.spawnItems = True
     tile.hindersLOS = False
+    tile.tileTypeDesc = ""
 
 def makeWall( tile ):
     tile.name = "wall"
@@ -203,6 +230,7 @@ def makeWall( tile ):
     tile.spawnMonsters = False
     tile.spawnItems = False
     tile.hindersLOS = True
+    tile.tileTypeDesc = "A wall."
 
 class Mobile:
     def __init__(self,
@@ -247,6 +275,8 @@ class Mobile:
             # (walking into a spike pit).
         self.attackVerb = attackVerb
         self.attackElaboration = attackElaboration
+    def describe(self):
+        return capitalizeFirst( "%s (%d/%d hp)." % (self.name.indefiniteSingular(), self.hitpoints, self.maxHitpoints ) )
     def damage(self, n, fromPlayer = False):
         self.hitpoints -= n
         if self.hitpoints <= 0:
@@ -511,12 +541,12 @@ class Viewport:
         self.visibility = visibility
         self.window = window # set new on resize
         self.level = level
-    def paint(self, cx, cy, effects = {}):
+    def paint(self, cx, cy, effects = {}, highlight = None):
         x0 = cx - int(self.window.w / 2)
         y0 = cy - int(self.window.h / 2)
-        darkness = { 'ch': ' ', 'fg': 'black', 'bg': 'black' }
         for x in range(x0, x0 + self.window.w):
             for y in range(y0, y0 + self.window.h):
+                darkness = { 'ch': ' ', 'fg': 'black', 'bg': 'black' }
                 try:
                     tile = self.level.tiles[x,y]
                 except KeyError:
@@ -533,4 +563,10 @@ class Viewport:
                     outgoing = tile.appearanceRemembered()
                 else:
                     outgoing = darkness
+                if highlight and x == cx and y == cy:
+                    if outgoing['fg'] != outgoing['bg']:
+                        outgoing['fg'], outgoing['bg'] = outgoing['bg'], outgoing['fg']
+                    else:
+                        outgoing['fg'] = 'white'
+                        outgoing['bg'] = 'white'
                 self.window.put( x - x0, y - y0, **outgoing )

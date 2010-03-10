@@ -12,6 +12,8 @@ def makeCountingList( d ):
     return makeList( rv )
 
 def capitalizeFirst( s ):
+    if not s:
+        return ""
     return s[0].upper() + s[1:]
 
 SmallNumbers = {
