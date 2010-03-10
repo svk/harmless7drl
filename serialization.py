@@ -29,8 +29,8 @@ class GameContext:
             pass
     def neuter(self):
         rv = {}
-        rv[ 'levelGenerator' ] = self.levelGenerator
-        del self.levelGenerator
+#        rv[ 'levelGenerator' ] = self.levelGenerator
+#        del self.levelGenerator
         try:
             rv[ 'gameWidget' ] = self.game
             del self.game
@@ -38,7 +38,7 @@ class GameContext:
             pass
         return rv
     def unneuter(self, data):
-        self.levelGenerator = data['levelGenerator']
+#        self.levelGenerator = data['levelGenerator']
         try:
             self.game = data['gameWidget']
         except KeyError:

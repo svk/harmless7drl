@@ -65,8 +65,8 @@ if __name__ == '__main__':
     context = GameContext()
     context.levels = []
 
-    from levelgen import GeneratorQueue
-    context.levelGenerator = GeneratorQueue( 2, 100, 100 )
+#    from levelgen import GeneratorQueue
+#    context.levelGenerator = GeneratorQueue( 2, 100, 100 )
     try:
         try:
             raise IOError()
@@ -98,5 +98,5 @@ if __name__ == '__main__':
         print "Thanks for playing!"
         print "Please wait, shutting down...",
         sys.stdout.flush()
-        context.levelGenerator.shutdown()
+#        context.levelGenerator.shutdown()
         print "done."

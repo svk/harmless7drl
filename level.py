@@ -373,7 +373,12 @@ class Map:
         return path[-1]
 
 def mapFromGenerator( context ):
-    lg = context.levelGenerator.get()
+    from levelgen import generateLevel
+    lg = generateLevel( 80, 
+                        50,
+                        (16,30,16,30),
+                        (12,20,12,16)
+    )
     rv = Map( context, lg.width, lg.height )
     # Ror now just the cell data is used; do recall that the lg object
     # also contains .rooms; these make up a graph that can be used to
