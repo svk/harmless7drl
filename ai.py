@@ -44,7 +44,7 @@ class TurnerBot:
                 self.directions[key] = -dx, -dy
         self.direction = random.choice( self.directions.keys() )
     def trigger(self, mob):
-        
+        print >> sys.stderr, "robot is moving"
         tile = mob.tile.getRelative( *self.direction )
         if tile and not tile.cannotEnterBecause( mob ):
             mob.moveto( tile )

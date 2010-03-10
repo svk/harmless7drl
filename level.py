@@ -4,9 +4,13 @@
 
 # It does not and will not contain the level generator.
 
+import sys
 import random
 from timing import Speed
 import timing
+
+class PlayerKilledException:
+    pass
 
 def countItems( l ):
     rv = {}
@@ -46,11 +50,12 @@ class Tile:
             return "there's something in the way"
         return ""
     def leaves(self):
+        print >> sys.stderr, "killed mobile", self.mobile.name.definite(), "disappearing"
         self.mobile = None
     def enters(self, mobile):
+        self.mobile = mobile
         for trigger in self.onEnter:
             trigger( mobile )
-        self.mobile = mobile
     def appearance(self):
         rv = {
             'ch': self.symbol,
@@ -199,7 +204,19 @@ def makeWall( tile ):
     tile.hindersLOS = True
 
 class Mobile:
-    def __init__(self, tile, name, symbol, speed = Speed.Normal, ai = None, context = None, fgColour = 'white', bgColour = None, noSchedule = False, hindersLOS = False):
+    def __init__(self,
+                 tile,
+                 name,
+                 symbol,
+                 speed = Speed.Normal,
+                 ai = None,
+                 context = None,
+                 fgColour = 'white',
+                 bgColour = None,
+                 noSchedule = False,
+                 hindersLOS = False, # behaviour flags
+                 nonalive = False):
+        assert fgColour != 'red' # used for traps
         self.name = name
         self.hindersLOS = hindersLOS
         self.context = context
@@ -214,9 +231,9 @@ class Mobile:
         self.inventory = []
         self.noSchedule = noSchedule
         self.moveto( tile )
-        self.schedule()
         self.cachedFov = []
         self.trapDetection = 0
+        self.nonalive = nonalive
     def moveto(self, tile):
         assert not tile.cannotEnterBecause( self )
         if self.tile:
@@ -249,13 +266,39 @@ class Mobile:
             self.context.log( youMessage )
         elif (self.tile.x,self.tile.y) in self.context.player.cachedFov:
             self.context.log( someoneMessage % self.name.definite() )
+    def killmessage(self, active = False):
+        if not active:
+            message = "%s is killed!"
+            if self.nonalive:
+                message = "%s is destroyed!"
+        else:
+            message = "You kill %s!"
+            if self.nonalive:
+                message = "You destroy %s!"
+        self.logVisual( "You die...", message )
+    def kill(self):
+        for item in self.inventory:
+            self.tile.items.append( item )
+        print >> sys.stderr, "killing", self
+        if self.scheduledAction:
+            print >> sys.stderr, "cancelling", self
+            self.scheduledAction.cancel()
+        if self.isPlayer():
+            raise PlayerKilledException()
+        self.tile.leaves()
+        self.noSchedule = True # likely we're actually call-descendants of .trigger(), so blanking
+                               # the scheduled action is not enough
     def schedule(self):
-        if not self.noSchedule:
-            self.tile.level.sim.schedule( self, self.sim.t + self.speed )
+        if not self.noSchedule and not self.scheduledAction:
+            self.scheduledAction = self.tile.level.sim.schedule( self, self.sim.t + self.speed )
     def trigger(self, t):
+        print >> sys.stderr, "triggered", self
         if self.ai:
             self.ai.trigger( self )
-        self.tile.level.sim.schedule( self, t + self.speed )
+        if not self.noSchedule:
+            self.scheduledAction = self.tile.level.sim.schedule( self, t + self.speed )
+        else: # wait, what?
+            self.scheduledAction = None
     def fov(self, radius = None, setRemembered = False):
         from vision import VisionField
         rv = VisionField( self.tile,
@@ -352,8 +395,7 @@ def mapFromGenerator( context ):
     makeStairsDown( rv.tiles[ lg.exitRoom.internalFloorpoint() ] )
     for room in lg.dangerRooms:
         # simple sample trap
-        from traps import Trap, installStepTrigger
-        trap = Trap( 0 )
+        from traps import SpikePit
         tries = 100
         while tries > 0:
             point = rv.tiles[ room.internalFloorpoint() ]
@@ -361,7 +403,7 @@ def mapFromGenerator( context ):
                 break
             tries -= 1
         if tries > 0:
-            installStepTrigger( point, trap )
+            trap = SpikePit( point )
     context.levels.append( rv )
     return rv
 

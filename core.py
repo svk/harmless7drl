@@ -84,11 +84,9 @@ if __name__ == '__main__':
             for i in range(5):
                 level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = RandomWalker(), context = context )
             for i in range(5):
-                level.spawnMobile( Mobile, name = Noun("a", "robot", "robots"), symbol = "g", fgColour = "yellow", ai = TurnerBot(), speed = timing.Speed.Normal, context = context, hindersLOS = True )
-
+                level.spawnMobile( Mobile, name = Noun("a", "robot", "robots"), symbol = "g", fgColour = "yellow", ai = TurnerBot(), speed = timing.Speed.Normal, context = context, nonalive = True )
             for i in range(5):
                 level.spawnItem( Item, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
-
         try:
             import cursesui
             main = cursesui.main

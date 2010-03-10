@@ -27,12 +27,16 @@ import random
 
 
 def installStepTrigger( tile, trap ):
+    trap.tiles.append( trap )
+    trap.lists.append( tile.onEnter )
     tile.trap = trap
     tile.onEnter.append( trap )
 
 def installOpenDoorTrigger( tile, trap ):
     assert tile.isDoor
     assert tile.doorState == 'closed'
+    trap.tiles.append( trap )
+    trap.lists.append( tile.onOpen )
     tile.trap = trap
     tile.onOpen.append( trap )
 
@@ -40,8 +44,25 @@ class Trap:
     def __init__(self, difficulty):
         self.difficulty = random.randint(0, difficulty)
         self.active = True
+        self.tiles = []
+        self.lists = []
     def canSpot(self, mob):
         return mob.trapDetection >= self.difficulty
+    def remove(self):
+        for tile in self.tiles:
+            assert tile.trap == self
+            tile.trap = None
+        for triggerlist in self.lists:
+            triggerlist.remove( self )
     def __call__(self, mob):
         if self.active:
             mob.logVisual( "You trigger a generic trap!", "%s triggers a generic trap!" )
+
+class SpikePit (Trap):
+    def __init__(self, tile):
+        Trap.__init__(self, 0)
+        installStepTrigger( tile, self )
+    def __call__(self, mob):
+        mob.logVisual( "You fall into the spike pit!", "%s falls into the spike pit!" )
+        mob.killmessage()
+        mob.kill()

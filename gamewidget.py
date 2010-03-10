@@ -185,6 +185,8 @@ class GameWidget ( Widget ):
         if standardAction:
             self.clearlog()
             standardAction()
+        elif key == 'Q':
+            self.done = True
         elif key == 'q':
             self.context.save( "test-savefile.gz" )
             self.done = True
