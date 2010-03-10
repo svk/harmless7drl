@@ -206,7 +206,11 @@ class GameWidget ( Widget ):
         if not self.context.player.spellbook:
             self.log( "Your spellbook is blank." )
         else:
-            self.log( "You've forgotten how to work magic!" )
+            chosen = self.main.query( SelectionMenuWidget, choices = [
+                (spell,"%c: %s" % (spell.hotkey,spell.name)) for spell in self.context.player.spellbook
+            ] + [ (None, "cancel") ], title = "Which spell do you want to cast?", padding = 5 )
+            if self.context.player.payForSpell( chosen.cost() ):
+                chosen.cast( self.context ) # intransitive spells only at the moment
     def keyboard(self, key):
         try:
             dx, dy = self.movementKeys[ key ]

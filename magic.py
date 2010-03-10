@@ -65,7 +65,7 @@ class TeleportSelf (Spell):
     def cast(self, context):
         # teleport the player randomly. (greater teleport allows you to specify destination.)
         context.log( "You cast the Escape spell and teleport away!" )
-        tile = context.player.level.randomTile( lambda tile : not tile.trap and not tile.cannotEnterBecause( context.player ) )
+        tile = context.player.tile.level.randomTile( lambda tile : not tile.trap and not tile.cannotEnterBecause( context.player ) )
         context.player.moveto( tile )
 
 Spells = [ TeleportSelf() ]

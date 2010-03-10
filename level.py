@@ -280,6 +280,13 @@ class Mobile:
         self.spellbook = []
         self.spellpoints = spellpoints
         self.maxSpellpoints = spellpoints
+    def payForSpell(self, cost):
+        if cost > self.spellpoints:
+            # offer Faustian bargain
+            self.context.log( "You are too exhausted to cast that." )
+            return False
+        self.spellpoints -= cost
+        return True
     def describe(self):
         return capitalizeFirst( "%s (%d/%d hp)." % (self.name.indefiniteSingular(), self.hitpoints, self.maxHitpoints ) )
     def damage(self, n, fromPlayer = False):
