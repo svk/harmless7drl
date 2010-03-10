@@ -53,7 +53,7 @@ class GameWidget ( Widget ):
     def draw(self):
         import time
         screenw, screenh = self.ui.dimensions()
-        fov = self.player.fov()
+        fov = self.player.fov( setRemembered = True )
         if self.restrictVisionByFov:
             visibility = lambda tile : (tile.x, tile.y) in fov
         else:
@@ -186,6 +186,7 @@ class GameWidget ( Widget ):
             self.clearlog()
             standardAction()
         elif key == 'q':
+            self.context.save( "test-savefile.gz" )
             self.done = True
         elif key == 'V':
             self.restrictVisionByFov = not self.restrictVisionByFov

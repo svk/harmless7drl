@@ -76,9 +76,10 @@ class AngularInterval: #never full, sometimes empty
         return self
 
 class VisionField:
-    def __init__(self, origin, obstacle, radius = None):
+    def __init__(self, origin, obstacle, radius = None, mark = None):
         self.origin = origin # a tile
         self.obstacle = obstacle
+        self.mark = mark # a lambda or None
         if radius:
             self.radiusSquared = radius * radius
         else:
@@ -87,6 +88,8 @@ class VisionField:
         self.tiles = {}
         self.visible = set()
         self.visible.add( (origin.x, origin.y) )
+        if self.mark:
+            self.mark( origin )
         self.spiral = ( (1,0), (0,-1), (-1,0), (0,1) )
         self.passOrderings = {
             (1,0): ( (0,1), (1,0), (0,-1) ),
@@ -114,6 +117,8 @@ class VisionField:
     def calculate(self):
         next = self.q.pop(0)
         self.visible.add( (next.x, next.y) )
+        if self.mark:
+            self.mark( next )
         rx, ry = next.x - self.origin.x, next.y - self.origin.y
         qxqy = quadrant( rx, ry )
         try:

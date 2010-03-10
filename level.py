@@ -33,6 +33,7 @@ class Tile:
         self.level = level
         self.isDoor = False
         self.context = context
+        self.remembered = False
         self.x, self.y = x, y
         self.items = []
     def cannotEnterBecause(self, mobile):
@@ -57,6 +58,12 @@ class Tile:
         if self.mobile:
             mergeAppearance( rv, self.mobile.appearance() )
         return rv
+    def appearanceRemembered(self):
+        return {
+            'ch': self.symbol,
+            'fg': self.fgColour,
+            'bg': self.bgColour,
+        }
     def getRelative(self, dx, dy):
         return self.level.get( self.x + dx, self.y + dy )
     def neighbours(self):
@@ -77,6 +84,8 @@ class Tile:
         if self.mobile and self.mobile.hindersLOS:
             return True
         return self.hindersLOS
+    def remember(self):
+        self.remembered = True
 
 def cannotCloseDoorBecause( tile ):
     if not tile.isDoor:
@@ -233,9 +242,12 @@ class Mobile:
         if self.ai:
             self.ai.trigger( self )
         self.tile.level.sim.schedule( self, t + self.speed )
-    def fov(self, radius = None):
+    def fov(self, radius = None, setRemembered = False):
         from vision import VisionField
-        return VisionField( self.tile, lambda tile : tile.opaque() ).visible
+        return VisionField( self.tile,
+                            lambda tile : tile.opaque(),
+                            mark = None if not setRemembered else lambda tile : tile.remember()
+        ).visible
 
 class Item:
     def __init__(self, name, symbol, fgColour, bgColour = None):
@@ -348,6 +360,8 @@ class Viewport:
                     tile = None
                 if tile and self.visibility( tile ):
                     outgoing = tile.appearance()
+                elif tile and tile.remembered:
+                    outgoing = tile.appearanceRemembered()
                 else:
                     outgoing = { 'ch': ' ', 'fg': 'black', 'bg': 'black' }
                 self.window.put( x - x0, y - y0, **outgoing )
