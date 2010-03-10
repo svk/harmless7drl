@@ -207,6 +207,7 @@ class Mobile:
                  tile,
                  name,
                  symbol,
+                 hitpoints = 5,
                  speed = Speed.Normal,
                  ai = None,
                  context = None,
@@ -233,6 +234,18 @@ class Mobile:
         self.cachedFov = []
         self.trapDetection = 0
         self.nonalive = nonalive
+        self.hitpoints = hitpoints
+        self.maxHitpoints = hitpoints
+            # I'm trying to avoid using HP a lot. The amounts of HP
+            # in the game will be low, e.g.: 5-20 for the player, not hundreds.
+            # Basically, the goal is: if you take damage, you've made a mistake,
+            # but one we're not as strict about. More severe mistakes get instakills
+            # (walking into a spike pit).
+    def damage(self, n, fromPlayer = False):
+        self.hitpoints -= n
+        if self.hitpoints <= 0:
+            self.killmessage( fromPlayer )
+            self.kill()
     def moveto(self, tile):
         assert not tile.cannotEnterBecause( self )
         if self.tile:

@@ -52,6 +52,7 @@ class GameWidget ( Widget ):
         self.turnlogLines = []
     def draw(self):
         import time
+        statusbarHeight = 2
         screenw, screenh = self.ui.dimensions()
         fov = self.player.fov( setRemembered = True )
         if self.restrictVisionByFov:
@@ -62,15 +63,18 @@ class GameWidget ( Widget ):
                        window = Subwindow( self.ui, 0,
                        self.textfieldheight,
                        screenw,
-                       screenh - self.textfieldheight ),
+                       screenh - self.textfieldheight - statusbarHeight),
                        visibility = visibility
         )
         vp.paint( self.player.tile.x, self.player.tile.y )
         for i in range( self.textfieldheight ):
             try:
-                self.ui.putString( 0, i, self.turnlogLines[i] )
+                self.ui.putString( 0, i, self.turnlogLines[i], 'bold-white')
             except IndexError:
                 pass
+        sby = screenh - 2
+        self.ui.putString( 0, sby, str(self.player.name), 'bold-white' )
+        self.ui.putString( 32, sby, "HP: %d/%d" % (self.player.hitpoints, self.player.maxHitpoints), 'bold-white' )
     def advanceTime(self, dt):
         self.player.tile.level.sim.advance( dt )
         while True:
