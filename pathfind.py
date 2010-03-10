@@ -29,7 +29,6 @@ class PathfindingNode:
 ### vvv Hardest bug yet! Still haven't quite understood why it breaks.
 #    def retrace(self, accumulator = []):
 #       accumulator.append( self.current )
-#       print>>sys.stderr, "retracing through", self.current
 #       if self.prev:
 #           return self.prev.retrace( accumulator )
 #       return list( reversed( accumulator ) )

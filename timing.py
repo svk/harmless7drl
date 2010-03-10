@@ -13,12 +13,9 @@ class EventWrapper:
         self.event = event
         self.cancelled = False
     def cancel(self):
-        print >>sys.stderr, "at", self, "cancelled =True"
         self.cancelled = True
     def trigger(self):
-        print >>sys.stderr, "at", self, "triggers"
         if not self.cancelled:
-            print >>sys.stderr, "at", self, "HIT"
             self.event.trigger( self.t )
     def __cmp__(self, that):
         return self.t - that.t

@@ -50,7 +50,6 @@ class Tile:
             return "there's something in the way"
         return ""
     def leaves(self):
-        print >> sys.stderr, "killed mobile", self.mobile.name.definite(), "disappearing"
         self.mobile = None
     def enters(self, mobile):
         self.mobile = mobile
@@ -279,9 +278,7 @@ class Mobile:
     def kill(self):
         for item in self.inventory:
             self.tile.items.append( item )
-        print >> sys.stderr, "killing", self
         if self.scheduledAction:
-            print >> sys.stderr, "cancelling", self
             self.scheduledAction.cancel()
         if self.isPlayer():
             raise PlayerKilledException()
@@ -292,7 +289,6 @@ class Mobile:
         if not self.noSchedule and not self.scheduledAction:
             self.scheduledAction = self.tile.level.sim.schedule( self, self.sim.t + self.speed )
     def trigger(self, t):
-        print >> sys.stderr, "triggered", self
         if self.ai:
             self.ai.trigger( self )
         if not self.noSchedule:
