@@ -75,7 +75,7 @@ if __name__ == '__main__':
             # hack up a little new environment for us.
             level = mapFromGenerator( context )
             context.player = Mobile( level.getPlayerSpawnSpot(),
-                                     ProperNoun( "Atman" ),
+                                     ProperNoun( "Atman", "male" ),
                                      "@",
                                      speed = Speed.Normal,
                                      context = context,

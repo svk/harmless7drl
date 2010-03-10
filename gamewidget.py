@@ -36,6 +36,17 @@ class GameWidget ( Widget ):
         self.turnlogLines = []
         self.restrictVisionByFov = True
         self.visualEffects = {}
+        self.proposedPath = None
+        self.startled = False
+    def takePathStep(self):
+        if self.proposedPath:
+            tile = self.proposedPath.pop(0)
+            if not tile.cannotEnterBecause( self.player ):
+                self.player.moveto( tile )
+                self.tookAction( 1 )
+                return True
+            self.proposedPath = None
+        return False
     def log(self, s):
         self.turnlogWrapper.feed( s + " " )
         while self.turnlogWrapper.pages:
@@ -97,6 +108,12 @@ class GameWidget ( Widget ):
             if not tile.cannotEnterBecause( self.player ):
                 self.player.moveto( tile )
                 self.tookAction( 1 )
+            elif tile.mobile:
+                if tile.mobile.canBeMeleeAttackedBy( self.player ):
+                    self.player.meleeAttack( tile.mobile )
+                    self.tookAction( 1 )
+                else:
+                    self.context.log( "You can't reach %s." % tile.mobile.pronounObject() )
             elif tile.isDoor and tile.doorState == "closed":
                 self.log( "You open the door." )
                 openDoor( tile )
@@ -216,7 +233,7 @@ class GameWidget ( Widget ):
         elif key == 'S':
             self.context.save( "test-savefile.gz" )
         elif key == 'C':
-            showExplosion( self,  (self.player.tile.x, self.player.tile.y), 5 )
+            self.showExplosion( (self.player.tile.x, self.player.tile.y), 5 )
     def showEffects(self, effects, t = 0.05):
         fov = self.player.fov( setRemembered = True )
         seen = False

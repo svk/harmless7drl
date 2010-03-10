@@ -9,6 +9,7 @@ import random
 from timing import Speed
 import timing
 from traps import *
+from grammar import *
 
 class PlayerKilledException:
     pass
@@ -215,6 +216,8 @@ class Mobile:
                  fgColour = 'white',
                  bgColour = None,
                  noSchedule = False,
+                 attackVerb = Verb( "attack" ),
+                 attackElaboration = "",
                  hindersLOS = False, # behaviour flags
                  nonalive = False):
         assert fgColour != 'red' # used for traps
@@ -242,11 +245,21 @@ class Mobile:
             # Basically, the goal is: if you take damage, you've made a mistake,
             # but one we're not as strict about. More severe mistakes get instakills
             # (walking into a spike pit).
+        self.attackVerb = attackVerb
+        self.attackElaboration = attackElaboration
     def damage(self, n, fromPlayer = False):
         self.hitpoints -= n
         if self.hitpoints <= 0:
-            self.killmessage( fromPlayer )
+            self.killmessage( fromPlayer, usePronoun = "subject" )
             self.kill()
+    def canBeMeleeAttackedBy(self, mobile):
+        # levitating creatures are out of reach for groundhuggers
+        return True
+    def meleeAttack(self, target):
+        self.logVisual( "You %s %s%s!" % (self.attackVerb.second(), target.name.definite(), self.attackElaboration ),
+                        "%s " + self.attackVerb.third() + " " + ("you" if target.isPlayer() else target.name.definite()) + self.attackElaboration + "!" 
+        )
+        target.damage( 1 )
     def moveto(self, tile):
         assert not tile.cannotEnterBecause( self )
         if self.tile:
@@ -277,24 +290,27 @@ class Mobile:
     def logAural(self, youMessage):
         self.context.log( youMessage )
         return True
-    def logVisual(self, youMessage, someoneMessage):
+    def logVisual(self, youMessage, someoneMessage, usePronoun = False):
         if self.isPlayer():
             self.context.log( youMessage )
             return True
         elif (self.tile.x,self.tile.y) in self.context.player.cachedFov:
-            self.context.log( someoneMessage % self.name.definite() )
+            if usePronoun:
+                self.context.log( someoneMessage % self.name.pronounSubject() if usePronoun == "subject" else self.name.pronounObject() )
+            else:
+                self.context.log( someoneMessage % self.name.definite() )
             return True
         return False
-    def killmessage(self, active = False):
+    def killmessage(self, active = False, usePronoun = "subject"):
         if not active:
-            message = "%s is killed!"
+            message = "%s dies!"
             if self.nonalive:
                 message = "%s is destroyed!"
         else:
             message = "You kill %s!"
             if self.nonalive:
                 message = "You destroy %s!"
-        self.logVisual( "You die...", message )
+        self.logVisual( "You die...", message, usePronoun = usePronoun )
     def kill(self):
         for item in self.inventory:
             self.tile.items.append( item )

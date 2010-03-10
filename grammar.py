@@ -8,7 +8,7 @@ def makeList( l ):
 def makeCountingList( d ):
     rv = []
     for thing, things in d.items():
-        rv.append( thing.amount( len(things) ) )
+        rv.append( thing.amount( len(things), informal = True ) )
     return makeList( rv )
 
 def capitalizeFirst( s ):
@@ -38,12 +38,48 @@ SmallNumbers = {
     20 : "twenty",
 }
 
+class Verb:
+    def __init__(self, person2, person3 = None): # plural or first-person is not really needed
+        self.person2 = person2
+        if not person3:
+            person3 = person2 + "s"
+        self.person3 = person3
+    def second(self):
+        return self.person2
+    def third(self):
+        return self.person3
+
 class Noun:
-    def __init__(self, article, singular, plural, the = True):
+    def __init__(self, article, singular, plural, gender = "neuter", the = True):
         self.article = article
         self.singular = singular
         self.plural = plural
         self.the = the
+        self.gender = gender
+    def pronounPossessive(self):
+        if self.gender == "female":
+            return "her"
+        if self.gender == "male":
+            return "his"
+        return "its"
+    def pronounReflexive(self):
+        if self.gender == "female":
+            return "herself"
+        if self.gender == "male":
+            return "himself"
+        return "itself"
+    def pronounObject(self):
+        if self.gender == "female":
+            return "her"
+        if self.gender == "male":
+            return "him"
+        return "it"
+    def pronounSubject(self):
+        if self.gender == "female":
+            return "she"
+        if self.gender == "male":
+            return "he"
+        return "it"
     def indefiniteSingular(self):
         rv = [ self.singular ]
         if self.article:
@@ -69,8 +105,8 @@ class Noun:
         return self.singular.__hash__()
 
 class ProperNoun ( Noun ):
-    def __init__(self, name ):
-        Noun.__init__(self, None, name, "<no plural: %s>" % name, the = False )
+    def __init__(self, name, gender ):
+        Noun.__init__(self, None, name, "<no plural: %s>" % name, the = False, gender = gender )
 
 if __name__ == '__main__':
     penguin = Noun( "a", "penguin", "penguins" )

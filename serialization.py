@@ -76,6 +76,7 @@ def registerClasses():
     import grammar as G
     c.register( G.Noun )
     c.register( G.ProperNoun )
+    c.register( G.Verb )
     import timing as T
     c.register( T.Simulator )
     c.register( T.EventWrapper )
