@@ -42,10 +42,12 @@ class Rectangle:
         return self.x0 + int(self.w/2), self.y0 + int(self.h/2)
 
 class LevelGenerator:
-    def __init__(self, width, height, delay = None):
+    def __init__(self, width, height, bigRects = (32,44,32,44), smallRects = (12,32,12,22), delay = None):
         self.width = width
         self.height = height
         self.rooms = []
+        self.bigRects = bigRects
+        self.smallRects = smallRects
         self.hallwayLimit = 10 * (width + height)/2.0
         self.delay = delay
         self.generate()
@@ -67,9 +69,9 @@ class LevelGenerator:
                         self.data[-1].append( '-' )
     def generateRooms(self):
         rooms = self.rooms
-        for rect in self.generateRectangles( 32, 44, 32, 44, 1, rooms ):
+        for rect in self.generateRectangles( tries = 1, prevs = rooms, *self.bigRects ):
             rooms.append( Room( bigRoom = True, *rect.shrink(1).values() ) )
-        for rect in self.generateRectangles( 12, 32, 12, 22, 1000, rooms ):
+        for rect in self.generateRectangles( tries = 1000, prevs = rooms, *self.smallRects):
             rooms.append( Room( *rect.shrink(1).values() ) )
         for room in rooms:
             room.createData()
@@ -503,10 +505,10 @@ class Room (Rectangle):
 
 class AgainException: pass
 
-def generateLevel(width, height, delay = None ):
+def generateLevel(*args, **kwargs ):
     while True:
         try:
-            return LevelGenerator( width, height, delay )
+            return LevelGenerator(*args, **kwargs)
         except AgainException:
             print  >> sys.stderr, "warning: regenerating level -- should be unlikely"
 
@@ -548,18 +550,18 @@ class GeneratorQueue (Queue.Queue):
 
 if __name__ == '__main__':
     import time
-    generator = GeneratorQueue( 2, 100, 100 )
     times = []
     t0 = time.time()
     while True:
-        lg = None
-        try:
-            lg = generator.get( timeout = 1.0 )
-        except Queue.Empty:
-            print "Waiting for level..."
-            continue
-        dt = time.time() - t0
         t0 = time.time()
+        lg = generateLevel( 80, 
+                            50,
+                            (16,30,16,30),
+                            (12,20,12,16),
+#                            (32,44,32,44),
+ #                           (12,32,12,22),
+        )
+        dt = time.time() - t0
         for line in lg.data:
             print "".join( line )
         times.append( dt )
