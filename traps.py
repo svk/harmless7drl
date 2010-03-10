@@ -27,7 +27,7 @@ import random
 
 
 def installStepTrigger( tile, trap ):
-    trap.tiles.append( trap )
+    trap.tiles.append( tile )
     trap.lists.append( tile.onEnter )
     tile.trap = trap
     tile.onEnter.append( trap )
@@ -35,14 +35,15 @@ def installStepTrigger( tile, trap ):
 def installOpenDoorTrigger( tile, trap ):
     assert tile.isDoor
     assert tile.doorState == 'closed'
-    trap.tiles.append( trap )
+    trap.tiles.append( tile )
     trap.lists.append( tile.onOpen )
     tile.trap = trap
     tile.onOpen.append( trap )
 
 class Trap:
-    def __init__(self, difficulty):
+    def __init__(self, context, difficulty):
         self.difficulty = random.randint(0, difficulty)
+        self.context = context
         self.active = True
         self.tiles = []
         self.lists = []
@@ -59,10 +60,25 @@ class Trap:
             mob.logVisual( "You trigger a generic trap!", "%s triggers a generic trap!" )
 
 class SpikePit (Trap):
-    def __init__(self, tile):
-        Trap.__init__(self, 0)
+    def __init__(self, tile, *args, **kwargs):
+        Trap.__init__(self, difficulty = 0, *args, **kwargs)
         installStepTrigger( tile, self )
     def __call__(self, mob):
         mob.logVisual( "You fall into the spike pit!", "%s falls into the spike pit!" )
         mob.killmessage()
         mob.kill()
+
+class ExplodingMine (Trap):
+    def __init__(self, tile, *args, **kwargs):
+        Trap.__init__(self, difficulty = 0, *args, **kwargs)
+        self.blastSize = 5
+        installStepTrigger( tile, self )
+    def __call__(self, mob):
+        if not mob.logVisual( "You set off a mine!", "%s sets off a mine!" ):
+            mob.logAural( "You hear an explosion." )
+        for x, y in self.context.game.showExplosion( (mob.tile.x, mob.tile.y), self.blastSize ):
+            affects = mob.tile.level.tiles[x,y].mobile
+            if affects:
+                affects.logVisual( "You are caught in the explosion!", "%s is caught in the explosion!" )
+                affects.damage( 1 )
+        self.remove()

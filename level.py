@@ -8,6 +8,7 @@ import sys
 import random
 from timing import Speed
 import timing
+from traps import *
 
 class PlayerKilledException:
     pass
@@ -230,12 +231,12 @@ class Mobile:
         self.sim = tile.level.sim
         self.inventory = []
         self.noSchedule = noSchedule
-        self.moveto( tile )
-        self.cachedFov = []
-        self.trapDetection = 0
         self.nonalive = nonalive
         self.hitpoints = hitpoints
         self.maxHitpoints = hitpoints
+        self.moveto( tile )
+        self.cachedFov = []
+        self.trapDetection = 0
             # I'm trying to avoid using HP a lot. The amounts of HP
             # in the game will be low, e.g.: 5-20 for the player, not hundreds.
             # Basically, the goal is: if you take damage, you've made a mistake,
@@ -273,11 +274,17 @@ class Mobile:
         if self.bgColour:
             rv[ 'bg' ] = self.bgColour
         return rv
+    def logAural(self, youMessage):
+        self.context.log( youMessage )
+        return True
     def logVisual(self, youMessage, someoneMessage):
         if self.isPlayer():
             self.context.log( youMessage )
+            return True
         elif (self.tile.x,self.tile.y) in self.context.player.cachedFov:
             self.context.log( someoneMessage % self.name.definite() )
+            return True
+        return False
     def killmessage(self, active = False):
         if not active:
             message = "%s is killed!"
@@ -362,7 +369,7 @@ class Map:
             return None
         return random.choice( choices )
     def spawnMobile(self, cls, *args, **kwargs):
-        tile = self.randomTile( lambda tile : tile.spawnMonsters and not tile.mobile )
+        tile = self.randomTile( lambda tile : tile.spawnMonsters and not tile.mobile and not tile.trap )
         assert tile != None
         rv = cls( tile, *args, **kwargs )
         return rv
@@ -409,7 +416,6 @@ def mapFromGenerator( context ):
     makeStairsDown( rv.tiles[ lg.exitRoom.internalFloorpoint() ] )
     for room in lg.dangerRooms:
         # simple sample trap
-        from traps import SpikePit
         tries = 100
         while tries > 0:
             point = rv.tiles[ room.internalFloorpoint() ]
@@ -417,7 +423,8 @@ def mapFromGenerator( context ):
                 break
             tries -= 1
         if tries > 0:
-            trap = SpikePit( point )
+            singleCell = random.choice( [ ExplodingMine ] )
+            trap = singleCell( point, context = context )
     context.levels.append( rv )
     return rv
 
@@ -428,14 +435,63 @@ def mergeAppearance( result, target ):
     for key, val in target.items():
         result[ key ] = val
 
+def sign( n ):
+    if n > 0: return 1
+    if n < 0: return -1
+    return 0
+
+
+def bresenhamCircle( origin, radius ):
+    cx, cy = origin
+    rv = set( [(cx, cy+radius), (cx,cy-radius), (cx+radius,cy), (cx-radius,cy)] )
+    f = 1 - radius
+    ddfx = 1
+    ddfy = -2 * radius
+    x, y = 0, radius
+    while x < y:
+        if f >= 0:
+            y -= 1
+            ddfy += 2
+            f += ddfy
+        x += 1
+        ddfx += 2
+        f += ddfx
+        rv.add( (cx+x, cy+y) )
+        rv.add( (cx-x, cy+y) )
+        rv.add( (cx-x, cy-y) )
+        rv.add( (cx+x, cy-y) )
+        rv.add( (cx+y, cy+x) )
+        rv.add( (cx-y, cy+x) )
+        rv.add( (cx-y, cy-x) )
+        rv.add( (cx+y, cy-x) )
+    return rv
+
+def disk( origin, radius ):
+    cx, cy = origin
+    rv = set()
+    for x in range(-radius,radius+1):
+        for y in range(-radius,radius+1):
+            if x*x + y*y <= radius*radius:
+                rv.add( (cx+x,cy+y) )
+    return rv
+                
+def expandingDisk( origin, size ):
+    for r in range( 1, size + 1 ):
+        yield disk( origin, r )
+
+def expandingCircle( origin, size ):
+    for r in range( 1, size ):
+        yield bresenhamCircle( origin, r )
+
 class Viewport:
     def __init__(self, level, window, visibility = lambda tile : True ):
         self.visibility = visibility
         self.window = window # set new on resize
         self.level = level
-    def paint(self, cx, cy):
+    def paint(self, cx, cy, effects = {}):
         x0 = cx - int(self.window.w / 2)
         y0 = cy - int(self.window.h / 2)
+        darkness = { 'ch': ' ', 'fg': 'black', 'bg': 'black' }
         for x in range(x0, x0 + self.window.w):
             for y in range(y0, y0 + self.window.h):
                 try:
@@ -443,9 +499,15 @@ class Viewport:
                 except KeyError:
                     tile = None
                 if tile and self.visibility( tile ):
-                    outgoing = tile.appearance()
+                    try:
+                        outgoing = effects[ (tile.x, tile.y) ]
+                    except KeyError:
+                        if tile:
+                            outgoing = tile.appearance()
+                        else:
+                            outgoing = darkness
                 elif tile and tile.remembered:
                     outgoing = tile.appearanceRemembered()
                 else:
-                    outgoing = { 'ch': ' ', 'fg': 'black', 'bg': 'black' }
+                    outgoing = darkness
                 self.window.put( x - x0, y - y0, **outgoing )

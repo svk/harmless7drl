@@ -82,6 +82,7 @@ def registerClasses():
     import traps as R # curses, foiled again
     c.register( R.Trap )
     c.register( R.SpikePit )
+    c.register( R.ExplodingMine )
     import ai as A
     c.register( A.RandomWalker )
     c.register( A.HugBot )

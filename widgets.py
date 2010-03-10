@@ -1,5 +1,6 @@
 from core import Widget
 import string
+import time
 
 def blinkphase(n = 2, phaselength = 0.5):
     import time
@@ -47,6 +48,15 @@ def centeredSubwindow( ui, w, h ):
     w = min( w, wid - x0 )
     h = min( h, hei - y0 )
     return Subwindow( ui, x0, y0, w, h )
+
+class DelayWidget (Widget):
+    def __init__(self, dt = 0.1, *args, **kwargs):
+        Widget.__init__(self, *args, **kwargs)
+        self.t = time.time() + dt
+    def draw(self):
+        if time.time() >= self.t:
+            self.done = True
+        
 
 class DirectionWidget (Widget):
     def __init__(self, *args, **kwargs):

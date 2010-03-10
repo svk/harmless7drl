@@ -35,6 +35,7 @@ class GameWidget ( Widget ):
         self.turnlogWrapper = TextWrapper( screenw, self.textfieldheight )
         self.turnlogLines = []
         self.restrictVisionByFov = True
+        self.visualEffects = {}
     def log(self, s):
         self.turnlogWrapper.feed( s + " " )
         while self.turnlogWrapper.pages:
@@ -66,7 +67,7 @@ class GameWidget ( Widget ):
                        screenh - self.textfieldheight - statusbarHeight),
                        visibility = visibility
         )
-        vp.paint( self.player.tile.x, self.player.tile.y )
+        vp.paint( self.player.tile.x, self.player.tile.y, effects = self.visualEffects )
         for i in range( self.textfieldheight ):
             try:
                 self.ui.putString( 0, i, self.turnlogLines[i], 'bold-white')
@@ -214,3 +215,32 @@ class GameWidget ( Widget ):
             ], title = "Choose your team", padding = 5)
         elif key == 'S':
             self.context.save( "test-savefile.gz" )
+        elif key == 'C':
+            showExplosion( self,  (self.player.tile.x, self.player.tile.y), 5 )
+    def showEffects(self, effects, t = 0.05):
+        fov = self.player.fov( setRemembered = True )
+        seen = False
+        for x,y in effects.keys():
+            if (x,y) in fov:
+                seen = True
+                break
+        if not seen:
+            return
+        self.visualEffects = effects
+        self.main.query( DelayWidget, t )
+        self.visualEffects = {}
+    def showExplosion(self, origin, radius, distribution = ( 'red', 'yellow', 'red', 'red', 'yellow', 'yellow', 'white', 'black' ) ):
+        cx, cy = origin
+        fx = {}
+        for region in expandingDisk( (cx, cy), radius):
+            for x, y in region:
+                fg, bg = random.sample( distribution, 2 )
+                if random.randint(0,1):
+                    fg = 'bold-' + fg
+                fx[x,y] = {
+                    'ch': random.choice( ['-', '.', '*', '`', '`' ] ),
+                   'fg': fg,
+                   'bg': bg,
+                }
+            self.showEffects( fx, 0.05 )
+        return region
