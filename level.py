@@ -57,6 +57,7 @@ class Tile:
             mergeAppearance( rv, self.items[-1].appearance() )
         if self.mobile:
             mergeAppearance( rv, self.mobile.appearance() )
+        rv['fg'] = "bold-" + rv['fg']
         return rv
     def appearanceRemembered(self):
         return {

@@ -36,6 +36,12 @@ class TcodInterface:
             'magenta': libtcod.magenta,
             'yellow': libtcod.yellow,
         }
+        for key in self.colours.keys():
+            self.colours["bold-"+key] = self.colours[key]
+        for key in self.colours:
+            if "bold" not in key:
+                c = self.colours[key]
+                self.colours[key] = libtcod.Color( c.r & 0x80, c.g & 0x80, c.b & 0x80 )
         self.keymap = {
             libtcod.KEY_BACKSPACE: 'backspace',
             libtcod.KEY_KP1: 'southwest',
@@ -71,9 +77,9 @@ class TcodInterface:
             return False
         w, h = self.dimensions()
         return not (x >= w or y >= h)
-    def putString(self, x, y, s, fg = 'white', bg = 'black', attrs = 0):
+    def putString(self, x, y, s, fg = 'white', bg = 'black'):
         for ch in s:
-            self.put( x, y, ch, fg, bg, attrs)
+            self.put( x, y, ch, fg, bg)
             x += 1
     def shutdown(self):
         pass
@@ -81,7 +87,7 @@ class TcodInterface:
         libtcod.console_set_foreground_color( 0, self.colours[ 'black' ] )
         libtcod.console_set_background_color( 0, self.colours[ 'black' ] )
         libtcod.console_clear(0)
-    def put(self, x, y, ch, fg = 'white', bg = 'black', attrs = 0):
+    def put(self, x, y, ch, fg = 'white', bg = 'black'):
         libtcod.console_set_foreground_color( 0, self.colours[ fg ] )
         libtcod.console_set_background_color( 0, self.colours[ bg ] )
         libtcod.console_put_char( 0, x, y, ch, libtcod.BKGND_SET )

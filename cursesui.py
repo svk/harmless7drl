@@ -75,27 +75,43 @@ class CursesInterface:
         assert curses.has_colors()
         curses.start_color()
         self.colours = {
-            'white': curses.COLOR_WHITE,
-            'black': curses.COLOR_BLACK,
-            'red': curses.COLOR_RED,
-            'blue': curses.COLOR_BLUE,
-            'cyan': curses.COLOR_CYAN,
-            'green': curses.COLOR_GREEN,
-            'magenta': curses.COLOR_MAGENTA,
-            'yellow': curses.COLOR_YELLOW,
+            'white': (curses.COLOR_WHITE, 0),
+            'black': (curses.COLOR_BLACK, 0),
+            'red': (curses.COLOR_RED, 0),
+            'blue': (curses.COLOR_BLUE, 0),
+            'cyan': (curses.COLOR_CYAN, 0),
+            'green': (curses.COLOR_GREEN, 0),
+            'magenta': (curses.COLOR_MAGENTA, 0),
+            'yellow': (curses.COLOR_YELLOW, 0),
+            'bold-white': (curses.COLOR_WHITE, curses.A_BOLD),
+            'bold-black': (curses.COLOR_BLACK, curses.A_BOLD),
+            'bold-red': (curses.COLOR_RED, curses.A_BOLD),
+            'bold-blue': (curses.COLOR_BLUE, curses.A_BOLD),
+            'bold-cyan': (curses.COLOR_CYAN, curses.A_BOLD),
+            'bold-green': (curses.COLOR_GREEN, curses.A_BOLD),
+            'bold-magenta': (curses.COLOR_MAGENTA, curses.A_BOLD),
+            'bold-yellow': (curses.COLOR_YELLOW, curses.A_BOLD),
         }
         self.pairs = {}
         i = 1
-        for fgName,fg in self.colours.items():
-            for bgName,bg in self.colours.items():
+        revs = {}
+        for fgName,fga in self.colours.items():
+            fg, fgattr = fga
+            for bgName,bga in self.colours.items():
+                bg, bgattr = bga
                 if fg == curses.COLOR_WHITE and bg == curses.COLOR_BLACK:
                     self.pairs[ fgName, bgName ] = 0
+                    continue
                 elif fg == bg:
+                    continue
+                elif revs.has_key( (fg,bg) ):
+                    self.pairs[ fgName, bgName ] = revs[ fg, bg ]
                     continue
                 curses.init_pair( i, fg, bg )
                 self.pairs[ fgName, bgName ] = i
+                revs[ fg, bg ] = i
                 i += 1
-    def put(self, x, y, ch, fg = 'white', bg = 'black', attrs = 0):
+    def put(self, x, y, ch, fg = 'white', bg = 'black'):
         if fg == bg:
             fg = "white" if fg != "white" else "black"
             ch = ' '
@@ -103,13 +119,14 @@ class CursesInterface:
             self.warn( "put character at %d, %d (out of bounds)" % (x,y) )
         else:
             try:
-                self.stdscr.addch( y, x, ch, curses.color_pair( self.pairs[ fg, bg ]) | attrs )
+                cid, attr = self.colours[ fg ]
+                self.stdscr.addch( y, x, ch, curses.color_pair( self.pairs[ fg, bg ]) | attr )
             except:
                 # An error is triggered when we write to the last char on the screen?
                 pass
-    def putString(self, x, y, s, fg = 'white', bg = 'black', attrs = 0):
+    def putString(self, x, y, s, fg = 'white', bg = 'black'):
         for ch in s:
-            self.put( x, y, ch, fg, bg, attrs)
+            self.put( x, y, ch, fg, bg)
             x += 1
     def show(self):
         self.stdscr.refresh()
