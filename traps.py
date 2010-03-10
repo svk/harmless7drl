@@ -82,3 +82,20 @@ class ExplodingMine (Trap):
                 affects.logVisual( "You are caught in the explosion!", "%s is caught in the explosion!" )
                 affects.damage( 1 )
         self.remove()
+
+class TrapDoor (Trap):
+    def __init__(self, tile, *args, **kwargs):
+        Trap.__init__(self, difficulty = 4, *args, **kwargs)
+        self.blastSize = 5
+        installStepTrigger( tile, self )
+        self.target = None
+    def __call__(self, mob):
+        mob.logVisual( "You fall through a trap door!", "%s falls down a trap door!" )
+        if not self.target:
+            if not mob.tile.level.nextLevel:
+                mob.tile.level.generateDeeperLevel()
+            self.target = mob.tile.level.nextLevel.randomTile( lambda tile : not tile.impassable )
+        tile = self.target.level.getClearTileAround( self.target, lambda tile : not tile.impassable and not tile.mobile )
+        mob.moveto( tile )
+        mob.damage( 1 )
+        self.difficulty = 0

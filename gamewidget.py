@@ -147,10 +147,8 @@ class GameWidget ( Widget ):
             self.log( "You can't see any way to go up right here." )
     def goDown(self):
         if self.player.tile.name == "stairs down":
-            if not self.player.tile.level.nextLevel:
-                self.player.tile.level.nextLevel = mapFromGenerator( self.context )
-                self.player.tile.level.nextLevel.previousLevel = self.player.tile.level
-            spot = self.player.tile.level.nextLevel.getPlayerSpawnSpot()
+            nextLev = self.player.tile.level.generateDeeperLevel()
+            spot = nextLev.getPlayerSpawnSpot()
             self.player.moveto( spot )
             self.tookAction( 1 )
         else:
@@ -213,6 +211,8 @@ class GameWidget ( Widget ):
                 (5, "Team Bella"),
                 (6, "Team Buffy"),
             ], title = "Choose your team", padding = 5)
+        elif key == 'D':
+            self.player.trapDetection += 1
         elif key == 'S':
             self.context.save( "test-savefile.gz" )
         elif key == 'C':

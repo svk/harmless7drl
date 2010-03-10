@@ -379,18 +379,25 @@ class Map:
         rv = cls( *args, **kwargs )
         tile.items.append( rv )
         return rv
-    def getPlayerSpawnSpot(self, upwards = False):
-        # around the stairs?
-        origin = self.stairsDown if upwards else self.stairsUp
+    def getClearTileAround(self, origin, goal = lambda tile: not tile.impassable and not tile.mobile):
         from pathfind import Pathfinder, infinity
         import math
         pf = Pathfinder(cost = lambda tile : 1,
-                        goal = lambda tile : not tile.impassable and not tile.mobile,
+                        goal = goal,
                         heuristic = lambda tile : 0,
         )
         pf.addOrigin( origin )
         path = pf.seek()
         return path[-1]
+    def getPlayerSpawnSpot(self, upwards = False):
+        # around the stairs?
+        return self.getClearTileAround( self.stairsDown if upwards else self.stairsUp )
+    def generateDeeperLevel(self):
+        if self.nextLevel:
+            return self.nextLevel
+        self.nextLevel = mapFromGenerator( self.context )
+        self.nextLevel.previousLevel = self
+        return self.nextLevel
 
 def mapFromGenerator( context ):
     from levelgen import generateLevel
@@ -423,7 +430,7 @@ def mapFromGenerator( context ):
                 break
             tries -= 1
         if tries > 0:
-            singleCell = random.choice( [ ExplodingMine ] )
+            singleCell = random.choice( [ TrapDoor ] )
             trap = singleCell( point, context = context )
     context.levels.append( rv )
     return rv

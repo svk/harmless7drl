@@ -83,6 +83,7 @@ def registerClasses():
     c.register( R.Trap )
     c.register( R.SpikePit )
     c.register( R.ExplodingMine )
+    c.register( R.TrapDoor )
     import ai as A
     c.register( A.RandomWalker )
     c.register( A.HugBot )
