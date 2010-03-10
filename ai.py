@@ -29,3 +29,28 @@ class HugBot:
             tile = path[1]
             if not tile.cannotEnterBecause( mob ):
                 mob.moveto( path[1] )
+
+class TurnerBot:
+    def __init__(self):
+        self.directions = {
+            (1,0): (0,1),
+            (0,1): (-1,0),
+            (-1,0): (0,-1),
+            (0,-1): (1,0),
+        }
+        if random.randint(0,1):
+            for key in self.directions:
+                dx, dy = self.directions[key]
+                self.directions[key] = -dx, -dy
+        self.direction = random.choice( self.directions.keys() )
+    def trigger(self, mob):
+        
+        tile = mob.tile.getRelative( *self.direction )
+        if tile and not tile.cannotEnterBecause( mob ):
+            mob.moveto( tile )
+        else:
+            self.direction = self.directions[ self.direction ]
+            tile = mob.tile.getRelative( *self.direction )
+            if tile and not tile.cannotEnterBecause( mob ):
+                mob.moveto( tile )
+        

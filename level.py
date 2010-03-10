@@ -36,6 +36,9 @@ class Tile:
         self.remembered = False
         self.x, self.y = x, y
         self.items = []
+        self.trap = None
+        self.onEnter = []
+        self.onOpen = []
     def cannotEnterBecause(self, mobile):
         if self.impassable:
             return "tile is impassable"
@@ -45,7 +48,8 @@ class Tile:
     def leaves(self):
         self.mobile = None
     def enters(self, mobile):
-        # Appropriate place for trap triggers etc.
+        for trigger in self.onEnter:
+            trigger( mobile )
         self.mobile = mobile
     def appearance(self):
         rv = {
@@ -57,6 +61,8 @@ class Tile:
             mergeAppearance( rv, self.items[-1].appearance() )
         if self.mobile:
             mergeAppearance( rv, self.mobile.appearance() )
+        if self.trap and self.trap.canSpot( self.context.player ):
+            rv['bg'] = 'red'
         rv['fg'] = "bold-" + rv['fg']
         return rv
     def appearanceRemembered(self):
@@ -209,6 +215,8 @@ class Mobile:
         self.noSchedule = noSchedule
         self.moveto( tile )
         self.schedule()
+        self.cachedFov = []
+        self.trapDetection = 0
     def moveto(self, tile):
         assert not tile.cannotEnterBecause( self )
         if self.tile:
@@ -236,6 +244,11 @@ class Mobile:
         if self.bgColour:
             rv[ 'bg' ] = self.bgColour
         return rv
+    def logVisual(self, youMessage, someoneMessage):
+        if self.isPlayer():
+            self.context.log( youMessage )
+        elif (self.tile.x,self.tile.y) in self.context.player.cachedFov:
+            self.context.log( someoneMessage % self.name.definite() )
     def schedule(self):
         if not self.noSchedule:
             self.tile.level.sim.schedule( self, self.sim.t + self.speed )
@@ -245,10 +258,12 @@ class Mobile:
         self.tile.level.sim.schedule( self, t + self.speed )
     def fov(self, radius = None, setRemembered = False):
         from vision import VisionField
-        return VisionField( self.tile,
+        rv = VisionField( self.tile,
                             lambda tile : tile.opaque(),
                             mark = None if not setRemembered else lambda tile : tile.remember()
         ).visible
+        self.cachedFov = rv
+        return rv
 
 class Item:
     def __init__(self, name, symbol, fgColour, bgColour = None):
@@ -335,6 +350,18 @@ def mapFromGenerator( context ):
             }[ lg.data[y][x] ]( rv.tiles[x,y] )
     makeStairsUp( rv.tiles[ lg.entryRoom.internalFloorpoint() ] )
     makeStairsDown( rv.tiles[ lg.exitRoom.internalFloorpoint() ] )
+    for room in lg.dangerRooms:
+        # simple sample trap
+        from traps import Trap, installStepTrigger
+        trap = Trap( 0 )
+        tries = 100
+        while tries > 0:
+            point = rv.tiles[ room.internalFloorpoint() ]
+            if not point.trap:
+                break
+            tries -= 1
+        if tries > 0:
+            installStepTrigger( point, trap )
     context.levels.append( rv )
     return rv
 

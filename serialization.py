@@ -1,10 +1,19 @@
 import cerealizer as c
 import gzip
+from grammar import capitalizeFirst
 
 # Saving a game: basically saving/restoring the "context"
 # object, and all it points to
 # Things that must be regenerated:
 #   - the level generator thread (duh)
+
+# the one thing serialization does mean is that we can't
+# safely save lambdas. save objects instead, as these
+# can be restricted in activities (e.g. a Trap never
+# does anything except trigger a trap)
+
+# this means that e.g. one class for each AI is absolutely
+# required.
 
 Signature = "Harmless7DRL"
 Version = 0.1
@@ -15,7 +24,7 @@ class InvalidSaveException: pass
 class GameContext:
     def log(self, s):
         try:
-            self.game.log( s )
+            self.game.log( capitalizeFirst(s) )
         except AttributeError:
             pass
     def neuter(self):
@@ -70,13 +79,12 @@ def registerClasses():
     import timing as T
     c.register( T.Simulator )
     c.register( T.EventWrapper )
+    import traps as R # curses, foiled again
+    c.register( R.Trap )
     import ai as A
     c.register( A.RandomWalker )
     c.register( A.HugBot )
-
-registerClasses()
-c.freeze_configuration()
-
+    c.register( A.TurnerBot )
 
 def saveObject( o, filename ):
     # overwrites without warning!
@@ -85,9 +93,12 @@ def saveObject( o, filename ):
     c.dump( o, f )
     f.close()
 
-def loadObject( o, filename ):
+def loadObject( filename ):
     f = gzip.GzipFile( filename, "rb" )
     o = c.load( f )
     o2 = c.load( f )
     f.close()
     return o, o2
+
+registerClasses()
+c.freeze_configuration()

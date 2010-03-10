@@ -69,6 +69,7 @@ if __name__ == '__main__':
     context.levelGenerator = GeneratorQueue( 2, 100, 100 )
     try:
         try:
+            raise IOError()
             context = context.load( "test-savefile.gz" )
         except IOError:
             # hack up a little new environment for us.
@@ -81,9 +82,9 @@ if __name__ == '__main__':
                                      fgColour = "green",
                                      noSchedule = True )
             for i in range(5):
-                level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "red", ai = RandomWalker(), context = context )
-        #    for i in range(5):
-        #       level.spawnMobile( Mobile, name = "monster", symbol = "g", fgColour = "yellow", ai = HugBot(target = context.player, radius = 10), speed = timing.Speed.Quick, context = context, hindersLOS = True )
+                level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = RandomWalker(), context = context )
+            for i in range(5):
+                level.spawnMobile( Mobile, name = Noun("a", "robot", "robots"), symbol = "g", fgColour = "yellow", ai = TurnerBot(), speed = timing.Speed.Normal, context = context, hindersLOS = True )
 
             for i in range(5):
                 level.spawnItem( Item, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
