@@ -1,0 +1,28 @@
+Trap: door slams shut
+    As you walk through a door, it slams shut behind you - convert to (diggable)
+    wall tile.
+
+    Counter: always keep digging or teleporting tools or spells available
+
+Obstacle: floor half missing
+    The floor of a room is cut across by a wide hole in the floor.
+
+    Moving into the hole acts as a trapdoor; bringing you to a random
+    point on the level below. Will take some damage.
+
+    Counter: levitate over the hole, or use it to descend faster
+
+Obstacle: floor half spike pit
+    The floor of a room is cut across by a wide spike pit.
+
+    Moving into the hole means instant death.
+
+    Counter: levitate over the hole, or walk around, or roll
+             boulders into the pit to make a bridge
+
+Obstacle: floor half water
+    The floor of a room is cut across by a wide pool of water, guarded by
+    water monsters (piranhas or piranhalikes?).
+
+    Counter: levitate over the water, freeze it and walk over, walk around,
+             grin and bear it and swim over
