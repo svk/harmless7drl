@@ -605,7 +605,8 @@ def mapFromGenerator( context, ancestor = None):
                 '.': makeFloor,
                 '#': makeWall,
             }[ lg.data[y][x] ]( rv.tiles[x,y] )
-    makeStairsUp( rv.tiles[ lg.entryRoom.internalFloorpoint() ] )
+    if ancestor:
+        makeStairsUp( rv.tiles[ lg.entryRoom.internalFloorpoint() ] )
     makeStairsDown( rv.tiles[ lg.exitRoom.internalFloorpoint() ] )
     for room in lg.rewardRooms:
         # should be in chests: that way it's hard to
