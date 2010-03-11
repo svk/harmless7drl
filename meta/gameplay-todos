@@ -12,6 +12,6 @@ requires:
 
 also
     graceful handling of death <- boring
-    main menu <- boring
+    main menu <- boring [X]
 
 BORING STUFF FIRST: good strategy

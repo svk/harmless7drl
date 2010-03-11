@@ -5,6 +5,8 @@ from textwrap import TextWrapper
 from grammar import *
 import timing
 
+from level import PlayerKilledException
+
 class GameWidget ( Widget ):
     def __init__(self, context, wasLoaded, *args, **kwargs):
         Widget.__init__( self, *args, **kwargs )
@@ -65,6 +67,10 @@ class GameWidget ( Widget ):
         screenw, screenh = self.ui.dimensions()
         self.turnlogWrapper = TextWrapper( screenw, self.textfieldheight )
         self.turnlogLines = []
+    def playerDied(self):
+        self.main.query( HitEnterWidget )
+        self.done = True
+        self.result = False
     def draw(self):
         import time
         statusbarHeight = 2
@@ -268,65 +274,68 @@ class GameWidget ( Widget ):
                     self.tookAction( 1 )
     def keyboard(self, key):
         try:
-            dx, dy = self.movementKeys[ key ]
-            self.clearlog()
-            self.tryMoveAttack( dx, dy )
-            return
-        except KeyError:
-            pass
-        try:
-            standardAction = None
-            standardAction = {
-                '.': self.wait,
-                ',': self.pickup,
-                'd': self.drop,
-                'c': self.closeDoor,
-                '>': self.goDown,
-                '<': self.goUp,
-                'w': self.writeSpell,
-                'm': self.castSpell,
-                'i': self.accessInventory,
-            }[key]
-        except KeyError:
-            pass
-        if standardAction:
-            self.clearlog()
-            standardAction()
-        elif key == ':': # Look command
-            self.main.query( CursorWidget, self )
-        elif key == 'q':
-            from core import savefileName
-            self.log( "Quitting, please wait." )
-            self.context.save( savefileName( self.context.player.rawname ) )
-            self.done = True
-        elif key == 'Q':
-            self.done = True
-        elif key == 'V':
-            self.restrictVisionByFov = not self.restrictVisionByFov
-        elif key == 'T':
-            newLevel = mapFromGenerator( self.context )
-            self.player.moveto( newLevel.getPlayerSpawnSpot() )
-        elif key == 'N':
-            from widgets import TextInputWidget
-            import string
-            self.name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: " )
-        elif key == 'M':
-            self.main.query( SelectionMenuWidget, [
-                (1, "Team Cake"),
-                (2, "Team Pie"),
-                (3, "Team Edward"),
-                (4, "Team Jacob"),
-                (5, "Team Bella"),
-                (6, "Team Buffy"),
-            ], title = "Choose your team", padding = 5)
-        elif key == 'D':
-            self.player.trapDetection += 1
-        elif key == 'S':
-            self.context.save( "test-savefile.gz" )
-        elif key == 'C':
-            self.showExplosion( (self.player.tile.x, self.player.tile.y), 5 )
-        elif key == 'X':
-            self.main.query( CursorWidget, self )
+            try:
+                dx, dy = self.movementKeys[ key ]
+                self.clearlog()
+                self.tryMoveAttack( dx, dy )
+                return
+            except KeyError:
+                pass
+            try:
+                standardAction = None
+                standardAction = {
+                    '.': self.wait,
+                    ',': self.pickup,
+                    'd': self.drop,
+                    'c': self.closeDoor,
+                    '>': self.goDown,
+                    '<': self.goUp,
+                    'w': self.writeSpell,
+                    'm': self.castSpell,
+                    'i': self.accessInventory,
+                }[key]
+            except KeyError:
+                pass
+            if standardAction:
+                self.clearlog()
+                standardAction()
+            elif key == ':': # Look command
+                self.main.query( CursorWidget, self )
+            elif key == 'q':
+                from core import savefileName
+                self.log( "Quitting, please wait." )
+                self.context.save( savefileName( self.context.player.rawname ) )
+                self.done = True
+            elif key == 'Q':
+                self.done = True
+            elif key == 'V':
+                self.restrictVisionByFov = not self.restrictVisionByFov
+            elif key == 'T':
+                newLevel = mapFromGenerator( self.context )
+                self.player.moveto( newLevel.getPlayerSpawnSpot() )
+            elif key == 'N':
+                from widgets import TextInputWidget
+                import string
+                self.name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: " )
+            elif key == 'M':
+                self.main.query( SelectionMenuWidget, [
+                    (1, "Team Cake"),
+                    (2, "Team Pie"),
+                    (3, "Team Edward"),
+                    (4, "Team Jacob"),
+                    (5, "Team Bella"),
+                    (6, "Team Buffy"),
+                ], title = "Choose your team", padding = 5)
+            elif key == 'D':
+                self.player.trapDetection += 1
+            elif key == 'S':
+                self.context.save( "test-savefile.gz" )
+            elif key == 'C':
+                self.showExplosion( (self.player.tile.x, self.player.tile.y), 5 )
+            elif key == 'X':
+                self.player.damage( 100 )
+        except PlayerKilledException:
+            self.playerDied()
     def showEffects(self, effects, t = 0.05):
         fov = self.player.fov( setRemembered = True )
         seen = False

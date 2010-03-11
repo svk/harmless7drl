@@ -552,7 +552,7 @@ def mapFromGenerator( context ):
                 break
             tries -= 1
         if tries > 0:
-            singleCell = random.choice( [ TrapDoor ] )
+            singleCell = random.choice( [ TrapDoor, SpikePit, ExplodingMine ] )
             trap = singleCell( point, context = context )
     return rv
 
