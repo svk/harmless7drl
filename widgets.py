@@ -203,14 +203,19 @@ class SelectionMenuWidget (Widget):
     def resize(self, w = None, h = None):
         self.dialog = centeredSubwindow( self.ui, self.width, self.height )
     def keyboard(self, key):
-        if key == 'north':
-            self.selection = max( 0, self.selection - 1 )
-        elif key == 'south':
-            self.selection = min( len(self.choices) - 1, self.selection + 1 )
-        elif key == '\n':
+        if key == '\n':
             sym, desc = self.choices[ self.selection ]
             self.result = sym
             self.done = True
+        else:
+            try:
+                translated = MovementKeys[key]
+                if translated == (0,-1):
+                    self.selection = max( 0, self.selection - 1 )
+                elif translated == (0,1):
+                    self.selection = min( len(self.choices) - 1, self.selection + 1 )
+            except KeyError:
+                pass
     def draw(self):
         bg = PrimaryColour
         fg = SecondaryColour
