@@ -71,7 +71,7 @@ def beginNewGame( name, gender, cheat = True ):
     import timing
     from grammar import Noun, ProperNoun
     import sys
-    from level import mapFromGenerator, Mobile, Item
+    from level import mapFromGenerator, Mobile, Item, Rarity
     from widgets import RootMenuWidget
     import ai
     import magic
@@ -83,10 +83,20 @@ def beginNewGame( name, gender, cheat = True ):
     context.protorunes = magic.generateProtorunes()
 
     context.protoitems = context.protorunes + [
-        magic.Staff( Noun('a', 'crooked staff', 'crooked staves'), damage = 2, minMana = 50, maxMana = 100, weight = 10, rarity = 3 ),
-        magic.Tome( rarity = 3 ),
-        magic.TrapTalisman( Noun( "a", "talisman of perception", "talismans of perception" ), weight = 5, rarity = 3 ),
-        magic.HealthTalisman( Noun( "a", "talisman of health", "talismans of health" ), weight = 5, rarity = 3 ),
+        magic.Staff( Noun('a', 'crooked staff', 'crooked staves'),
+                     damage = 2,
+                     minMana = 50,
+                     maxMana = 100,
+                     weight = 10,
+                     rarity = Rarity( worth = 20, freq = 1, minLevel = 2 ) ),
+        magic.Tome( Noun( "a", "scroll of magic", "scrolls of magic" ),
+                    rarity = Rarity( worth = 10,freq = 1 ) ),
+        magic.TrapTalisman( Noun( "a", "talisman of perception", "talismans of perception" ),
+                            weight = 5,
+                            rarity = Rarity( freq = 2, worth = 10 ) ),
+        magic.HealthTalisman( Noun( "a", "talisman of health", "talismans of health" ),
+                              weight = 5,
+                              rarity = Rarity(worth = 20, freq = 1 , minLevel = 5) ),
     ]
 
     context.protomonsters = [
@@ -96,8 +106,8 @@ def beginNewGame( name, gender, cheat = True ):
                 ai = ai.RandomWalker(),
                 speed = Speed.Normal,
                 hitpoints = 2,
-                rarity = 1,
                 flying = True,
+                rarity = Rarity( maxLevel = 2 ) ,
                 ),
     ]
 
@@ -112,6 +122,7 @@ def beginNewGame( name, gender, cheat = True ):
                              fgColour = "green",
                              proto = False,
                              tile = level.getPlayerSpawnSpot(),
+                             rarity = Rarity( freq = 0 )
     )
     context.player.rawname = name
     context.player.weapon = magic.Staff( Noun("an", "apprentice's staff", "apprentice's staves" ),
@@ -119,7 +130,7 @@ def beginNewGame( name, gender, cheat = True ):
                                          50,
                                          50,
                                          weight = 10,
-                                         rarity = 1 # dummy value, never spawned
+                                         rarity = Rarity( freq = 0) # dummy value, never spawned
                                         ).spawn() # not a cheat!
 #    for i in range(5):
 #        level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = ai.RandomWalker(), context = context )

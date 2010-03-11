@@ -1,4 +1,4 @@
-from level import Item, countItems
+from level import Item, countItems, Rarity
 from grammar import Noun, capitalizeFirst, makeCountingList
 import grammar
 import random
@@ -6,12 +6,12 @@ from widgets import *
 
 ArcaneNames  = [ "Me", "Im", "Taz", "Ka", "Xe", "Mon", "Wil", "Vi", "Fon", "Bri", "Mos", "Han", "Osh", "Us", "Ik", "Mav", "Ex" ]
 EnglishNames = { # -> rarity (level / inverse freq)
-    "Move": 1,
-    "Self": 1,
-    "Negate": 2,
-    "Destroy": 1,
-    "Earth": 1,
-    "Air": 1,
+    "Move": Rarity( worth = 10, freq = 1 ),
+    "Self": Rarity( worth = 10, freq = 1 ),
+    "Negate": Rarity( worth = 10, freq = 1, minLevel = 2 ),
+    "Destroy": Rarity( worth = 10, freq = 1, minLevel = 2 ),
+    "Earth": Rarity( worth = 10, freq = 1),
+    "Air": Rarity( worth = 10, freq = 1),
 }
 
 class Rune ( Item ):
@@ -83,9 +83,9 @@ class HealthTalisman (Item):
         mobile.damage(0)
 
 class Tome (Item):
-    def __init__(self, rarity = 10):
+    def __init__(self, name, rarity):
         Item.__init__(self,
-                      Noun( "a", "scroll of magic", "scrolls of magic" ),
+                      name,
                       '?',
                       'white',
                       itemType = "tome",

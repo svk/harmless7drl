@@ -12,23 +12,32 @@ from traps import *
 from grammar import *
 from widgets import SelectionMenuWidget
 
-class Thing: # generateable: items, traps, monsters
-    def __init__(self, rarity):
-        self.rarity = rarity
-        self.alreadyGenerated = 0
-    def mayGenerate(self):
-        return True
-    def generate(self):
-        self.alreadyGenerated += 1
+class Rarity:
+    def __init__(self, worth = 1, freq = 1, minLevel = -2**31, maxLevel = 2**31):
+        self.worth = 1
+        self.frequency = freq
+        self.minLevel = minLevel
+        self.maxLevel = maxLevel
+    def eligible(self, dlevel):
+        return dlevel >= self.minLevel and dlevel <= self.maxLevel
 
-def selectThings( maxSingle, target, things, minSingle = 0 ):
+def weightedSelect( things ):
+    totalWeight = sum( map( lambda thing : thing.rarity.frequency, things ) )
+    selected = random.randint( 0, totalWeight - 1 )
+    for thing in things:
+        selected -= thing.rarity.frequency
+        if selected < 0:
+            return thing
+    return None
+
+def selectThings( dlevel, target, things ):
     rv = []
     while target > 0:
-        eligible = [ thing for thing in things if thing.mayGenerate() and thing.rarity < maxSingle and thing.rarity > minSingle ]
-        chosen = random.choice( eligible )
-        target -= chosen.rarity
-        chosen.generate()
-        rv.append( chosen )
+        thing = weightedSelect( [ thing for thing in things if thing.rarity.eligible( dlevel ) ] )
+        if not thing:
+            break
+        rv.append( thing )
+        target -= thing.rarity.worth
     # note: this still returns PROTO-things, which must be handled
     # as appropriately (e.g. .spawn() for items)
     return rv
@@ -265,7 +274,7 @@ def makeWall( tile ):
     tile.hindersLOS = True
     tile.tileTypeDesc = "A wall."
 
-class Mobile (Thing):
+class Mobile:
     # this class is a mess, there are several player-specific fields
     def __init__(self,
                  name,
@@ -287,7 +296,8 @@ class Mobile (Thing):
                  hindersLOS = False, # behaviour flags
                  nonalive = False):
         assert fgColour != 'red' # used for traps
-        Thing.__init__( self, rarity )
+        self.rarity = rarity
+        assert isinstance( rarity, Rarity )
         self.name = name
         self.hindersLOS = hindersLOS
         self.symbol = symbol
@@ -472,9 +482,10 @@ class Mobile (Thing):
         self.cachedFov = rv
         return rv
 
-class Item ( Thing ):
+class Item:
     def __init__(self, name, symbol, fgColour, bgColour = None, itemType = None, weight = None, rarity = None):
-        Thing.__init__( self, rarity )
+        self.rarity = rarity
+        assert isinstance( self.rarity, Rarity )
         self.name = name
         self.symbol = symbol
         self.fgColour = fgColour
@@ -564,12 +575,10 @@ class Map:
     def generateDeeperLevel(self):
         if self.nextLevel:
             return self.nextLevel
-        self.nextLevel = mapFromGenerator( self.context )
-        self.nextLevel.previousLevel = self
-        self.nextLevel.depth = self.depth + 1
+        self.nextLevel = mapFromGenerator( self.context, self )
         return self.nextLevel
 
-def mapFromGenerator( context ):
+def mapFromGenerator( context, ancestor = None):
     from levelgen import generateLevel
     lg = generateLevel( 80, 
                         50,
@@ -577,6 +586,13 @@ def mapFromGenerator( context ):
                         (12,20,12,16)
     )
     rv = Map( context, lg.width, lg.height )
+    if ancestor:
+        rv.previousLevel = ancestor
+        ancestor.nextLevel = rv
+        rv.depth = ancestor.depth + 1
+    else:
+        rv.depth = 1
+        rv.nextLevel = None
     # Ror now just the cell data is used; do recall that the lg object
     # also contains .rooms; these make up a graph that can be used to
     # classify the rooms.
@@ -595,8 +611,7 @@ def mapFromGenerator( context ):
         # should be in chests: that way it's hard to
         # distinguish between danger rooms and reward rooms
         valueTarget = 40 # per room, people!
-        maxRarity = 1000
-        for protoitem in selectThings( maxRarity, valueTarget, context.protoitems ):
+        for protoitem in selectThings( rv.depth, valueTarget, context.protoitems ):
             item = protoitem.spawn()
             tile = rv.tiles[ room.internalFloorpoint() ]
             tile.items.append( item )
@@ -612,9 +627,7 @@ def mapFromGenerator( context ):
             singleCell = random.choice( [ TrapDoor, SpikePit, ExplodingMine ] )
             trap = singleCell( point, context = context )
         valueTarget = random.randint( 1, 4 )
-        minRarity = 0
-        maxRarity = 1000
-        for protomonster in selectThings( maxRarity, valueTarget, context.protomonsters, minSingle = minRarity ):
+        for protomonster in selectThings( rv.depth, valueTarget, context.protomonsters ):
             tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) )
             monster = protomonster.spawn( context, tile )
     context.levels.append( rv )

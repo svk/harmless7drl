@@ -73,7 +73,7 @@ def registerClasses():
     c.register( L.Map )
     c.register( L.Tile )
     c.register( L.Item )
-    c.register( L.Thing )
+    c.register( L.Rarity )
     import grammar as G
     c.register( G.Noun )
     c.register( G.ProperNoun )
@@ -94,6 +94,8 @@ def registerClasses():
     c.register( M.Rune )
     c.register( M.Spell )
     c.register( M.Tome )
+    c.register( M.TrapTalisman )
+    c.register( M.HealthTalisman )
     c.register( M.Staff )
     c.register( M.Dig )
     c.register( M.HealSelf )
