@@ -7,7 +7,7 @@ requires:
     treasure generation code <- boring
     boulders <- so-so
     more spells <- exciting
-    spell menu <- boring
+    spell menu <- boring [X]
     weight limit <- boring
 
 also

@@ -252,10 +252,14 @@ class GameWidget ( Widget ):
         if not self.context.player.spellbook:
             self.log( "Your spellbook is blank." )
         else:
-            # TODO replace with hotkey menu
-            chosen = self.main.query( SelectionMenuWidget, choices = [
+            hotkeys = {}
+            for spell in self.context.player.spellbook:
+                hotkeys[spell.hotkey] = spell
+            chosen = self.main.query( SpellSelectionMenuWidget, choices = [
                 (spell,"%c: %s (%d)" % (spell.hotkey,spell.name,spell.cost())) for spell in self.context.player.spellbook
-            ] + [ (None, "cancel") ], title = "Which spell do you want to cast?", padding = 5 )
+            ] + [ (None, "cancel") ], title = "Which spell do you want to cast?", padding = 5,
+            hotkeys = hotkeys,
+            )
             if chosen:
                 if self.context.player.payForSpell( chosen.cost() ):
                     chosen.cast( self.context ) # intransitive spells only at the moment

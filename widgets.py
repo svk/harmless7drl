@@ -218,3 +218,14 @@ class SelectionMenuWidget (Widget):
                 bga, fga = fg, bg
             self.dialog.putString( self.xoffset, i + self.yoffset, desc, fga, bga )
             i += 1
+
+class SpellSelectionMenuWidget (SelectionMenuWidget):
+    def __init__(self, hotkeys = {}, *args, **kwargs):
+        SelectionMenuWidget.__init__(self, *args, **kwargs)
+        self.hotkeys = hotkeys
+    def keyboard(self, key):
+        try:
+            self.result = self.hotkeys[key]
+            self.done = True
+        except KeyError:
+            SelectionMenuWidget.keyboard( self, key )
