@@ -52,6 +52,70 @@ class MainLoop:
             self.widgets[-1].focus()
         return w.result
 
+def savefileName( name ):
+    import string
+    for ch in name:
+        if ch not in string.letters:
+            return None
+    return "savegame-%s-harmless7drl.gz" % name
+
+def loadOldGame( name ):
+    context = GameContext()
+    context.levels = []
+    filename = savefileName( name )
+    return context.load( filename )
+
+def beginNewGame( name, gender, cheat = True ):
+    from gamewidget import GameWidget
+    from timing import Simulator, Speed
+    import timing
+    from grammar import Noun, ProperNoun
+    import sys
+    from level import mapFromGenerator, Mobile, Item
+    from widgets import RootMenuWidget
+    import ai
+    import magic
+    
+    context = GameContext()
+    context.levels = []
+    
+    # hack up a little new environment for us.
+    context.protorunes = magic.generateProtorunes()
+    level = mapFromGenerator( context )
+    level.depth = 1
+
+    if cheat:
+        for rune in context.protorunes: # XXX
+            rune.identify()
+
+    context.player = Mobile( level.getPlayerSpawnSpot(),
+                             ProperNoun( name, gender ),
+                             "@",
+                             speed = Speed.Normal,
+                             context = context,
+                             fgColour = "green",
+    )
+    context.player.rawname = name
+    context.player.weapon = magic.Staff( Noun("an", "apprentice's staff", "apprentice's staves" ),
+                                         3,
+                                         50,
+                                         50 ).spawn() # not a cheat!
+    if cheat:
+        context.player.spellbook.append( magic.Dig() ) # XXX cheat
+        context.player.spellbook.append( magic.LevitateSelf() ) # XXX cheat
+
+    for i in range(5):
+        level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = ai.RandomWalker(), context = context )
+    for i in range(5):
+        level.spawnMobile( Mobile, name = Noun("a", "robot", "robots"), symbol = "g", fgColour = "yellow", ai = ai.TurnerBot(), speed = timing.Speed.Normal, context = context, nonalive = True )
+    for i in range(5):
+        level.spawnItem( Item, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
+
+    return context
+
+    
+
+
 if __name__ == '__main__':
     from level import *
     from widgets import *
@@ -107,7 +171,7 @@ if __name__ == '__main__':
         except ImportError:
             import tcodui
             main = tcodui.main
-        main( GameWidget, context = context )
+        main( RootMenuWidget )
     finally:
         print "Thanks for playing!"
         print "Please wait, shutting down...",

@@ -6,7 +6,7 @@ from grammar import *
 import timing
 
 class GameWidget ( Widget ):
-    def __init__(self, context, *args, **kwargs):
+    def __init__(self, context, wasLoaded, *args, **kwargs):
         Widget.__init__( self, *args, **kwargs )
         self.name = None
         self.player = context.player
@@ -39,6 +39,8 @@ class GameWidget ( Widget ):
         self.visualEffects = {}
         self.proposedPath = None
         self.startled = False
+        if wasLoaded:
+            self.log( "Welcome back!" )
     def takePathStep(self):
         if self.proposedPath:
             tile = self.proposedPath.pop(0)
@@ -292,10 +294,12 @@ class GameWidget ( Widget ):
             standardAction()
         elif key == ':': # Look command
             self.main.query( CursorWidget, self )
-        elif key == 'Q':
-            self.done = True
         elif key == 'q':
-            self.context.save( "test-savefile.gz" )
+            from core import savefileName
+            self.log( "Quitting, please wait." )
+            self.context.save( savefileName( self.context.player.rawname ) )
+            self.done = True
+        elif key == 'Q':
             self.done = True
         elif key == 'V':
             self.restrictVisionByFov = not self.restrictVisionByFov

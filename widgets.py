@@ -101,12 +101,13 @@ class HitEnterWidget (Widget):
             self.done = True
 
 class TextInputWidget (Widget):
-    def __init__(self, width, okay = string.printable, query = None, acceptEmpty = False, *args, **kwargs):
+    def __init__(self, width, okay = string.printable, query = None, acceptEmpty = False, centered = False, *args, **kwargs):
         Widget.__init__(self, *args, **kwargs)
         self.width = width
         self.okay = list( okay )
         self.data = []
         self.query = query
+        self.centered = centered
         self.height = 4
         self.resize()
     def resize(self, w = None, h = None):
@@ -117,11 +118,14 @@ class TextInputWidget (Widget):
         self.dialog.decorate( fg, bg )
         y = 1
         if self.query:
-            self.dialog.putString( 1, y, self.query, fg, bg )
+            x = self.dialog.putString( 1, y, self.query.center( self.width + 1 ) if self.centered else self.query, fg, bg )
             y += 1
-        self.dialog.putString( 1, y, "".join( self.data ), fg, bg )
+        x = 1
+        if self.centered:
+            x = int( (self.width + 3 - len(self.data)) / 2 )
+        x = self.dialog.putString( x, y, "".join( self.data ), fg, bg )
         if blinkphase(2) == 0:
-            self.dialog.put( 1 + len( self.data ), y, "_", fg, bg )
+            self.dialog.put( x, y, "_", fg, bg )
     def keyboard(self, key):
         if key == '\n':
             if self.data:
@@ -178,13 +182,15 @@ class CursorWidget (Widget):
                 self.done = True
 
 class SelectionMenuWidget (Widget):
-    def __init__(self, choices = [], title = None, padding = 0, *args, **kwargs):
+    def __init__(self, choices = [], title = None, centered = False, noInvert = False, padding = 0, *args, **kwargs):
         Widget.__init__(self, *args, **kwargs)
         self.title = title
         self.choices = choices # symbol, description
         self.selection = 0
-        self.width = max( map( lambda syde : len(syde[1]), self.choices ) )
-        self.xoffset = 2
+        self.noInvert = noInvert
+        self.width = max( map( lambda syde : len(syde[1]) + 2 + 2, self.choices ) )
+        self.centered = centered
+        self.xoffset = 2 if not self.centered else 1
         if self.title:
             self.yoffset = 2
             self.width = max( len(self.title), self.width )
@@ -215,7 +221,11 @@ class SelectionMenuWidget (Widget):
         for sym, desc in self.choices:
             bga, fga = bg, fg
             if i == self.selection:
-                bga, fga = fg, bg
+                if not self.noInvert:
+                    bga, fga = fg, bg
+                desc = " ".join( [ ">", desc, "<" ] )
+            if self.centered:
+                desc = desc.center( self.width - 2)
             self.dialog.putString( self.xoffset, i + self.yoffset, desc, fga, bga )
             i += 1
 
@@ -229,3 +239,39 @@ class SpellSelectionMenuWidget (SelectionMenuWidget):
             self.done = True
         except KeyError:
             SelectionMenuWidget.keyboard( self, key )
+
+
+class RootMenuWidget(Widget):
+    def __init__(self, *args, **kwargs):
+        Widget.__init__(self, *args, **kwargs)
+    def draw(self):
+        # display a splash screen
+        self.ui.putString( 0, 0, "Harmless7DRL", "bold-white", "black")
+        self.ui.putString( 0, 1, "Press any key to continue", "white", "black" )
+    def keyboard(self, key):
+        from gamewidget import GameWidget
+        self.hidden = True # remember: that's the _splash_ screen
+        while True:
+            result = self.main.query( SelectionMenuWidget, choices = [
+                ('new', "Play Harmless7DRL"),
+                ('quit', "Quit"),
+            ], padding = 5, centered = True, noInvert = True )
+            if result == 'quit':
+                self.done = True
+                break
+            elif result == 'new':
+                name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: ", centered = True )
+                try:
+                    # TODO check if there's a saved game
+                    from core import loadOldGame
+                    context = loadOldGame( name )
+                    wasLoaded = True
+                except IOError:
+                    from core import beginNewGame
+                    gender = self.main.query( SelectionMenuWidget, choices = [
+                        ('female', "Female"),
+                        ('male', "Male"),
+                    ], padding = 5, centered = True, title = "Please select your gender:", noInvert = True )
+                    context = beginNewGame( name, gender )
+                    wasLoaded = False
+                self.main.query( GameWidget, context = context, wasLoaded = wasLoaded )
