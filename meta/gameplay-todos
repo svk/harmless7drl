@@ -11,7 +11,7 @@ requires:
     weight limit <- boring
 
 also
-    graceful handling of death <- boring
+    graceful handling of death <- boring [X]
     main menu <- boring [X]
 
 BORING STUFF FIRST: good strategy

@@ -74,6 +74,8 @@ class SpikePit (Trap):
         mob.logVisual( "You fall into the spike pit!", "%s falls into the spike pit!" )
         mob.killmessage()
         mob.kill()
+    def describe(self):
+        return "A spike pit."
 
 class ExplodingMine (Trap):
     def __init__(self, tile, *args, **kwargs):
@@ -89,6 +91,8 @@ class ExplodingMine (Trap):
                 affects.logVisual( "You are caught in the explosion!", "%s is caught in the explosion!" )
                 affects.damage( 1 )
         self.remove()
+    def describe(self):
+        return "A mine."
 
 class TrapDoor (Trap):
     def __init__(self, tile, *args, **kwargs):
