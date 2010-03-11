@@ -154,8 +154,8 @@ class GameWidget ( Widget ):
                     return
             if (self.player.inventoryWeight() + item.weight) < self.player.weightLimit:
                 self.player.tile.items.remove( item )
-                self.player.inventory.append( item )
                 self.log( "You pick up %s." % item.name.definiteSingular() )
+                self.player.inventoryGive( item )
                 self.tookAction( 1 )
             else:
                 self.log( "Being overburdened, you fail to pick up %s." % item.name.definiteSingular() )
@@ -222,16 +222,16 @@ class GameWidget ( Widget ):
             ] + [ (None, "nothing") ], title = "Drop what?", padding = 5 )
             if not item:
                 return
-            item = self.player.inventory.pop()
-            self.player.tile.items.append( item )
             self.log( "You drop %s." % item.name.definiteSingular() )
+            item = self.player.inventoryTake( item )
+            self.player.tile.items.append( item )
             self.tookAction( 1 )
     def equipWeapon(self, weapon):
         assert weapon.itemType == 'weapon'
         if self.player.weapon:
-            self.player.inventory.append( self.player.weapon )
+            self.player.inventoryGive( self.player.weapon )
         self.player.weapon = weapon
-        self.player.inventory.remove( weapon )
+        self.player.inventoryTake( weapon )
         self.log( "You wield %s." % weapon.name.definiteSingular() )
     def accessInventory(self):
         stacked = countItems( self.player.inventory )

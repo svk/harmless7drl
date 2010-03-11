@@ -113,5 +113,6 @@ def loadObject( filename ):
     f.close()
     return o, o2
 
-registerClasses()
-c.freeze_configuration()
+def initializeSerialization():
+    registerClasses()
+    c.freeze_configuration()

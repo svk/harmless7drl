@@ -85,6 +85,8 @@ def beginNewGame( name, gender, cheat = True ):
     context.protoitems = context.protorunes + [
         magic.Staff( Noun('a', 'crooked staff', 'crooked staves'), damage = 2, minMana = 50, maxMana = 100, weight = 10, rarity = 3 ),
         magic.Tome( rarity = 3 ),
+        magic.TrapTalisman( Noun( "a", "talisman of perception", "talismans of perception" ), weight = 5, rarity = 3 ),
+        magic.HealthTalisman( Noun( "a", "talisman of health", "talismans of health" ), weight = 5, rarity = 3 ),
     ]
 
     context.protomonsters = [
@@ -141,9 +143,11 @@ if __name__ == '__main__':
     from grammar import Noun, ProperNoun
     import sys
     from magic import *
+    import serialization
 
     context = GameContext()
     context.levels = []
+    serialization.initializeSerialization()
 
 #    from levelgen import GeneratorQueue
 #    context.levelGenerator = GeneratorQueue( 2, 100, 100 )

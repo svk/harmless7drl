@@ -330,6 +330,13 @@ class Mobile (Thing):
         rv.sim = tile.level.sim
         rv.moveto( tile )
         return rv
+    def inventoryGive(self, item):
+        item.entersInventory( self )
+        self.inventory.append( item )
+    def inventoryTake(self, item):
+        item.leavesInventory( self )
+        self.inventory.remove( item )
+        return item
     def inventoryWeight(self):
         return (self.weapon.weight if self.weapon else 0) + sum( [ item.weight for item in self.inventory ] )
     def payForSpell(self, cost):
@@ -474,6 +481,7 @@ class Item ( Thing ):
         self.bgColour = bgColour
         self.itemType = name.singular if not itemType else itemType
         self.weight = weight
+        self.inventoryHooks = []
     def spawn(self):
         import copy
         return copy.copy( self )
@@ -487,6 +495,12 @@ class Item ( Thing ):
         if self.bgColour:
             rv[ 'bg' ] = self.bgColour
         return rv
+    def entersInventory(self, mobile):
+        for hook in self.inventoryHooks:
+            hook.onEnterInventory( mobile )
+    def leavesInventory(self, mobile):
+        for hook in self.inventoryHooks:
+            hook.onLeaveInventory( mobile )
 
 class Map:
     def __init__(self, context, width, height):

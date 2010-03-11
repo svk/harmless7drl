@@ -58,6 +58,30 @@ class Staff (Item):
         rv.mana = random.randint( self.minMana, self.maxMana )
         return rv
 
+class TrapTalisman (Item):
+    def __init__(self, name, weight, rarity):
+        Item.__init__(self, name, '&', 'blue', itemType = "talisman", weight = weight, rarity = rarity )
+        self.inventoryHooks.append( self )
+    def onEnterInventory(self, mobile):
+        mobile.trapDetection += 1
+        if mobile.isPlayer():
+            mobile.context.log( "You feel more perceptive." )
+    def onLeaveInventory(self, mobile):
+        mobile.trapDetection -= 1
+
+class HealthTalisman (Item):
+    def __init__(self, name, weight, rarity):
+        Item.__init__(self, name, '&', 'red', itemType = "talisman", weight = weight, rarity = rarity )
+        self.inventoryHooks.append( self )
+    def onEnterInventory(self, mobile):
+        mobile.maxHitpoints += 1
+        if mobile.isPlayer():
+            mobile.context.log( "You feel tougher." )
+    def onLeaveInventory(self, mobile):
+        mobile.maxHitpoints -= 1
+        mobile.hitpoints = min( mobile.hitpoints, mobile.maxHitpoints )
+        mobile.damage(0)
+
 class Tome (Item):
     def __init__(self, rarity = 10):
         Item.__init__(self,
@@ -230,3 +254,15 @@ class LevitateSelf (Spell):
         context.player.tile.enters( context.player )
 
 Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf() ]
+
+if __name__ == '__main__':
+    counts = {}
+    for rune in EnglishNames.keys():
+        counts[rune] = 0
+    for spell in Spells:
+        for rune in spell.recipe:
+            counts[rune] += 1
+    rv = [ (count, rune) for rune,count in counts.items() ]
+    rv.sort( reverse = True )
+    for count, rune in rv:
+        print rune, count
