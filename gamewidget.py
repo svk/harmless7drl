@@ -364,9 +364,13 @@ class GameWidget ( Widget ):
                     (6, "Team Buffy"),
                 ], title = "Choose your team", padding = 5)
             elif key == 'D':
-                self.player.trapDetection += 1
+                self.player.trapDetection += 1000
             elif key == 'S':
-                self.context.save( "test-savefile.gz" )
+                from magic import Spells
+                for spell in Spells:
+                    if spell not in self.player.spellbook:
+                        self.player.spellbook.append( spell )
+                self.player.weapon.mana += 500
             elif key == 'C':
                 self.showExplosion( (self.player.tile.x, self.player.tile.y), 5 )
             elif key == 'X':
