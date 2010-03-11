@@ -1,12 +1,15 @@
 gameplay beginning to favour the player
 requires:
-    dangerous monsters
-    winnability
-    books to identify runes
-    talismans of luck and health
-    treasure generation code
-    boulders
+    dangerous monsters <- exciting
+    winnability <- boring
+    books to identify runes <- so-so
+    talismans of luck and health <- so-so
+    treasure generation code <- boring
+    boulders <- so-so
+    more spells <- exciting
 
 also
-    graceful handling of death
-    main menu
+    graceful handling of death <- boring
+    main menu <- boring
+
+BORING STUFF FIRST: good strategy
