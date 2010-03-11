@@ -74,8 +74,9 @@ class Tile:
         return self.tileTypeDesc
     def enters(self, mobile):
         self.mobile = mobile
-        for trigger in self.onEnter:
-            trigger( mobile )
+        if not mobile.flying:
+            for trigger in self.onEnter: # XXX should be called onStep
+                trigger( mobile )
     def appearance(self):
         rv = {
             'ch': self.symbol,
@@ -119,7 +120,8 @@ class Tile:
             else:
                 ent.append( "is" )
             ent.append( "here." )
-        self.context.log( " ".join( ent ) )
+        if ent:
+            self.context.log( " ".join( ent ) )
     def opaque(self):
         if self.mobile and self.mobile.hindersLOS:
             return True
@@ -253,9 +255,9 @@ class Mobile:
                  context = None,
                  fgColour = 'white',
                  bgColour = None,
-                 noSchedule = False,
                  attackVerb = Verb( "attack" ),
                  attackElaboration = "",
+                 flying = False,
                  hindersLOS = False, # behaviour flags
                  nonalive = False):
         assert fgColour != 'red' # used for traps
@@ -271,10 +273,11 @@ class Mobile:
         self.ai = ai
         self.sim = tile.level.sim
         self.inventory = []
-        self.noSchedule = noSchedule
+        self.noSchedule = False
         self.nonalive = nonalive
         self.hitpoints = hitpoints
         self.maxHitpoints = hitpoints
+        self.flying = flying
         self.moveto( tile )
         self.cachedFov = []
         self.trapDetection = 0
@@ -287,6 +290,7 @@ class Mobile:
         self.attackElaboration = attackElaboration
         self.spellbook = []
         self.weapon = None
+        self.buffs = {}
     def payForSpell(self, cost):
         if not self.weapon or not self.weapon.magical:
             self.context.log( "You don't have a staff or a wand handy.." )
@@ -313,7 +317,7 @@ class Mobile:
             self.kill()
     def canBeMeleeAttackedBy(self, mobile):
         # levitating creatures are out of reach for groundhuggers
-        return True
+        return not (self.flying and not mobile.flying)
     def meleeAttack(self, target):
         self.logVisual( "You %s %s%s!" % (self.attackVerb.second(), target.name.definiteSingular(), self.attackElaboration ),
                         "%s " + self.attackVerb.third() + " " + ("you" if target.isPlayer() else target.name.definiteSingular()) + self.attackElaboration + "!" 
@@ -386,7 +390,14 @@ class Mobile:
     def schedule(self):
         if not self.noSchedule and not self.scheduledAction:
             self.scheduledAction = self.tile.level.sim.schedule( self, self.sim.t + self.speed )
+    def checkBuffs(self):
+        for buff in self.buffs.keys():
+            self.buffs[buff] -= 1
+            if self.buffs[buff] < 0:
+                buff.debuff( self.context )
+                del self.buffs[buff]
     def trigger(self, t):
+        self.checkBuffs()
         if self.ai:
             self.ai.trigger( self )
         if not self.noSchedule:

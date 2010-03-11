@@ -51,6 +51,7 @@ class Trap:
         self.active = True
         self.tiles = []
         self.lists = []
+        self.trapname = None
     def canSpot(self, mob):
         return mob.trapDetection >= self.difficulty
     def describe(self):
@@ -95,6 +96,7 @@ class TrapDoor (Trap):
         self.blastSize = 5
         installStepTrigger( tile, self )
         self.target = None
+        self.trapname = "trapdoor"
     def describe(self):
         if self.difficulty > 0:
             return "A trap door."

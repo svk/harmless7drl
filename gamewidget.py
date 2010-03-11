@@ -49,6 +49,7 @@ class GameWidget ( Widget ):
             self.proposedPath = None
         return False
     def log(self, s):
+        print >> sys.stderr, "log", "X", s, "X"
         self.turnlogWrapper.feed( s + " " )
         while self.turnlogWrapper.pages:
             self.turnlogLines = self.turnlogWrapper.popPage()
@@ -170,7 +171,13 @@ class GameWidget ( Widget ):
             else:
                 self.log( "For unspecified plot reasons, you don't want to turn back." )
         elif self.player.tile.ceilingHole:
-            self.log( "You can't reach the hole in the ceiling." )
+            if not self.player.flying:
+                self.log( "You can't reach the hole in the ceiling." )
+            else:
+                spot = self.player.tile.ceilingHole.level.getClearTileAround( self.player.tile.ceilingHole )
+                self.player.moveto( spot )
+                self.log( "You fly through the hole in the ceiling." )
+                self.tookAction( 1 )
         else:
             self.log( "You can't see any way to go up right here." )
     def goDown(self):
@@ -179,6 +186,17 @@ class GameWidget ( Widget ):
             spot = nextLev.getPlayerSpawnSpot()
             self.player.moveto( spot )
             self.tookAction( 1 )
+        elif self.player.flying and self.player.tile.trap and self.player.tile.trap.trapname == "trapdoor":
+            if not self.player.flying:
+                # impossible?
+                self.player.tile.trap( self.player )
+                self.tookAction( 1 )
+            else:
+                below = self.player.tile.trap.getTarget()
+                spot = below.level.getClearTileAround( below )
+                self.log( "You fly through the hole in the floor." )
+                self.player.moveto( spot )
+                self.tookAction( 1 )
         else:
             self.log( "You can't see any way to go down right here." )
     def drop(self):

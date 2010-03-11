@@ -86,13 +86,13 @@ if __name__ == '__main__':
                                      speed = Speed.Normal,
                                      context = context,
                                      fgColour = "green",
-                                     noSchedule = True,
             )
             context.player.weapon = Staff( Noun("an", "apprentice's staff", "apprentice's staves" ),
                                            3,
                                            50,
                                            50 ).spawn() # not a cheat!
             context.player.spellbook.append( Dig() ) # XXX cheat
+            context.player.spellbook.append( LevitateSelf() ) # XXX cheat
 
             for i in range(5):
                 level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = RandomWalker(), context = context )

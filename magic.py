@@ -11,6 +11,7 @@ EnglishNames = { # -> rarity (level / inverse freq)
     "Negate": 2,
     "Destroy": 1,
     "Earth": 1,
+    "Air": 1,
 }
 
 class Rune ( Item ):
@@ -140,7 +141,7 @@ class Dig (Spell):
                             "fall" if len(items) > 1 else "falls",
                             "through the hole!" ]
                     context.log( " ".join( msg ) )
-                tile.enters( context.player )
+                tile.enters( context.player ) # trigger? might not, flying etc.
             else:
                 context.log( "You fail to dig through the floor." )
         else:
@@ -170,4 +171,28 @@ class HealSelf (Spell):
         context.log( "You feel invigorated." )
         context.player.hitpoints = context.player.maxHitpoints
 
-Spells = [ TeleportSelf(), HealSelf(), Dig() ]
+class LevitateSelf (Spell):
+    def __init__(self):
+        Spell.__init__( self, 'f', 'Flight', [ "Air", "Self" ] )
+        self.buffName = "flight"
+    def cost(self):
+        return 10
+    def cast(self, context):
+        minturns, maxturns = 100, 200
+        if context.player.flying:
+            for key in context.player.buffs:
+                if key.buffName == self.buffName:
+                    context.player.buffs[ key ] += random.randint( minturns, maxturns )
+            context.log( "You feel more confident in your ability to fly." )
+        else:
+            context.log( "Your feel lighter." )
+            context.log( "You float into the air!" )
+            context.player.flying = True
+            context.player.buffs[ self ] = random.randint( minturns, maxturns )
+    def debuff(self, context):
+        context.player.flying = False
+        context.log( "You feel heavier." )
+        context.log( "You fall to the floor and land deftly on your feet." )
+        context.player.tile.enters( context.player )
+
+Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf() ]
