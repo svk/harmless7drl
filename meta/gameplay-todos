@@ -4,7 +4,7 @@ requires:
     winnability <- boring
     books to identify runes <- so-so
     talismans of luck and health <- so-so
-    treasure generation code <- boring
+    treasure generation code <- boring [X]
     boulders <- so-so
     more spells <- exciting
     spell menu <- boring [X]

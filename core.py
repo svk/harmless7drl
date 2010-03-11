@@ -94,7 +94,7 @@ def beginNewGame( name, gender, cheat = True ):
                 speed = Speed.Normal,
                 hitpoints = 2,
                 rarity = 1,
-                )
+                ),
     ]
 
     if cheat:
