@@ -97,13 +97,26 @@ class Dig (Spell):
     def cost(self):
         return 5
     def cast(self, context):
-        # teleport the player randomly. (greater teleport allows you to specify destination.)
+        from level import makeFloor
         context.log( "Dig in which direction?" )
-        dx, dy = context.main.query( DirectionWidget )
-        tile = context.player.tile.level.randomTile( lambda tile : not tile.trap and not tile.cannotEnterBecause( context.player ) )
-        context.player.moveto( tile )
+        dxdy = context.game.main.query( DirectionWidget )
+        rayLength = 8
+        region = context.game.showStraightRay( (context.player.tile.x,context.player.tile.y),
+                                               dxdy,
+                                               rayLength,
+                                               'black',
+                                               'magenta',
+                                               lambda (x,y) : not context.player.tile.level.tiles[x,y].diggable()
+        )
+        for x, y in region:
+            try:
+                tile = context.player.tile.level.tiles[x,y]
+                if tile.diggable() and tile.impassable:
+                    makeFloor( tile )
+            except KeyError: # shouldn't happen
+                break
 
-class Heal (Spell):
+class HealSelf (Spell):
     def __init__(self):
         Spell.__init__( self, 'h', 'Heal', [ "Negate", "Destroy", "Self" ] )
     def cost(self):
@@ -113,4 +126,4 @@ class Heal (Spell):
         context.log( "You feel invigorated." )
         context.player.hitpoints = context.player.maxHitpoints
 
-Spells = [ TeleportSelf() ]
+Spells = [ TeleportSelf(), HealSelf(), Dig() ]

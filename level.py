@@ -47,6 +47,7 @@ class Tile:
         self.onEnter = []
         self.onOpen = []
         self.tileTypeDesc = "A NULL tile."
+        self.isBorder = False
     def cannotEnterBecause(self, mobile):
         if self.impassable:
             return "tile is impassable"
@@ -120,6 +121,8 @@ class Tile:
         return self.hindersLOS
     def remember(self):
         self.remembered = True
+    def diggable(self):
+        return not self.isBorder
 
 def cannotCloseDoorBecause( tile ):
     if not tile.isDoor:
@@ -293,6 +296,7 @@ class Mobile:
                                          padding = 5, ):
             self.maxHitpoints -= 1
             self.hitpoints = min( self.hitpoints, self.maxHitpoints )
+            self.damage(0) # check for death
             return True
         return False
     def describe(self):
@@ -415,6 +419,8 @@ class Map:
         for i in range(self.w):
             for j in range(self.h):
                 self.tiles[i,j] = Tile(context,self, i,j)
+                if i == 0 or j == 0 or (i+1) == self.w or (j+1) == self.h:
+                    self.tiles[i,j].isBorder = True
         self.mobiles = []
         self.items = [] # NOTE: items on ground, not items kept in mobiles, containers or otherwise
         self.sim = timing.Simulator()
@@ -586,14 +592,10 @@ class Viewport:
                     tile = self.level.tiles[x,y]
                 except KeyError:
                     tile = None
-                if tile and self.visibility( tile ):
-                    try:
-                        outgoing = effects[ (tile.x, tile.y) ]
-                    except KeyError:
-                        if tile:
-                            outgoing = tile.appearance()
-                        else:
-                            outgoing = darkness
+                if effects.has_key( (x,y) ):
+                    outgoing = effects[ x, y ]
+                elif tile and self.visibility( tile ):
+                    outgoing = tile.appearance()
                 elif tile and tile.remembered:
                     outgoing = tile.appearanceRemembered()
                 else:

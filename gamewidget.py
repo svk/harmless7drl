@@ -220,11 +220,12 @@ class GameWidget ( Widget ):
             chosen = self.main.query( SelectionMenuWidget, choices = [
                 (spell,spell.description) for spell in goodSpells
             ] + [ (None, "cancel") ], title = "Which spell do you want to write?", padding = 5 )
-            chosen.build( self.context.player.inventory )
-            self.log( "You enter a magical trance as you begin scribing the %s spell..." % chosen.name )
-            self.tookAction( 30 )
-            self.log( "You have written the %s spell into your spellbook." % chosen.name )
-            self.context.player.spellbook.append( chosen )
+            if chosen:
+                chosen.build( self.context.player.inventory )
+                self.log( "You enter a magical trance as you begin scribing the %s spell..." % chosen.name )
+                self.tookAction( 30 )
+                self.log( "You have written the %s spell into your spellbook." % chosen.name )
+                self.context.player.spellbook.append( chosen )
     def castSpell(self):
         if not self.context.player.spellbook:
             self.log( "Your spellbook is blank." )
@@ -233,9 +234,10 @@ class GameWidget ( Widget ):
             chosen = self.main.query( SelectionMenuWidget, choices = [
                 (spell,"%c: %s (%d)" % (spell.hotkey,spell.name,spell.cost())) for spell in self.context.player.spellbook
             ] + [ (None, "cancel") ], title = "Which spell do you want to cast?", padding = 5 )
-            if self.context.player.payForSpell( chosen.cost() ):
-                chosen.cast( self.context ) # intransitive spells only at the moment
-                self.tookAction( 1 )
+            if chosen:
+                if self.context.player.payForSpell( chosen.cost() ):
+                    chosen.cast( self.context ) # intransitive spells only at the moment
+                    self.tookAction( 1 )
     def keyboard(self, key):
         try:
             dx, dy = self.movementKeys[ key ]
@@ -322,3 +324,32 @@ class GameWidget ( Widget ):
                 }
             self.showEffects( fx, 0.05 )
         return region
+    def showStraightRay(self, origin, direction, radius, fg, bg, stopper = lambda xy : False ):
+        cx, cy = origin
+        dx, dy = direction
+        ch = {
+            (0,0): '*',
+            (1,-1): '/',
+            (1,0): '-',
+            (1,1): '\\',
+            (0,1): '|',
+            (-1,1): '/',
+            (-1,0): '-',
+            (-1,-1): '\\',
+            (0,-1): '|',
+        }[direction]
+        fx = {}
+        rv = []
+        for i in range( radius ):
+            cx += dx
+            cy += dy
+            rv.append( (cx,cy) )
+            fx[cx,cy] = {
+                'ch': ch,
+                'fg': fg,
+                'bg': bg,
+            }
+            self.showEffects( fx, 0.05 )
+            if stopper( (cx,cy) ):
+                break
+        return rv

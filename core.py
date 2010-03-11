@@ -61,7 +61,7 @@ if __name__ == '__main__':
     import timing
     from grammar import Noun, ProperNoun
     import sys
-    from magic import generateProtorunes
+    from magic import *
 
     context = GameContext()
     context.levels = []
@@ -88,6 +88,12 @@ if __name__ == '__main__':
                                      fgColour = "green",
                                      noSchedule = True,
             )
+            context.player.weapon = Staff( Noun("an", "apprentice's staff", "apprentice's staves" ),
+                                           3,
+                                           50,
+                                           50 ).spawn() # not a cheat!
+            context.player.spellbook.append( Dig() ) # XXX cheat
+
             for i in range(5):
                 level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = RandomWalker(), context = context )
             for i in range(5):
