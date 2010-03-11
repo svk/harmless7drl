@@ -42,6 +42,7 @@ class TcodInterface:
             if "bold" not in key:
                 c = self.colours[key]
                 self.colours[key] = libtcod.Color( c.r & 0x80, c.g & 0x80, c.b & 0x80 )
+        self.colours["bold-black"] = libtcod.Color( 0x80, 0x80, 0x80 )
         self.keymap = {
             libtcod.KEY_BACKSPACE: 'backspace',
             libtcod.KEY_KP1: 'southwest',
