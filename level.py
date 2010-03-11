@@ -313,7 +313,10 @@ class Mobile:
         self.logVisual( "You %s %s%s!" % (self.attackVerb.second(), target.name.definiteSingular(), self.attackElaboration ),
                         "%s " + self.attackVerb.third() + " " + ("you" if target.isPlayer() else target.name.definiteSingular()) + self.attackElaboration + "!" 
         )
-        target.damage( 1 )
+        if self.weapon:
+            target.damage( self.weapon.damage )
+        else:
+            target.damage( 1 )
     def moveto(self, tile):
         assert not tile.cannotEnterBecause( self )
         if self.tile:
