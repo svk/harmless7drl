@@ -1,5 +1,5 @@
 WPY26="C:\Program Files\Python26\python.exe"
-P2E_EXTRAS=SDL.dll libtcod-mingw.dll arial10x10.png
+P2E_EXTRAS=SDL.dll libtcod-mingw.dll arial12x12.png
 # may need msvcr80.dll
 
 ALL_EXTRAS=README

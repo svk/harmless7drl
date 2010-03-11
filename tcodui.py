@@ -21,10 +21,10 @@ class WindowClosedException:
 
 class TcodInterface:
     def __init__(self, debug = False):
-        self.width = 60
+        self.width = 100
         self.height = 60
         self.fps_limit = 20
-        self.font_name = 'arial10x10.png'
+        self.font_name = 'arial12x12.png'
         self.title = 'Harmless7DRL'
         self.colours = {
             'white': libtcod.white,
