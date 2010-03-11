@@ -81,6 +81,7 @@ class TcodInterface:
         for ch in s:
             self.put( x, y, ch, fg, bg)
             x += 1
+        return x
     def shutdown(self):
         pass
     def clear(self):

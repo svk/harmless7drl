@@ -291,6 +291,7 @@ class Mobile:
         self.spellbook = []
         self.weapon = None
         self.buffs = {}
+        self.lastBuffCheck = None
     def payForSpell(self, cost):
         if not self.weapon or not self.weapon.magical:
             self.context.log( "You don't have a staff or a wand handy.." )
@@ -326,6 +327,11 @@ class Mobile:
             target.damage( self.weapon.damage )
         else:
             target.damage( 1 )
+    def status(self):
+        rv = []
+        if self.flying:
+            rv.append( "Flying" )
+        return " ".join( rv )
     def moveto(self, tile):
         assert not tile.cannotEnterBecause( self )
         if self.tile:
@@ -390,14 +396,18 @@ class Mobile:
     def schedule(self):
         if not self.noSchedule and not self.scheduledAction:
             self.scheduledAction = self.tile.level.sim.schedule( self, self.sim.t + self.speed )
-    def checkBuffs(self):
+    def checkBuffs(self, t):
+        if not self.lastBuffCheck:
+            self.lastBuffCheck = t
+        dt = t - self.lastBuffCheck
+        self.lastBuffCheck = t
         for buff in self.buffs.keys():
-            self.buffs[buff] -= 1
+            self.buffs[buff] -= dt
             if self.buffs[buff] < 0:
                 buff.debuff( self.context )
                 del self.buffs[buff]
     def trigger(self, t):
-        self.checkBuffs()
+        self.checkBuffs( t )
         if self.ai:
             self.ai.trigger( self )
         if not self.noSchedule:
@@ -493,6 +503,7 @@ class Map:
             return self.nextLevel
         self.nextLevel = mapFromGenerator( self.context )
         self.nextLevel.previousLevel = self
+        self.nextLevel.depth = self.depth + 1
         return self.nextLevel
 
 def mapFromGenerator( context ):

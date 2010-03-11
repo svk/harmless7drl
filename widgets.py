@@ -51,6 +51,7 @@ class Subwindow:
         for ch in s:
             self.put( x, y, ch, *args, **kwargs)
             x += 1
+        return x
     def decorate(self, borderColour, insideColour):
         for x in range( self.w ):
             for y in range( self.h ):

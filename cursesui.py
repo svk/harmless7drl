@@ -128,6 +128,7 @@ class CursesInterface:
         for ch in s:
             self.put( x, y, ch, fg, bg)
             x += 1
+        return x
     def show(self):
         self.stdscr.refresh()
     def get(self):

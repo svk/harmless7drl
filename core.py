@@ -76,6 +76,7 @@ if __name__ == '__main__':
             # hack up a little new environment for us.
             context.protorunes = generateProtorunes()
             level = mapFromGenerator( context )
+            level.depth = 1
 
             for rune in context.protorunes: # XXX
                 rune.identify()

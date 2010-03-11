@@ -49,7 +49,6 @@ class GameWidget ( Widget ):
             self.proposedPath = None
         return False
     def log(self, s):
-        print >> sys.stderr, "log", "X", s, "X"
         self.turnlogWrapper.feed( s + " " )
         while self.turnlogWrapper.pages:
             self.turnlogLines = self.turnlogWrapper.popPage()
@@ -91,12 +90,15 @@ class GameWidget ( Widget ):
             except IndexError:
                 pass
         sby = screenh - 2
-        self.ui.putString( 0, sby, str(self.player.name), 'bold-white' )
-        self.ui.putString( 32, sby, "HP: %d/%d" % (self.player.hitpoints, self.player.maxHitpoints), 'bold-white' )
+        sbx = self.ui.putString( 0, sby, str(self.player.name), 'bold-white' )
+        sbx = self.ui.putString( sbx + 5, sby, "HP: %d/%d" % (self.player.hitpoints, self.player.maxHitpoints), 'bold-white' )
+        sbx = self.ui.putString( sbx + 5, sby, "DL: %d" % (self.player.tile.level.depth), 'bold-white' )
         if self.player.weapon:
-            self.ui.putString( 64, sby, "Pw: %d (%s)" % (self.player.weapon.mana, self.player.weapon.name.singular), 'bold-white' )
+            sbx = self.ui.putString( sbx + 5, sby, "Pw: %d (%s)" % (self.player.weapon.mana, self.player.weapon.name.singular), 'bold-white' )
         else:
-            self.ui.putString( 64, sby, "Pw: none", 'bold-white' )
+            sbx = self.ui.putString( sbx + 5, sby, "Pw: none", 'bold-white' )
+        if self.player.status():
+            sbx = self.ui.putString( sbx + 5, sby, self.player.status(), 'bold-white' )
     def advanceTime(self, dt):
         self.player.tile.level.sim.advance( dt )
         while True:
