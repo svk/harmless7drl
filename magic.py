@@ -21,6 +21,7 @@ class Rune ( Item ):
                       '\\',
                       'magenta',
                       itemType = "rune",
+                      weight = 1,
                       )
         self.arcaneName = arcaneName
         self.englishName = englishName
@@ -40,8 +41,8 @@ class Rune ( Item ):
 
 
 class Staff (Item):
-    def __init__(self, name, damage, minMana, maxMana):
-        Item.__init__(self, name, '|', 'yellow', itemType = "weapon")
+    def __init__(self, name, damage, minMana, maxMana, weight = 10):
+        Item.__init__(self, name, '|', 'yellow', itemType = "weapon", weight = weight)
         self.minMana, self.maxMana = minMana, maxMana
         self.magical = True
         self.damage = damage
