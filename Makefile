@@ -9,6 +9,7 @@ clean:
 	rm -f savegame-*-harmless7drl.gz
 	rm -rf harmless7drl-win32
 	rm -rf build
+	rm -f debug.7drl.txt
 
 harmless7drl-win32:
 	rm -rf dist
