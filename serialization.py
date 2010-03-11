@@ -92,6 +92,10 @@ def registerClasses():
     import magic as M
     c.register( M.Rune )
     c.register( M.Spell )
+    c.register( M.Staff )
+    c.register( M.Dig )
+    c.register( M.HealSelf )
+    c.register( M.LevitateSelf )
 
 def saveObject( o, filename ):
     # overwrites without warning!
