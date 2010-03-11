@@ -134,7 +134,7 @@ class GameWidget ( Widget ):
                     self.player.meleeAttack( tile.mobile )
                     self.tookAction( 1 )
                 else:
-                    self.context.log( "You can't reach %s." % tile.mobile.pronounObject() )
+                    self.context.log( "You can't reach %s." % tile.mobile.name.pronounObject() )
             elif tile.isDoor and tile.doorState == "closed":
                 self.log( "You open the door." )
                 openDoor( tile )

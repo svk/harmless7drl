@@ -102,8 +102,8 @@ class CursesInterface:
                 if fg == curses.COLOR_WHITE and bg == curses.COLOR_BLACK:
                     self.pairs[ fgName, bgName ] = 0
                     continue
-                elif fg == bg:
-                    continue
+#                elif fg == bg:
+#                    continue
                 elif revs.has_key( (fg,bg) ):
                     self.pairs[ fgName, bgName ] = revs[ fg, bg ]
                     continue
@@ -112,9 +112,9 @@ class CursesInterface:
                 revs[ fg, bg ] = i
                 i += 1
     def put(self, x, y, ch, fg = 'white', bg = 'black'):
-        if fg == bg:
-            fg = "white" if fg != "white" else "black"
-            ch = ' '
+#        if fg == bg:
+#            fg = "white" if fg != "white" else "black"
+#            ch = ' '
         if not self.inside( x, y ):
             self.warn( "put character at %d, %d (out of bounds)" % (x,y) )
         else:

@@ -87,13 +87,14 @@ def beginNewGame( name, gender, cheat = True ):
     ]
 
     context.protomonsters = [
-        Mobile( name = Noun( "a", "bat", "bats", gender = 'random' ),
+        Mobile( name = Noun( "a", "bat", "bats" ),
                 symbol = 'b',
-                fgColour = 'white',
+                fgColour = 'bold-black',
                 ai = ai.RandomWalker(),
                 speed = Speed.Normal,
                 hitpoints = 2,
                 rarity = 1,
+                flying = True,
                 ),
     ]
 
