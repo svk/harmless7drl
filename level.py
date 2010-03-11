@@ -441,6 +441,11 @@ class Mobile:
     def logVisualMon(self, someoneMessage, usePronoun = False):
         return self.logVisual( None, someoneMessage, usePronoun = usePronoun )
     def logVisual(self, youMessage, someoneMessage, usePronoun = False):
+        try:
+            if self.context.player.tile.level != self.tile.level:
+                return
+        except AttributeError:
+            return
         if self.isPlayer():
             self.context.log( youMessage )
             return True

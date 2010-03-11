@@ -1,5 +1,6 @@
 import random
 import sys
+from level import sign
 
 def seekMob(mob, target, radius):
     from pathfind import Pathfinder, infinity
@@ -39,7 +40,15 @@ def playerAccessibleForMelee(mob):
     return mob.context.player.canBeMeleeAttackedBy( mob )
 
 def seekPlayer(mob, radius):
+    if playerOutsideRadius( mob, radius ):
+        return None
     return seekMob(mob, mob.context.player, radius)
+
+def playerStepDistance(mob):
+    return max( abs(mob.tile.x - mob.context.player.tile.x), abs(mob.tile.y - mob.context.player.tile.y ) )
+    
+def playerOutsideRadius(mob, radius): #optimization, basically
+    return playerStepDistance( mob ) > radius
 
 def playerIsAdjacentTo(mob, tile):
     dx = mob.context.player.tile.x - tile.x
@@ -136,7 +145,10 @@ class MeleeMagicHater:
             doMeleePlayerOrFlee( mob )
         else:
             path = seekPlayer( mob, self.radius )
-            enraged = path and (self.playerPower(mob) > self.tolerance)
+            if playerOutsideRadius(mob, self.radius):
+                enraged = False
+            else:
+                enraged = path and (self.playerPower(mob) > self.tolerance)
             if enraged and (not self.enraged):
                 mob.logVisualMon( "%s stamps its feet!" )
                 self.enraged = True
@@ -147,3 +159,42 @@ class MeleeMagicHater:
                 self.enraged = False
             else:
                 doRandomWalk( mob )
+
+class Rook:
+    def __init__(self, radius):
+        self.radius = radius
+    def trigger(self, mob):
+        # the rook is entirely stationary unless it spots a clear
+        # straight line to the player. If it does, moves 8 (radius)
+        # tiles
+        pl = mob.context.player
+        dx, dy = sign(pl.tile.x - mob.tile.x), sign(pl.tile.y - mob.tile.y)
+        if dx != 0 and dy != 0:
+            return # not a straight line, stationary
+        tile = mob.tile.getRelative( dx, dy )
+        dist = 0
+        while not tile.mobile == pl:
+            if not tile:
+                return
+            if tile.cannotEnterBecause( mob ):
+                return
+            dist += 1
+            lastTile = tile
+            tile = tile.getRelative( dx, dy )
+        tile = lastTile
+        # target acquired!
+        if dist > self.radius:
+            tile = mob.tile.getRelative( dx * self.radius, dy * self.radius )
+            doAttack = False
+        else:
+            tile = pl.tile.getRelative( -dx, -dy )
+            doAttack = True
+        if not pl.canBeMeleeAttackedBy( mob ):
+            doAttack = False
+        aniTarget = pl.tile if doAttack else tile
+        # show an animation, a ray from mob.tile to aniTarget
+        raylen = max( abs(aniTarget.x - mob.tile.x), abs(aniTarget.y - mob.tile.y) )
+        mob.context.game.showStraightRay( (mob.tile.x, mob.tile.y), (dx,dy), raylen, 'white', 'black' )
+        mob.moveto( tile )
+        if doAttack:
+            mob.meleeAttack( pl )
