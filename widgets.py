@@ -206,7 +206,7 @@ class SelectionMenuWidget (Widget):
         fg = SecondaryColour
         self.dialog.decorate( fg, bg )
         i = 0
-        if self.width:
+        if self.title:
             self.dialog.putString( 1, 1, self.title.center( self.width - 2 ), fg, bg )
         for sym, desc in self.choices:
             bga, fga = bg, fg

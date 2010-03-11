@@ -25,6 +25,18 @@ class Rune ( Item ):
         import copy
         return copy.copy( self )
 
+
+class Staff (Item):
+    def __init__(self, name, damage, minMana, maxMana):
+        Item.__init__(self, name, '|', 'yellow', itemType = "weapon")
+        self.minMana, self.maxMana = minMana, maxMana
+        self.magical = True
+    def spawn(self):
+        import copy
+        rv = copy.copy( self )
+        rv.mana = random.randint( self.minMana, self.maxMana )
+        return rv
+
 def generateProtorunes():
     assert len( EnglishNames ) <= len( ArcaneNames )
     random.shuffle( ArcaneNames )

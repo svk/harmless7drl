@@ -280,7 +280,22 @@ class Mobile:
         self.spellbook = []
         self.spellpoints = spellpoints
         self.maxSpellpoints = spellpoints
+        self.weapon = None
     def payForSpell(self, cost):
+        if not self.weapon or not self.weapon.magical:
+            self.context.log( "You don't have a staff or a wand handy.." )
+        else:
+            if cost <= self.weapon.spellpoints:
+                self.weapon.spellpoints -= cost
+                return True
+            self.context.log( "There's not enough energy left in your %s to cast that." % self.weapon.name.singular )
+        if self.context.game.main.query( SelectionMenuWidget,
+                                         choices = [ (True, "Yes"), (False, "No") ],
+                                         title = "Draw on your inner magical energy to cast?",
+                                         padding = 5, ):
+            self.damage( 1 )
+            return True
+        return False
         if cost > self.spellpoints:
             # offer Faustian bargain
             self.context.log( "You are too exhausted to cast that." )
@@ -298,8 +313,8 @@ class Mobile:
         # levitating creatures are out of reach for groundhuggers
         return True
     def meleeAttack(self, target):
-        self.logVisual( "You %s %s%s!" % (self.attackVerb.second(), target.name.definite(), self.attackElaboration ),
-                        "%s " + self.attackVerb.third() + " " + ("you" if target.isPlayer() else target.name.definite()) + self.attackElaboration + "!" 
+        self.logVisual( "You %s %s%s!" % (self.attackVerb.second(), target.name.definiteSingular(), self.attackElaboration ),
+                        "%s " + self.attackVerb.third() + " " + ("you" if target.isPlayer() else target.name.definiteSingular()) + self.attackElaboration + "!" 
         )
         target.damage( 1 )
     def moveto(self, tile):
@@ -340,7 +355,7 @@ class Mobile:
             if usePronoun:
                 self.context.log( someoneMessage % self.name.pronounSubject() if usePronoun == "subject" else self.name.pronounObject() )
             else:
-                self.context.log( someoneMessage % self.name.definite() )
+                self.context.log( someoneMessage % self.name.definiteSingular() )
             return True
         return False
     def killmessage(self, active = False, usePronoun = "subject"):
@@ -388,7 +403,7 @@ class Item:
         self.symbol = symbol
         self.fgColour = fgColour
         self.bgColour = bgColour
-        self.itemType = name if not itemType else itemType
+        self.itemType = name.singular if not itemType else itemType
     def appearance(self):
         rv = {
             'ch': self.symbol,

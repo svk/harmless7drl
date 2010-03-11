@@ -139,7 +139,7 @@ class GameWidget ( Widget ):
                     return
                 self.player.tile.items.remove( item )
             self.player.inventory.append( item )
-            self.log( "You pick up %s." % item.name.definite() )
+            self.log( "You pick up %s." % item.name.definiteSingular() )
             self.tookAction( 1 )
     def closeDoor(self):
         eligibleDoors = [ n for n in self.player.tile.neighbours() if not cannotCloseDoorBecause(n) ]
@@ -186,8 +186,28 @@ class GameWidget ( Widget ):
                 return
             item = self.player.inventory.pop()
             self.player.tile.items.append( item )
-            self.log( "You drop %s." % item.name.definite() )
+            self.log( "You drop %s." % item.name.definiteSingular() )
             self.tookAction( 1 )
+    def equipWeapon(self, weapon):
+        assert weapon.itemType == 'weapon'
+        if self.player.weapon:
+            self.player.inventory.append( self.player.weapon )
+        self.player.weapon = weapon
+        self.log( "You wield %s." % weapon.name.definiteSingular() )
+    def accessInventory(self):
+        stacked = countItems( self.player.inventory )
+        chosen = self.main.query( SelectionMenuWidget, choices = [
+            (items[0], name.amount( len(items), informal = True )) for name, items in stacked.items()
+        ] + [ (None, "cancel") ], padding = 5 )
+        if chosen:
+            if chosen.itemType == 'weapon':
+                self.equipWeapon( chosen )
+            elif chosen.itemType == 'talisman':
+                self.log( "You merely need to carry %s for its magics to work." % chosen.name.definiteSingular() )
+            elif chosen.itemType == 'rune':
+                self.log( "The rune is useless on its own. (Press 'w' to combine runes into spells.)" )
+            else:
+                self.log( "You don't see how you could maek use of %s." % chosen.name.definiteSingular() )
     def writeSpell(self):
         from magic import Spells
         goodSpells = list(filter( lambda spell: spell not in self.context.player.spellbook and spell.canBuild( self.context.player.inventory ), Spells ))
@@ -212,6 +232,7 @@ class GameWidget ( Widget ):
             ] + [ (None, "cancel") ], title = "Which spell do you want to cast?", padding = 5 )
             if self.context.player.payForSpell( chosen.cost() ):
                 chosen.cast( self.context ) # intransitive spells only at the moment
+                self.tookAction( 1 )
     def keyboard(self, key):
         try:
             dx, dy = self.movementKeys[ key ]
@@ -231,6 +252,7 @@ class GameWidget ( Widget ):
                 '<': self.goUp,
                 'w': self.writeSpell,
                 'm': self.castSpell,
+                'i': self.accessInventory,
             }[key]
         except KeyError:
             pass

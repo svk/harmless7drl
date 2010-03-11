@@ -95,7 +95,7 @@ class Noun:
         if informal and n == 1 and self.article:
             m = self.article
         return " ".join( [ m, self.plural if n != 1 else self.singular ] )
-    def definite(self):
+    def definiteSingular(self):
         if self.the:
             return " ".join( [ "the", self.singular ] )
         return self.singular
@@ -115,9 +115,9 @@ if __name__ == '__main__':
     print penguin.indefiniteSingular()
     for i in range(40):
         print penguin.indefiniteAmount( i )
-    print penguin.definite()
+    print penguin.definiteSingular()
     percy = ProperNoun( "Percy" )
     print percy.indefiniteSingular()
     for i in range(2):
         print percy.indefiniteAmount( i )
-    print percy.definite()
+    print percy.definiteSingular()
