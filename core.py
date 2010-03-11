@@ -99,7 +99,8 @@ def beginNewGame( name, gender, cheat = True ):
     context.player.weapon = magic.Staff( Noun("an", "apprentice's staff", "apprentice's staves" ),
                                          3,
                                          50,
-                                         50 ).spawn() # not a cheat!
+                                         50,
+                                         weight = 10).spawn() # not a cheat!
     if cheat:
         context.player.spellbook.append( magic.Dig() ) # XXX cheat
         context.player.spellbook.append( magic.LevitateSelf() ) # XXX cheat
@@ -109,7 +110,7 @@ def beginNewGame( name, gender, cheat = True ):
     for i in range(5):
         level.spawnMobile( Mobile, name = Noun("a", "robot", "robots"), symbol = "g", fgColour = "yellow", ai = ai.TurnerBot(), speed = timing.Speed.Normal, context = context, nonalive = True )
     for i in range(5):
-        level.spawnItem( Item, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
+        level.spawnItem( Item, weight = 1, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
 
     return context
 

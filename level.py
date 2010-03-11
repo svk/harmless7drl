@@ -257,6 +257,7 @@ class Mobile:
                  bgColour = None,
                  attackVerb = Verb( "attack" ),
                  attackElaboration = "",
+                 weightLimit = 60,
                  flying = False,
                  hindersLOS = False, # behaviour flags
                  nonalive = False):
@@ -275,6 +276,7 @@ class Mobile:
         self.inventory = []
         self.noSchedule = False
         self.nonalive = nonalive
+        self.weightLimit = weightLimit
         self.hitpoints = hitpoints
         self.maxHitpoints = hitpoints
         self.flying = flying
@@ -292,6 +294,8 @@ class Mobile:
         self.weapon = None
         self.buffs = {}
         self.lastBuffCheck = None
+    def inventoryWeight(self):
+        return (self.weapon.weight if self.weapon else 0) + sum( [ item.weight for item in self.inventory ] )
     def payForSpell(self, cost):
         if not self.weapon or not self.weapon.magical:
             self.context.log( "You don't have a staff or a wand handy.." )
@@ -424,12 +428,13 @@ class Mobile:
         return rv
 
 class Item:
-    def __init__(self, name, symbol, fgColour, bgColour = None, itemType = None):
+    def __init__(self, name, symbol, fgColour, bgColour = None, itemType = None, weight = None):
         self.name = name
         self.symbol = symbol
         self.fgColour = fgColour
         self.bgColour = bgColour
         self.itemType = name.singular if not itemType else itemType
+        self.weight = weight
     def appearance(self):
         rv = {
             'ch': self.symbol,

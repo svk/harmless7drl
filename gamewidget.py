@@ -105,6 +105,7 @@ class GameWidget ( Widget ):
             sbx = self.ui.putString( sbx + 5, sby, "Pw: %d (%s)" % (self.player.weapon.mana, self.player.weapon.name.singular), 'bold-white' )
         else:
             sbx = self.ui.putString( sbx + 5, sby, "Pw: none", 'bold-white' )
+        sbx = self.ui.putString( sbx + 5, sby, "W: %0.2lf%%" % (self.player.inventoryWeight()*100.0/self.player.weightLimit), 'bold-white' )
         if self.player.status():
             sbx = self.ui.putString( sbx + 5, sby, self.player.status(), 'bold-white' )
     def advanceTime(self, dt):
@@ -143,7 +144,7 @@ class GameWidget ( Widget ):
     def pickup(self):
         if self.player.tile.items:
             if len( self.player.tile.items ) == 1:
-                item = self.player.tile.items.pop()
+                item = self.player.tile.items[0]
             else:
                 stacked = countItems( self.player.tile.items )
                 item = self.main.query( SelectionMenuWidget, choices = [
@@ -151,10 +152,14 @@ class GameWidget ( Widget ):
                 ] + [ (None, "nothing") ], title = "Pick up what?", padding = 5 )
                 if not item:
                     return
+            if (self.player.inventoryWeight() + item.weight) < self.player.weightLimit:
                 self.player.tile.items.remove( item )
-            self.player.inventory.append( item )
-            self.log( "You pick up %s." % item.name.definiteSingular() )
-            self.tookAction( 1 )
+                self.player.inventory.append( item )
+                self.log( "You pick up %s." % item.name.definiteSingular() )
+                self.tookAction( 1 )
+            else:
+                self.log( "Being overburdened, you fail to pick up %s." % item.name.definiteSingular() )
+                self.tookAction( 1 ) # since you can gain info this way: e.g. container full / empty
     def closeDoor(self):
         eligibleDoors = [ n for n in self.player.tile.neighbours() if not cannotCloseDoorBecause(n) ]
         if not eligibleDoors:
@@ -226,6 +231,7 @@ class GameWidget ( Widget ):
         if self.player.weapon:
             self.player.inventory.append( self.player.weapon )
         self.player.weapon = weapon
+        self.player.inventory.remove( weapon )
         self.log( "You wield %s." % weapon.name.definiteSingular() )
     def accessInventory(self):
         stacked = countItems( self.player.inventory )

@@ -8,10 +8,11 @@ requires:
     boulders <- so-so
     more spells <- exciting
     spell menu <- boring [X]
-    weight limit <- boring
+    weight limit <- boring [X]
 
 also
-    graceful handling of death <- boring
+    graceful handling of death <- boring [X]
     main menu <- boring [X]
 
 BORING STUFF FIRST: good strategy
+boring left: winnability
