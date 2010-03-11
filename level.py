@@ -23,7 +23,10 @@ class Rarity:
 
 def weightedSelect( things ):
     totalWeight = sum( map( lambda thing : thing.rarity.frequency, things ) )
-    selected = random.randint( 0, totalWeight - 1 )
+    try:
+        selected = random.randint( 0, totalWeight - 1 )
+    except ValueError:
+        return None
     for thing in things:
         selected -= thing.rarity.frequency
         if selected < 0:
@@ -79,8 +82,11 @@ class Tile:
         self.tileTypeDesc = "A NULL tile."
         self.isBorder = False
         self.ceilingHole = None
+        self.groundTile = True
     def cannotEnterBecause(self, mobile):
         # may be called with a protomonster!
+        if self.groundTile and not mobile.walking:
+            return "you can't walk on solid ground"
         if self.impassable:
             return "tile is impassable"
         if self.mobile != None:
@@ -193,16 +199,19 @@ def makeStairsDown( tile ):
     tile.level.stairsDown = tile
     tile.tileTypeDesc = "Stairs leading down to the dungeon below."
     
-def makeStairsUp( tile ):
-    tile.name = "stairs up"
-    tile.symbol = "<"
-    tile.fgColour = "white"
-    tile.bgColour = "black"
-    tile.impassable = False
-    tile.spawnMonsters = False
-    tile.spawnItems = False
+def makeStairsUp( tile, justSpawnSpot = False ):
+    if justSpawnSpot:
+        makeFloor( tile )
+    else:
+        tile.name = "stairs up"
+        tile.symbol = "<"
+        tile.fgColour = "white"
+        tile.bgColour = "black"
+        tile.impassable = False
+        tile.spawnMonsters = False
+        tile.spawnItems = False
+        tile.tileTypeDesc = "Stairs leading up to the shallower parts of the dungeon."
     tile.level.stairsUp = tile
-    tile.tileTypeDesc = "Stairs leading up to the shallower parts of the dungeon."
 
 def makeImpenetrableRock( tile ):
     tile.name = "rock"
@@ -291,10 +300,13 @@ class Mobile:
                  weightLimit = 60,
                  flying = False,
                  groundhugger = False,
-                 rarity = 1,
+                 rarity = None,
                  proto = True,
+                 meleePower = 1,
                  hindersLOS = False, # behaviour flags
-                 nonalive = False):
+                 nonalive = False,
+                 walking = True,
+                 swimming = False):
         assert fgColour != 'red' # used for traps
         self.rarity = rarity
         assert isinstance( rarity, Rarity )
@@ -315,6 +327,7 @@ class Mobile:
         self.maxHitpoints = hitpoints
         self.flying = flying
         self.groundhugger = groundhugger
+        self.meleePower = meleePower
         self.cachedFov = []
         self.trapDetection = 0
             # I'm trying to avoid using HP a lot. The amounts of HP
@@ -328,6 +341,8 @@ class Mobile:
         self.weapon = None
         self.buffs = {}
         self.lastBuffCheck = None
+        self.walking = walking
+        self.swimming = swimming
         if not proto:
             self.context = context
             self.sim = tile.level.sim
@@ -336,6 +351,8 @@ class Mobile:
         import copy
         rv = copy.copy( self )
         rv.name = self.name.selectGender()
+        if self.ai:
+            rv.ai = copy.copy( self.ai )
         rv.context = context
         rv.sim = tile.level.sim
         rv.moveto( tile )
@@ -385,7 +402,7 @@ class Mobile:
         if self.weapon:
             target.damage( self.weapon.damage )
         else:
-            target.damage( 1 )
+            target.damage( self.meleePower )
     def status(self):
         rv = []
         if self.flying:
@@ -421,6 +438,8 @@ class Mobile:
     def logAural(self, youMessage):
         self.context.log( youMessage )
         return True
+    def logVisualMon(self, someoneMessage, usePronoun = False):
+        return self.logVisual( None, someoneMessage, usePronoun = usePronoun )
     def logVisual(self, youMessage, someoneMessage, usePronoun = False):
         if self.isPlayer():
             self.context.log( youMessage )
@@ -605,8 +624,7 @@ def mapFromGenerator( context, ancestor = None):
                 '.': makeFloor,
                 '#': makeWall,
             }[ lg.data[y][x] ]( rv.tiles[x,y] )
-    if ancestor:
-        makeStairsUp( rv.tiles[ lg.entryRoom.internalFloorpoint() ] )
+    makeStairsUp( rv.tiles[ lg.entryRoom.internalFloorpoint() ], justSpawnSpot = not ancestor )
     makeStairsDown( rv.tiles[ lg.exitRoom.internalFloorpoint() ] )
     for room in lg.rewardRooms:
         # should be in chests: that way it's hard to

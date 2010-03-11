@@ -1,3 +1,5 @@
+import copy
+
 class Widget:
     def __init__(self, main = None, ui = None):
         self.done = False
@@ -75,6 +77,7 @@ def beginNewGame( name, gender, cheat = True ):
     from widgets import RootMenuWidget
     import ai
     import magic
+    from monsters import Monsters
     
     context = GameContext()
     context.levels = []
@@ -99,17 +102,7 @@ def beginNewGame( name, gender, cheat = True ):
                               rarity = Rarity(worth = 20, freq = 1 , minLevel = 5) ),
     ]
 
-    context.protomonsters = [
-        Mobile( name = Noun( "a", "bat", "bats" ),
-                symbol = 'b',
-                fgColour = 'black',
-                ai = ai.RandomWalker(),
-                speed = Speed.Normal,
-                hitpoints = 2,
-                flying = True,
-                rarity = Rarity( maxLevel = 2 ) ,
-                ),
-    ]
+    context.protomonsters = copy.copy( Monsters )
 
     level = mapFromGenerator( context )
     level.depth = 1

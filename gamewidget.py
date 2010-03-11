@@ -233,13 +233,25 @@ class GameWidget ( Widget ):
         self.player.weapon = weapon
         self.player.inventoryTake( weapon )
         self.log( "You wield %s." % weapon.name.definiteSingular() )
+        self.tookAction( 1 )
+    def unequipWeapon(self):
+        if not self.player.weapon:
+            return None # shouldn't happen
+        self.player.inventoryGive( self.player.weapon )
+        self.log( "You stop wielding your %s." % self.player.weapon.name.definiteSingular() )
+        self.player.weapon = None
+        self.tookAction( 1 )
     def accessInventory(self):
         stacked = countItems( self.player.inventory )
         chosen = self.main.query( SelectionMenuWidget, choices = [
+            (('unwield', weapon.name.definiteSingular() + " (wielded)")) for weapon in [self.player.weapon] if weapon
+        ] + [
             (items[0], name.amount( len(items), informal = True )) for name, items in stacked.items()
         ] + [ (None, "cancel") ], padding = 5 )
         if chosen:
-            if chosen.itemType == 'weapon':
+            if chosen == 'unwield':
+                self.unequipWeapon()
+            elif chosen.itemType == 'weapon':
                 self.equipWeapon( chosen )
             elif chosen.itemType == 'talisman':
                 self.log( "You merely need to carry %s for its magics to work." % chosen.name.definiteSingular() )
