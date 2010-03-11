@@ -21,10 +21,10 @@ class Thing: # generateable: items, traps, monsters
     def generate(self):
         self.alreadyGenerated += 1
 
-def selectThings( maxSingle, target, things ):
+def selectThings( maxSingle, target, things, minSingle = 0 ):
     rv = []
     while target > 0:
-        eligible = [ thing for thing in things if thing.mayGenerate() and thing.rarity < maxSingle ]
+        eligible = [ thing for thing in things if thing.mayGenerate() and thing.rarity < maxSingle and thing.rarity > minSingle ]
         chosen = random.choice( eligible )
         target -= chosen.rarity
         chosen.generate()
@@ -71,6 +71,7 @@ class Tile:
         self.isBorder = False
         self.ceilingHole = None
     def cannotEnterBecause(self, mobile):
+        # may be called with a protomonster!
         if self.impassable:
             return "tile is impassable"
         if self.mobile != None:
@@ -264,14 +265,14 @@ def makeWall( tile ):
     tile.hindersLOS = True
     tile.tileTypeDesc = "A wall."
 
-class Mobile:
+class Mobile (Thing):
     # this class is a mess, there are several player-specific fields
     def __init__(self,
-                 tile,
                  name,
                  symbol,
                  hitpoints = 5,
                  speed = Speed.Normal,
+                 tile = None,
                  ai = None,
                  context = None,
                  fgColour = 'white',
@@ -280,12 +281,14 @@ class Mobile:
                  attackElaboration = "",
                  weightLimit = 60,
                  flying = False,
+                 rarity = 1,
+                 proto = True,
                  hindersLOS = False, # behaviour flags
                  nonalive = False):
         assert fgColour != 'red' # used for traps
+        Thing.__init__( self, rarity )
         self.name = name
         self.hindersLOS = hindersLOS
-        self.context = context
         self.symbol = symbol
         self.fgColour = fgColour
         self.bgColour = bgColour
@@ -293,7 +296,6 @@ class Mobile:
         self.scheduledAction = None
         self.speed = speed
         self.ai = ai
-        self.sim = tile.level.sim
         self.inventory = []
         self.noSchedule = False
         self.nonalive = nonalive
@@ -301,7 +303,6 @@ class Mobile:
         self.hitpoints = hitpoints
         self.maxHitpoints = hitpoints
         self.flying = flying
-        self.moveto( tile )
         self.cachedFov = []
         self.trapDetection = 0
             # I'm trying to avoid using HP a lot. The amounts of HP
@@ -315,6 +316,18 @@ class Mobile:
         self.weapon = None
         self.buffs = {}
         self.lastBuffCheck = None
+        if not proto:
+            self.context = context
+            self.sim = tile.level.sim
+            self.moveto( tile )
+    def spawn(self, context, tile ):
+        import copy
+        rv = copy.copy( self )
+        rv.name = self.name.selectGender()
+        rv.context = context
+        rv.sim = tile.level.sim
+        rv.moveto( tile )
+        return rv
     def inventoryWeight(self):
         return (self.weapon.weight if self.weapon else 0) + sum( [ item.weight for item in self.inventory ] )
     def payForSpell(self, cost):
@@ -505,7 +518,7 @@ class Map:
     def spawnMobile(self, cls, *args, **kwargs):
         tile = self.randomTile( lambda tile : tile.spawnMonsters and not tile.mobile and not tile.trap )
         assert tile != None
-        rv = cls( tile, *args, **kwargs )
+        rv = cls( tile = tile, proto = False, *args, **kwargs )
         return rv
     def spawnItem(self, cls, *args, **kwargs):
         tile = self.randomTile( lambda tile : tile.spawnItems )
@@ -580,6 +593,12 @@ def mapFromGenerator( context ):
         if tries > 0:
             singleCell = random.choice( [ TrapDoor, SpikePit, ExplodingMine ] )
             trap = singleCell( point, context = context )
+        valueTarget = random.randint( 1, 4 )
+        minRarity = 0
+        maxRarity = 1000
+        for protomonster in selectThings( maxRarity, valueTarget, context.protomonsters, minSingle = minRarity ):
+            tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) )
+            monster = protomonster.spawn( context, tile )
     context.levels.append( rv )
     return rv
 

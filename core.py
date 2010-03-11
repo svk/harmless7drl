@@ -86,6 +86,17 @@ def beginNewGame( name, gender, cheat = True ):
         magic.Staff( Noun('a', 'crooked staff', 'crooked staves'), damage = 2, minMana = 50, maxMana = 100, weight = 10, rarity = 3 ),
     ]
 
+    context.protomonsters = [
+        Mobile( name = Noun( "a", "bat", "bats", gender = 'random' ),
+                symbol = 'b',
+                fgColour = 'white',
+                ai = ai.RandomWalker(),
+                speed = Speed.Normal,
+                hitpoints = 2,
+                rarity = 1,
+                )
+    ]
+
     if cheat:
         for rune in context.protorunes: # XXX
             rune.identify()
@@ -93,12 +104,14 @@ def beginNewGame( name, gender, cheat = True ):
     level = mapFromGenerator( context )
     level.depth = 1
 
-    context.player = Mobile( level.getPlayerSpawnSpot(),
+    context.player = Mobile( 
                              ProperNoun( name, gender ),
                              "@",
                              speed = Speed.Normal,
                              context = context,
                              fgColour = "green",
+                             proto = False,
+                             tile = level.getPlayerSpawnSpot(),
     )
     context.player.rawname = name
     context.player.weapon = magic.Staff( Noun("an", "apprentice's staff", "apprentice's staves" ),
@@ -112,10 +125,10 @@ def beginNewGame( name, gender, cheat = True ):
         context.player.spellbook.append( magic.Dig() ) # XXX cheat
         context.player.spellbook.append( magic.LevitateSelf() ) # XXX cheat
 
-    for i in range(5):
-        level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = ai.RandomWalker(), context = context )
-    for i in range(5):
-        level.spawnMobile( Mobile, name = Noun("a", "robot", "robots"), symbol = "g", fgColour = "yellow", ai = ai.TurnerBot(), speed = timing.Speed.Normal, context = context, nonalive = True )
+#    for i in range(5):
+#        level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = ai.RandomWalker(), context = context )
+#    for i in range(5):
+#        level.spawnMobile( Mobile, name = Noun("a", "robot", "robots"), symbol = "g", fgColour = "yellow", ai = ai.TurnerBot(), speed = timing.Speed.Normal, context = context, nonalive = True )
 #    for i in range(5):
 #        level.spawnItem( Item, weight = 1, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white", rarity = 1k )
 

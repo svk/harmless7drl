@@ -1,3 +1,5 @@
+import random
+
 def makeList( l ):
     if not l:
         return "nothing"
@@ -111,6 +113,13 @@ class Noun:
         return self.singular == that.singular
     def __hash__(self):
         return self.singular.__hash__()
+    def selectGender(self):
+        if self.gender != 'random':
+            return self
+        import copy
+        rv = copy.copy( self )
+        rv.gender = 'male' if random.randint(0,1) else 'female'
+        return rv
 
 class ProperNoun ( Noun ):
     def __init__(self, name, gender ):
