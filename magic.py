@@ -22,10 +22,10 @@ class Rune ( Item ):
                       'magenta',
                       itemType = "rune",
                       weight = 1,
+                      rarity = EnglishNames[ englishName ]
                       )
         self.arcaneName = arcaneName
         self.englishName = englishName
-        self.rarity = EnglishNames[ englishName ]
         self.identified = False
     def generateNoun(self, runename):
         return Noun( "an" if runename[0].upper() in "AEIOU" else "a", "\"%s\" rune" % runename, "\"%s\" runes" % runename)
@@ -41,11 +41,17 @@ class Rune ( Item ):
 
 
 class Staff (Item):
-    def __init__(self, name, damage, minMana, maxMana, weight = 10):
-        Item.__init__(self, name, '|', 'yellow', itemType = "weapon", weight = weight)
+    def __init__(self, name, damage, minMana, maxMana, weight, rarity):
+        Item.__init__(self, name, '|', 'yellow', itemType = "weapon", weight = weight, rarity = rarity)
         self.minMana, self.maxMana = minMana, maxMana
         self.magical = True
         self.damage = damage
+    def stackname(self):
+        return Noun( self.name.article,
+                     self.name.singular + " (%d)" % self.mana,
+                     self.name.plural + " (%d)" % self.mana,
+                     self.name.gender,
+                     self.name.the )
     def spawn(self):
         import copy
         rv = copy.copy( self )

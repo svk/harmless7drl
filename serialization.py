@@ -73,6 +73,7 @@ def registerClasses():
     c.register( L.Map )
     c.register( L.Tile )
     c.register( L.Item )
+    c.register( L.Thing )
     import grammar as G
     c.register( G.Noun )
     c.register( G.ProperNoun )

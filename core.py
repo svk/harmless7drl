@@ -81,12 +81,17 @@ def beginNewGame( name, gender, cheat = True ):
     
     # hack up a little new environment for us.
     context.protorunes = magic.generateProtorunes()
-    level = mapFromGenerator( context )
-    level.depth = 1
+
+    context.protoitems = context.protorunes + [
+        magic.Staff( Noun('a', 'crooked staff', 'crooked staves'), damage = 2, minMana = 50, maxMana = 100, weight = 10, rarity = 3 ),
+    ]
 
     if cheat:
         for rune in context.protorunes: # XXX
             rune.identify()
+
+    level = mapFromGenerator( context )
+    level.depth = 1
 
     context.player = Mobile( level.getPlayerSpawnSpot(),
                              ProperNoun( name, gender ),
@@ -100,7 +105,9 @@ def beginNewGame( name, gender, cheat = True ):
                                          3,
                                          50,
                                          50,
-                                         weight = 10).spawn() # not a cheat!
+                                         weight = 10,
+                                         rarity = 1 # dummy value, never spawned
+                                        ).spawn() # not a cheat!
     if cheat:
         context.player.spellbook.append( magic.Dig() ) # XXX cheat
         context.player.spellbook.append( magic.LevitateSelf() ) # XXX cheat
@@ -109,8 +116,8 @@ def beginNewGame( name, gender, cheat = True ):
         level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = ai.RandomWalker(), context = context )
     for i in range(5):
         level.spawnMobile( Mobile, name = Noun("a", "robot", "robots"), symbol = "g", fgColour = "yellow", ai = ai.TurnerBot(), speed = timing.Speed.Normal, context = context, nonalive = True )
-    for i in range(5):
-        level.spawnItem( Item, weight = 1, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
+#    for i in range(5):
+#        level.spawnItem( Item, weight = 1, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white", rarity = 1k )
 
     return context
 
@@ -134,38 +141,6 @@ if __name__ == '__main__':
 #    from levelgen import GeneratorQueue
 #    context.levelGenerator = GeneratorQueue( 2, 100, 100 )
     try:
-        try:
-            raise IOError()
-            context = context.load( "test-savefile.gz" )
-        except IOError:
-            # hack up a little new environment for us.
-            context.protorunes = generateProtorunes()
-            level = mapFromGenerator( context )
-            level.depth = 1
-
-            for rune in context.protorunes: # XXX
-                rune.identify()
-
-            context.player = Mobile( level.getPlayerSpawnSpot(),
-                                     ProperNoun( "Atman", "male" ),
-                                     "@",
-                                     speed = Speed.Normal,
-                                     context = context,
-                                     fgColour = "green",
-            )
-            context.player.weapon = Staff( Noun("an", "apprentice's staff", "apprentice's staves" ),
-                                           3,
-                                           50,
-                                           50 ).spawn() # not a cheat!
-            context.player.spellbook.append( Dig() ) # XXX cheat
-            context.player.spellbook.append( LevitateSelf() ) # XXX cheat
-
-            for i in range(5):
-                level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = RandomWalker(), context = context )
-            for i in range(5):
-                level.spawnMobile( Mobile, name = Noun("a", "robot", "robots"), symbol = "g", fgColour = "yellow", ai = TurnerBot(), speed = timing.Speed.Normal, context = context, nonalive = True )
-            for i in range(5):
-                level.spawnItem( Item, name = Noun("a", "book", "books"), symbol = "[", fgColour = "white" )
         try:
             import cursesui
             main = cursesui.main

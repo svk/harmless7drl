@@ -12,6 +12,27 @@ from traps import *
 from grammar import *
 from widgets import SelectionMenuWidget
 
+class Thing: # generateable: items, traps, monsters
+    def __init__(self, rarity):
+        self.rarity = rarity
+        self.alreadyGenerated = 0
+    def mayGenerate(self):
+        return True
+    def generate(self):
+        self.alreadyGenerated += 1
+
+def selectThings( maxSingle, target, things ):
+    rv = []
+    while target > 0:
+        eligible = [ thing for thing in things if thing.mayGenerate() and thing.rarity < maxSingle ]
+        chosen = random.choice( eligible )
+        target -= chosen.rarity
+        chosen.generate()
+        rv.append( chosen )
+    # note: this still returns PROTO-things, which must be handled
+    # as appropriately (e.g. .spawn() for items)
+    return rv
+
 class PlayerKilledException:
     pass
 
@@ -19,9 +40,9 @@ def countItems( l ):
     rv = {}
     for item in l:
         try:
-            rv[item.name].append( item )
+            rv[item.stackname()].append( item )
         except KeyError:
-            rv[item.name] = [item]
+            rv[item.stackname()] = [item]
     return rv
 
 class Tile:
@@ -427,14 +448,20 @@ class Mobile:
         self.cachedFov = rv
         return rv
 
-class Item:
-    def __init__(self, name, symbol, fgColour, bgColour = None, itemType = None, weight = None):
+class Item ( Thing ):
+    def __init__(self, name, symbol, fgColour, bgColour = None, itemType = None, weight = None, rarity = None):
+        Thing.__init__( self, rarity )
         self.name = name
         self.symbol = symbol
         self.fgColour = fgColour
         self.bgColour = bgColour
         self.itemType = name.singular if not itemType else itemType
         self.weight = weight
+    def spawn(self):
+        import copy
+        return copy.copy( self )
+    def stackname(self):
+        return self.name
     def appearance(self):
         rv = {
             'ch': self.symbol,
@@ -536,18 +563,12 @@ def mapFromGenerator( context ):
     for room in lg.rewardRooms:
         # should be in chests: that way it's hard to
         # distinguish between danger rooms and reward rooms
-        from magic import Staff
-        valueToGenerate = 10
+        valueTarget = 40 # per room, people!
         maxRarity = 1000
-        rv.tiles[ room.internalFloorpoint() ].items.append(
-            Staff( Noun('a', 'crooked staff', 'crooked staves'), 2, 50, 100 ).spawn()
-        )
-        eligible = [ rune for rune in context.protorunes if rune.rarity < maxRarity ]
-        while valueToGenerate > 0:
-            rune = random.choice( eligible ).spawn()
-            valueToGenerate -= rune.rarity
-            rv.tiles[ room.internalFloorpoint() ].items.append( rune )
-        context.levels.append( rv )
+        for protoitem in selectThings( maxRarity, valueTarget, context.protoitems ):
+            item = protoitem.spawn()
+            tile = rv.tiles[ room.internalFloorpoint() ]
+            tile.items.append( item )
     for room in lg.dangerRooms:
         # simple sample trap
         tries = 100
@@ -559,6 +580,7 @@ def mapFromGenerator( context ):
         if tries > 0:
             singleCell = random.choice( [ TrapDoor, SpikePit, ExplodingMine ] )
             trap = singleCell( point, context = context )
+    context.levels.append( rv )
     return rv
 
 def innerRectangle( o, n = 0):
