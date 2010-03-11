@@ -2,7 +2,7 @@ gameplay beginning to favour the player
 requires:
     dangerous monsters <- exciting
     winnability <- boring
-    books to identify runes <- so-so
+    books to identify runes <- so-so [X]
     talismans of luck and health <- so-so
     treasure generation code <- boring [X]
     boulders <- so-so
