@@ -76,6 +76,10 @@ if __name__ == '__main__':
             # hack up a little new environment for us.
             context.protorunes = generateProtorunes()
             level = mapFromGenerator( context )
+
+            for rune in context.protorunes: # XXX
+                rune.identify()
+
             context.player = Mobile( level.getPlayerSpawnSpot(),
                                      ProperNoun( "Atman", "male" ),
                                      "@",
@@ -83,7 +87,6 @@ if __name__ == '__main__':
                                      context = context,
                                      fgColour = "green",
                                      noSchedule = True,
-                                     spellpoints = 10,
             )
             for i in range(5):
                 level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = RandomWalker(), context = context )

@@ -92,7 +92,10 @@ class GameWidget ( Widget ):
         sby = screenh - 2
         self.ui.putString( 0, sby, str(self.player.name), 'bold-white' )
         self.ui.putString( 32, sby, "HP: %d/%d" % (self.player.hitpoints, self.player.maxHitpoints), 'bold-white' )
-        self.ui.putString( 64, sby, "SP: %d" % (self.player.spellpoints), 'bold-white' )
+        if self.player.weapon:
+            self.ui.putString( 64, sby, "Pw: %d (%s)" % (self.player.weapon.mana, self.player.weapon.name.singular), 'bold-white' )
+        else:
+            self.ui.putString( 64, sby, "Pw: none", 'bold-white' )
     def advanceTime(self, dt):
         self.player.tile.level.sim.advance( dt )
         while True:
@@ -228,7 +231,7 @@ class GameWidget ( Widget ):
         else:
             # TODO replace with hotkey menu
             chosen = self.main.query( SelectionMenuWidget, choices = [
-                (spell,"%c: %s" % (spell.hotkey,spell.name)) for spell in self.context.player.spellbook
+                (spell,"%c: %s (%d)" % (spell.hotkey,spell.name,spell.cost())) for spell in self.context.player.spellbook
             ] + [ (None, "cancel") ], title = "Which spell do you want to cast?", padding = 5 )
             if self.context.player.payForSpell( chosen.cost() ):
                 chosen.cast( self.context ) # intransitive spells only at the moment

@@ -10,6 +10,7 @@ from timing import Speed
 import timing
 from traps import *
 from grammar import *
+from widgets import SelectionMenuWidget
 
 class PlayerKilledException:
     pass
@@ -247,7 +248,6 @@ class Mobile:
                  noSchedule = False,
                  attackVerb = Verb( "attack" ),
                  attackElaboration = "",
-                 spellpoints = 0,
                  hindersLOS = False, # behaviour flags
                  nonalive = False):
         assert fgColour != 'red' # used for traps
@@ -278,30 +278,23 @@ class Mobile:
         self.attackVerb = attackVerb
         self.attackElaboration = attackElaboration
         self.spellbook = []
-        self.spellpoints = spellpoints
-        self.maxSpellpoints = spellpoints
         self.weapon = None
     def payForSpell(self, cost):
         if not self.weapon or not self.weapon.magical:
             self.context.log( "You don't have a staff or a wand handy.." )
         else:
-            if cost <= self.weapon.spellpoints:
-                self.weapon.spellpoints -= cost
+            if cost <= self.weapon.mana:
+                self.weapon.mana -= cost
                 return True
             self.context.log( "There's not enough energy left in your %s to cast that." % self.weapon.name.singular )
         if self.context.game.main.query( SelectionMenuWidget,
                                          choices = [ (True, "Yes"), (False, "No") ],
                                          title = "Draw on your inner magical energy to cast?",
                                          padding = 5, ):
-            self.damage( 1 )
+            self.maxHitpoints -= 1
+            self.hitpoints = min( self.hitpoints, self.maxHitpoints )
             return True
         return False
-        if cost > self.spellpoints:
-            # offer Faustian bargain
-            self.context.log( "You are too exhausted to cast that." )
-            return False
-        self.spellpoints -= cost
-        return True
     def describe(self):
         return capitalizeFirst( "%s (%d/%d hp)." % (self.name.indefiniteSingular(), self.hitpoints, self.maxHitpoints ) )
     def damage(self, n, fromPlayer = False):
@@ -509,8 +502,12 @@ def mapFromGenerator( context ):
     for room in lg.rewardRooms:
         # should be in chests: that way it's hard to
         # distinguish between danger rooms and reward rooms
+        from magic import Staff
         valueToGenerate = 10
         maxRarity = 1000
+        rv.tiles[ room.internalFloorpoint() ].items.append(
+            Staff( Noun('a', 'crooked staff', 'crooked staves'), 2, 50, 100 ).spawn()
+        )
         eligible = [ rune for rune in context.protorunes if rune.rarity < maxRarity ]
         while valueToGenerate > 0:
             rune = random.choice( eligible ).spawn()

@@ -58,6 +58,12 @@ class Noun:
         self.plural = plural
         self.the = the
         self.gender = gender
+    def absorb(self, that):
+        self.article = that.article
+        self.singular = that.singular
+        self.plural = that.plural
+        self.the = that.the
+        self.gender = that.gender
     def pronounPossessive(self):
         if self.gender == "female":
             return "her"
