@@ -169,6 +169,8 @@ class GameWidget ( Widget ):
                 self.tookAction( 1 )
             else:
                 self.log( "For unspecified plot reasons, you don't want to turn back." )
+        elif self.player.tile.ceilingHole:
+            self.log( "You can't reach the hole in the ceiling." )
         else:
             self.log( "You can't see any way to go up right here." )
     def goDown(self):

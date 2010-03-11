@@ -79,15 +79,18 @@ class DelayWidget (Widget):
         
 
 class DirectionWidget (Widget):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, acceptZ = False, *args, **kwargs):
         Widget.__init__(self, *args, **kwargs)
         self.movementKeys = MovementKeys
+        self.acceptZ = acceptZ
     def keyboard(self, key):
         try:
             self.result = self.movementKeys[key]
             self.done = True
         except KeyError:
-            pass
+            if key == '>' or key == '<' and self.acceptZ:
+                self.result = key
+                self.done = True
 
 class HitEnterWidget (Widget):
     def __init__(self, *args, **kwargs):

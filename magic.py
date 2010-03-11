@@ -1,5 +1,6 @@
-from level import Item
-from grammar import Noun
+from level import Item, countItems
+from grammar import Noun, capitalizeFirst, makeCountingList
+import grammar
 import random
 from widgets import *
 
@@ -42,6 +43,7 @@ class Staff (Item):
         Item.__init__(self, name, '|', 'yellow', itemType = "weapon")
         self.minMana, self.maxMana = minMana, maxMana
         self.magical = True
+        self.damage = damage
     def spawn(self):
         import copy
         rv = copy.copy( self )
@@ -98,23 +100,65 @@ class Dig (Spell):
         return 5
     def cast(self, context):
         from level import makeFloor
+        from traps import TrapDoor, clearTraps
         context.log( "Dig in which direction?" )
-        dxdy = context.game.main.query( DirectionWidget )
-        rayLength = 8
-        region = context.game.showStraightRay( (context.player.tile.x,context.player.tile.y),
-                                               dxdy,
-                                               rayLength,
-                                               'black',
-                                               'magenta',
-                                               lambda (x,y) : not context.player.tile.level.tiles[x,y].diggable()
-        )
-        for x, y in region:
-            try:
-                tile = context.player.tile.level.tiles[x,y]
-                if tile.diggable() and tile.impassable:
-                    makeFloor( tile )
-            except KeyError: # shouldn't happen
-                break
+        dxdy = context.game.main.query( DirectionWidget, acceptZ = True )
+        nodig = [ "stairs up", "stairs down" ]
+        if dxdy == '<':
+            tile = context.player.tile
+            prevLev = tile.level.previousLevel
+            if not prevLev:
+                context.log( "You fail to dig through the ceiling." )
+            else:
+                tileAbove = prevLev.randomTile( lambda tile : not tile.impassable and not tile.trap and not tile.mobile and not tile.name in nodig )
+                td = TrapDoor( tileAbove, context = context )
+                td.difficulty = 0
+                td.setTarget( tile )
+                context.log( "You dig through the ceiling!" )
+                items = tileAbove.items
+                tileAbove.items = []
+                if items:
+                    tile.level.scatterItemsAround( items, (tile.x, tile.y) )
+                    msg = [ capitalizeFirst( grammar.makeCountingList( countItems( items ) ) ),
+                            "fall" if len(items) > 1 else "falls",
+                            "through the hole!" ]
+                    context.log( " ".join( msg ) )
+        elif dxdy == '>':
+            tile = context.player.tile
+            nexLev = tile.level.generateDeeperLevel()
+            if nexLev and tile.name not in nodig:
+                clearTraps( tile )
+                td = TrapDoor( tile, context = context )
+                td.difficulty = 0
+                items = tile.items
+                tile.items = []
+                target = td.getTarget()
+                context.log( "You dig through the floor!" )
+                if items:
+                    tile.level.scatterItemsAround( items, target )
+                    msg = [ capitalizeFirst( grammar.makeCountingList( countItems( items ) ) ),
+                            "fall" if len(items) > 1 else "falls",
+                            "through the hole!" ]
+                    context.log( " ".join( msg ) )
+                tile.enters( context.player )
+            else:
+                context.log( "You fail to dig through the floor." )
+        else:
+            rayLength = 8
+            region = context.game.showStraightRay( (context.player.tile.x,context.player.tile.y),
+                                                   dxdy,
+                                                   rayLength,
+                                                   'black',
+                                                   'magenta',
+                                                   lambda (x,y) : not context.player.tile.level.tiles[x,y].diggable()
+            )
+            for x, y in region:
+                try:
+                    tile = context.player.tile.level.tiles[x,y]
+                    if tile.diggable() and tile.impassable:
+                        makeFloor( tile )
+                except KeyError: # shouldn't happen
+                    break
 
 class HealSelf (Spell):
     def __init__(self):

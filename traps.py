@@ -25,6 +25,10 @@
 
 import random
 
+def clearTraps( tile ):
+    tile.trap = None
+    tile.onEnter = [] #XXX if any other hooks are added
+    tile.onOpen = []
 
 def installStepTrigger( tile, trap ):
     trap.tiles.append( tile )
@@ -91,13 +95,24 @@ class TrapDoor (Trap):
         self.blastSize = 5
         installStepTrigger( tile, self )
         self.target = None
+    def describe(self):
+        if self.difficulty > 0:
+            return "A trap door."
+        return "A hole in the floor."
     def __call__(self, mob):
-        mob.logVisual( "You fall through a trap door!", "%s falls down a trap door!" )
-        if not self.target:
-            if not mob.tile.level.nextLevel:
-                mob.tile.level.generateDeeperLevel()
-            self.target = mob.tile.level.nextLevel.randomTile( lambda tile : not tile.impassable )
+        mob.logVisual( "You fall through a hole in the floor!", "%s falls down a hole in the floor!" )
+        self.getTarget()
         tile = self.target.level.getClearTileAround( self.target, lambda tile : not tile.impassable and not tile.mobile )
         mob.moveto( tile )
         mob.damage( 1 )
         self.difficulty = 0
+    def getTarget(self):
+        if not self.target:
+            if not self.tiles[0].level.nextLevel:
+                self.tiles[0].level.generateDeeperLevel()
+            tile = self.tiles[0].level.nextLevel.randomTile( lambda tile : not tile.impassable )
+            self.setTarget( tile )
+        return self.target
+    def setTarget(self, tile):
+        self.target = tile
+        self.target.ceilingHole = self.tiles[0]

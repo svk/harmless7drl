@@ -48,6 +48,7 @@ class Tile:
         self.onOpen = []
         self.tileTypeDesc = "A NULL tile."
         self.isBorder = False
+        self.ceilingHole = None
     def cannotEnterBecause(self, mobile):
         if self.impassable:
             return "tile is impassable"
@@ -64,6 +65,8 @@ class Tile:
             rv.append( self.mobile.describe() )
         if self.trap and self.trap.canSpot( self.context.player ):
             rv.append( self.trap.describe() )
+        if self.ceilingHole:
+            rv.append( "A hole in the ceiling." )
         if self.items:
             rv.append( self.describeItems() + "." )
         return " ".join( rv )
@@ -105,15 +108,17 @@ class Tile:
             return capitalizeFirst( grammar.makeCountingList( stacked ) )
         return ""
     def describeHere(self):
+        ent = []
+        if self.ceilingHole:
+            ent.append( "There's a hole in the ceiling above you." )
         itemlist = self.describeItems()
-        if not itemlist:
-            return
-        ent = [ itemlist]
-        if len( self.items ) > 1:
-            ent.append( "are" )
-        else:
-            ent.append( "is" )
-        ent.append( "here." )
+        if itemlist:
+            ent.append( itemlist )
+            if len( self.items ) > 1:
+                ent.append( "are" )
+            else:
+                ent.append( "is" )
+            ent.append( "here." )
         self.context.log( " ".join( ent ) )
     def opaque(self):
         if self.mobile and self.mobile.hindersLOS:
@@ -455,6 +460,10 @@ class Map:
         rv = cls( *args, **kwargs )
         tile.items.append( rv )
         return rv
+    def scatterItemsAround(self, items, origin):
+        for item in items:
+            tile = self.getClearTileAround( origin )
+            tile.items.append( item )
     def getClearTileAround(self, origin, goal = lambda tile: not tile.impassable and not tile.mobile):
         from pathfind import Pathfinder, infinity
         import math
@@ -497,17 +506,6 @@ def mapFromGenerator( context ):
             }[ lg.data[y][x] ]( rv.tiles[x,y] )
     makeStairsUp( rv.tiles[ lg.entryRoom.internalFloorpoint() ] )
     makeStairsDown( rv.tiles[ lg.exitRoom.internalFloorpoint() ] )
-    for room in lg.dangerRooms:
-        # simple sample trap
-        tries = 100
-        while tries > 0:
-            point = rv.tiles[ room.internalFloorpoint() ]
-            if not point.trap:
-                break
-            tries -= 1
-        if tries > 0:
-            singleCell = random.choice( [ TrapDoor ] )
-            trap = singleCell( point, context = context )
     for room in lg.rewardRooms:
         # should be in chests: that way it's hard to
         # distinguish between danger rooms and reward rooms
@@ -523,6 +521,17 @@ def mapFromGenerator( context ):
             valueToGenerate -= rune.rarity
             rv.tiles[ room.internalFloorpoint() ].items.append( rune )
         context.levels.append( rv )
+    for room in lg.dangerRooms:
+        # simple sample trap
+        tries = 100
+        while tries > 0:
+            point = rv.tiles[ room.internalFloorpoint() ]
+            if not point.trap:
+                break
+            tries -= 1
+        if tries > 0:
+            singleCell = random.choice( [ TrapDoor ] )
+            trap = singleCell( point, context = context )
     return rv
 
 def innerRectangle( o, n = 0):
