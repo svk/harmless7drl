@@ -8,6 +8,7 @@ requires:
     boulders <- so-so
     more spells <- exciting
     spell menu <- boring
+    weight limit <- boring
 
 also
     graceful handling of death <- boring
