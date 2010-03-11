@@ -306,7 +306,10 @@ class Mobile:
                  hindersLOS = False, # behaviour flags
                  nonalive = False,
                  walking = True,
-                 swimming = False):
+                 swimming = False,
+                 pushable = False,
+                 destroyedByDigging = False,
+                ):
         assert fgColour != 'red' # used for traps
         self.rarity = rarity
         assert isinstance( rarity, Rarity )
@@ -343,6 +346,8 @@ class Mobile:
         self.lastBuffCheck = None
         self.walking = walking
         self.swimming = swimming
+        self.pushable = pushable
+        self.destroyedByDigging = destroyedByDigging
         if not proto:
             self.context = context
             self.sim = tile.level.sim
@@ -654,6 +659,11 @@ def mapFromGenerator( context, ancestor = None):
         for protomonster in selectThings( rv.depth, valueTarget, context.protomonsters ):
             tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) )
             monster = protomonster.spawn( context, tile )
+    noBoulders = random.randint( 0, 5 )
+    from monsters import Boulder
+    for i in range( noBoulders ):
+        tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( Boulder ) )
+        monster = Boulder.spawn( context, tile )
     context.levels.append( rv )
     return rv
 

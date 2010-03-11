@@ -216,6 +216,9 @@ class Dig (Spell):
                     tile = context.player.tile.level.tiles[x,y]
                     if tile.diggable() and tile.impassable:
                         makeFloor( tile )
+                    if tile.mobile and tile.mobile.destroyedByDigging:
+                        tile.mobile.killmessage()
+                        tile.mobile.kill()
                 except KeyError: # shouldn't happen
                     break
 

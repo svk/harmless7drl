@@ -33,7 +33,7 @@ lastMon = Mufflon = Mobile(
 )
 Monsters.append( lastMon )
 
-lastMon = Mufflon = Mobile(
+lastMon = Rook = Mobile(
     name = Noun( "a", "rook", "rooks" ),
     symbol = "R",
     fgColour = "white",
@@ -45,3 +45,15 @@ lastMon = Mufflon = Mobile(
     hitpoints = 1, # it's easy to capture a chess piece..
 )
 Monsters.append( lastMon )
+
+Boulder = Mobile(
+    name = Noun( "a", "boulder", "boulders" ),
+    symbol = "0",
+    fgColour = "white",
+    ai = BoulderAi(),
+    rarity = Rarity( freq = 0 ),
+    hitpoints = 400,
+    nonalive = True,
+    destroyedByDigging = True,
+    pushable = True,
+)

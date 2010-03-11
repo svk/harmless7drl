@@ -198,3 +198,13 @@ class Rook:
         mob.moveto( tile )
         if doAttack:
             mob.meleeAttack( pl )
+
+class BoulderAi:
+    def __init__(self, direction = (0,0), power = 2**31, speed = 16 ):
+        self.direction = direction
+        self.power = power
+        self.speed = speed
+    def inMotion(self):
+        return self.direction != (0,0) and self.power > 0
+    def trigger(self, mob):
+        pass # pushing first, rolling comes later

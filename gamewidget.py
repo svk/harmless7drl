@@ -120,6 +120,20 @@ class GameWidget ( Widget ):
     def wait(self):
         self.log( "You wait." )
         self.tookAction( 1 )
+    def tryPush(self, pushable, dx, dy):
+        target = pushable.tile.getRelative( dx, dy )
+        if pushable.ai.inMotion():
+            self.context.log( "You can't push %s while %s's in motion!" % ( pushable.name.definiteSingular(), pushable.name.pronounObject() ) )
+        elif (not target) or target.cannotEnterBecause( pushable ):
+            self.context.log( "You try to push %s but can't budge it." % pushable.name.definiteSingular() )
+            self.tookAction( 1 )
+        else:
+            self.context.log( "You push %s." % pushable.name.definiteSingular() )
+            tile = pushable.tile
+            pushable.moveto( target )
+            if not tile.cannotEnterBecause( self.player ):
+                self.player.moveto( tile )
+            self.tookAction( 1 )
     def tryMoveAttack(self, dx, dy):
         tile = self.player.tile.getRelative( dx, dy )
         if not tile:
@@ -130,7 +144,9 @@ class GameWidget ( Widget ):
                 self.player.moveto( tile )
                 self.tookAction( 1 )
             elif tile.mobile:
-                if tile.mobile.canBeMeleeAttackedBy( self.player ):
+                if tile.mobile.pushable:
+                    self.tryPush( tile.mobile, dx, dy )
+                elif tile.mobile.canBeMeleeAttackedBy( self.player ):
                     self.player.meleeAttack( tile.mobile )
                     self.tookAction( 1 )
                 else:
