@@ -16,3 +16,19 @@ also
 
 BORING STUFF FIRST: good strategy
 boring left: winnability
+    also treasure gen
+    winnability will wait, I'm not sure how to structure it in terms
+     of plot. can always just go for "reach dungeon level n"
+     in an emergency. (obviously it won't be "kill X".
+     "retrieve Y" seems boring since monsters are one-off generated
+     "reach doodad" -- portal home?
+
+fun times so-so/bore ordering:
+    treasure gen
+    monster gen! how could I forget -- use same algo
+    books
+    talismans
+    put everything in chests
+    boulders
+    monsters
+    more spells
