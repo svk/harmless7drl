@@ -245,6 +245,9 @@ class GameWidget ( Widget ):
                 self.log( "You merely need to carry %s for its magics to work." % chosen.name.definiteSingular() )
             elif chosen.itemType == 'rune':
                 self.log( "The rune is useless on its own. (Press 'w' to combine runes into spells.)" )
+            elif chosen.itemType == 'tome':
+                if chosen.identifyRune( self.context, self.player.inventory ):
+                    self.tookAction( 1 )
             else:
                 self.log( "You don't see how you could maek use of %s." % chosen.name.definiteSingular() )
     def writeSpell(self):

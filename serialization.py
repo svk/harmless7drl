@@ -93,6 +93,7 @@ def registerClasses():
     import magic as M
     c.register( M.Rune )
     c.register( M.Spell )
+    c.register( M.Tome )
     c.register( M.Staff )
     c.register( M.Dig )
     c.register( M.HealSelf )

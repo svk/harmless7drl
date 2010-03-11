@@ -281,6 +281,7 @@ class Mobile (Thing):
                  attackElaboration = "",
                  weightLimit = 60,
                  flying = False,
+                 groundhugger = False,
                  rarity = 1,
                  proto = True,
                  hindersLOS = False, # behaviour flags
@@ -303,6 +304,7 @@ class Mobile (Thing):
         self.hitpoints = hitpoints
         self.maxHitpoints = hitpoints
         self.flying = flying
+        self.groundhugger = groundhugger
         self.cachedFov = []
         self.trapDetection = 0
             # I'm trying to avoid using HP a lot. The amounts of HP
@@ -356,7 +358,9 @@ class Mobile (Thing):
             self.kill()
     def canBeMeleeAttackedBy(self, mobile):
         # levitating creatures are out of reach for groundhuggers
-        return not (self.flying and not mobile.flying)
+        if self.flying and (mobile.groundhugger and not mobile.flying):
+            return False
+        return True
     def meleeAttack(self, target):
         self.logVisual( "You %s %s%s!" % (self.attackVerb.second(), target.name.definiteSingular(), self.attackElaboration ),
                         "%s " + self.attackVerb.third() + " " + ("you" if target.isPlayer() else target.name.definiteSingular()) + self.attackElaboration + "!" 

@@ -84,6 +84,7 @@ def beginNewGame( name, gender, cheat = True ):
 
     context.protoitems = context.protorunes + [
         magic.Staff( Noun('a', 'crooked staff', 'crooked staves'), damage = 2, minMana = 50, maxMana = 100, weight = 10, rarity = 3 ),
+        magic.Tome( rarity = 3 ),
     ]
 
     context.protomonsters = [
@@ -97,10 +98,6 @@ def beginNewGame( name, gender, cheat = True ):
                 flying = True,
                 ),
     ]
-
-    if cheat:
-        for rune in context.protorunes: # XXX
-            rune.identify()
 
     level = mapFromGenerator( context )
     level.depth = 1
@@ -122,10 +119,6 @@ def beginNewGame( name, gender, cheat = True ):
                                          weight = 10,
                                          rarity = 1 # dummy value, never spawned
                                         ).spawn() # not a cheat!
-    if cheat:
-        context.player.spellbook.append( magic.Dig() ) # XXX cheat
-        context.player.spellbook.append( magic.LevitateSelf() ) # XXX cheat
-
 #    for i in range(5):
 #        level.spawnMobile( Mobile, name = Noun("a", "monster", "monsters"), symbol = "x", fgColour = "blue", ai = ai.RandomWalker(), context = context )
 #    for i in range(5):

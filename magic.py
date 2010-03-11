@@ -58,6 +58,33 @@ class Staff (Item):
         rv.mana = random.randint( self.minMana, self.maxMana )
         return rv
 
+class Tome (Item):
+    def __init__(self, rarity = 10):
+        Item.__init__(self,
+                      Noun( "a", "scroll of magic", "scrolls of magic" ),
+                      '?',
+                      'white',
+                      itemType = "tome",
+                      weight = 10,
+                      rarity = rarity)
+    def identifyRune(self, context, inventory):
+        unidentifiedRunes = list( filter( lambda rune : rune.itemType == "rune" and not rune.protorune.identified, inventory ) )
+        unidentifiedRunes = set( list( map( lambda rune : rune.protorune, unidentifiedRunes ) ) )
+        if not unidentifiedRunes:
+            context.log( "The scroll can be used to reveal the nature of a single magical rune." )
+            context.log( "You don't have any unidentified runes in your possession -- better save it for later." )
+            return False
+        rune = context.game.main.query( SelectionMenuWidget, choices = [
+            (protorune, protorune.arcaneName) for protorune in unidentifiedRunes
+        ] + [ (None, "cancel") ], title = "Identify which rune?", padding = 5 )
+        if not rune:
+            return False
+        rune.identify()
+        context.log( "You learn that \"%s\" means \"%s\"." % (rune.arcaneName, rune.englishName) )
+        context.log( "The scroll disappears in a puff of smoke." )
+        return True
+        
+
 def generateProtorunes():
     assert len( EnglishNames ) <= len( ArcaneNames )
     random.shuffle( ArcaneNames )
