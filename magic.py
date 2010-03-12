@@ -41,6 +41,9 @@ class Rune ( Item ):
         self.name.absorb( newName )
         self.identified = True
 
+class Treasure (Item):
+    def __init__(self, name, weight, rarity):
+        Item.__init__(self, name, '[', 'blue', itemType = "spellbook", weight = weight, rarity = rarity )
 
 class Staff (Item):
     def __init__(self, name, damage, minMana, maxMana, weight, rarity):

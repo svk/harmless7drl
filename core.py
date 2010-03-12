@@ -78,28 +78,14 @@ def beginNewGame( context, name, gender, cheat = True ):
     import ai
     import magic
     from monsters import Monsters
+    from items import Items
     
     context.levels = []
     
     # hack up a little new environment for us.
     context.protorunes = magic.generateProtorunes()
 
-    context.protoitems = context.protorunes + [
-        magic.Staff( Noun('a', 'crooked staff', 'crooked staves'),
-                     damage = 2,
-                     minMana = 50,
-                     maxMana = 100,
-                     weight = 10,
-                     rarity = Rarity( worth = 20, freq = 1, minLevel = 2 ) ),
-        magic.Tome( Noun( "a", "scroll of magic", "scrolls of magic" ),
-                    rarity = Rarity( worth = 10,freq = 1 ) ),
-        magic.TrapTalisman( Noun( "a", "talisman of perception", "talismans of perception" ),
-                            weight = 5,
-                            rarity = Rarity( freq = 2, worth = 10 ) ),
-        magic.HealthTalisman( Noun( "a", "talisman of health", "talismans of health" ),
-                              weight = 5,
-                              rarity = Rarity(worth = 20, freq = 1 , minLevel = 5) ),
-    ]
+    context.protoitems = context.protorunes + Items
 
     context.protomonsters = copy.copy( Monsters )
 

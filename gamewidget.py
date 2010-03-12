@@ -297,6 +297,9 @@ class GameWidget ( Widget ):
             elif chosen.itemType == 'tome':
                 if chosen.identifyRune( self.context, self.player.inventory ):
                     self.tookAction( 1 )
+            elif chosen.itemType == 'spellbook':
+                self.log( "It's of no use at the moment -- you need some more applicable magic." )
+                self.log( "%s would probably appreciate it being returned to the library, though." % self.context.bossName.definiteSingular() )
             else:
                 self.log( "You don't see how you could maek use of %s." % chosen.name.definiteSingular() )
     def writeSpell(self):

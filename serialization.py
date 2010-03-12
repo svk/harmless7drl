@@ -22,6 +22,12 @@ class InvalidSaveException: pass
 
 
 class GameContext:
+    def __init__(self):
+        from grammar import ProperNoun
+        import random
+        # some mad libs for the plot
+        self.bossName = ProperNoun( "Askarmon", "male" ) if random.randint(0,1) else ProperNoun( "Adrachia", "female" )
+        self.bossTitle = "High Wizard" if self.bossName.gender == "male" else "Grand Witch"
     def log(self, s):
         try:
             self.game.log( capitalizeFirst(s) )
