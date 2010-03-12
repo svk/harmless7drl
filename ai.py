@@ -282,7 +282,6 @@ class StaffStealer:
         self.radius = radius
         self.runmode = False
     def trigger(self, mob):
-        print >> sys.stderr, "gnome moving"
         if not self.runmode:
             if not playerAccessibleForMelee( mob ) or mob.context.player.invisible or not mob.context.player.weapon:
                 doRandomWalk( mob, avoidTraps = True )
@@ -300,7 +299,6 @@ class StaffStealer:
                     below = tile.level.nextLevel.stairsUp
                     if not below.cannotEnterBecause( mob ):
                         mob.logVisualMon( "%s scuttles down the stairs." )
-                        print >> sys.stderr, mob.debugname, "flopped"
                         mob.moveto( below )
                         return
                 if tile and tile.trap and tile.trap.trapname == "trapdoor":
@@ -308,7 +306,6 @@ class StaffStealer:
                     if not below.cannotEnterBecause( mob ):
                         if mob.logVisualMon( "%s hops down a trapdoor!" ):
                             tile.trap.difficulty = 0
-                        print >> sys.stderr, mob.debugname, "hopped"
                         mob.moveto( below )
                         return
             path = seekGoal( mob, lambda tile : (tile.trap and tile.trap.trapname == "trapdoor") or (tile.name == "stairs down"), radius = 4 )
@@ -360,7 +357,6 @@ class ExplodesOnDeathHook:
         for x, y in mob.context.game.showExplosion( (mob.tile.x, mob.tile.y), self.radius ):
             affects = mob.tile.level.tiles[x,y].mobile
             if affects and affects != mob and not affects.dead:
-                print >> sys.stderr, affects.debugname, "caught in explosion from", mob.debugname
                 affectlist.append( affects )
         for affects in affectlist:
             if affects:

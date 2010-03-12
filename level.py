@@ -532,13 +532,12 @@ class Mobile:
             self.scheduledAction.cancel()
         if self.isPlayer():
             raise PlayerKilledException()
-        print >> sys.stderr, self.debugname, "shuffling coil from", self.tile.x, self.tile.y
+#        print >> sys.stderr, self.debugname, "shuffling coil from", self.tile.x, self.tile.y
         self.tile.leaves()
         self.noSchedule = True # likely we're actually call-descendants of .trigger(), so blanking
                                # the scheduled action is not enough
     def schedule(self):
         if not self.noSchedule and not self.scheduledAction:
-            print >> sys.stderr, self.debugname, "scheduling on level to", self.tile.level.sim
             self.scheduledAction = self.tile.level.sim.schedule( self, self.tile.level.sim.t + self.speed )
     def checkBuffs(self, t):
         if not self.lastBuffCheck:
@@ -550,14 +549,13 @@ class Mobile:
             if self.buffs[buff] < 0:
                 buff.debuff( self )
     def trigger(self, t):
-        if self.ai:
-            print >> sys.stderr, self.debugname, "triggering"
+#        if self.ai:
+#            print >> sys.stderr, self.debugname, "triggering"
         self.checkBuffs( t )
         if not self.stunned:
             if self.ai:
                 self.ai.trigger( self )
         if not self.noSchedule:
-            print >> sys.stderr, self.debugname, "rescheduling for", t + self.speed
             self.scheduledAction = self.tile.level.sim.schedule( self, t + self.speed )
         else: # wait, what?
             self.scheduledAction = None
