@@ -168,7 +168,10 @@ class GameWidget ( Widget ):
                 if tile.mobile.pushable:
                     self.tryPush( tile.mobile, dx, dy )
                 elif tile.mobile.canBeMeleeAttackedBy( self.player ):
-                    self.player.meleeAttack( tile.mobile )
+                    target = tile.mobile
+                    self.player.meleeAttack( target )
+                    if target.chesspiece and not tile.cannotEnterBecause( self.player ):
+                        self.player.moveto( tile )
                     self.tookAction( 1 )
                 else:
                     self.context.log( "You can't reach %s." % tile.mobile.name.pronounObject() )

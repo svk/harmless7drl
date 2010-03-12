@@ -124,7 +124,7 @@ def doTrySpecialMeleePlayer(mob, radius):
     return False
 
 class RandomWalker:
-    def __init__(self, avoidTraps = False)
+    def __init__(self, avoidTraps = False):
         self.avoidTraps = avoidTraps
     def trigger(self, mob):
         doRandomWalk( mob, avoidTraps = self.avoidTraps )

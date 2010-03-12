@@ -328,6 +328,7 @@ class Mobile:
                  incorporeal = False,
                  isBoulder = False,
                  essential = False,
+                 chesspiece = False,
                 ):
         assert fgColour != 'red' # used for traps
         self.rarity = rarity
@@ -341,6 +342,7 @@ class Mobile:
         self.dead = False
         self.scheduledAction = None
         self.speed = speed
+        self.chesspiece = chesspiece
         self.ai = ai
         self.inventory = []
         self.noSchedule = False
@@ -434,10 +436,11 @@ class Mobile:
         if statuses:
             statuses = ", " + statuses
         return capitalizeFirst( "%s (%d/%d hp%s)." % (self.name.indefiniteSingular(), self.hitpoints, self.maxHitpoints, statuses ) )
-    def damage(self, n, fromPlayer = False):
+    def damage(self, n, fromPlayer = False, noMessage = False):
         self.hitpoints -= n
         if self.hitpoints <= 0:
-            self.killmessage( fromPlayer, usePronoun = "subject" )
+            if not noMessage:
+                self.killmessage( fromPlayer, usePronoun = "subject" )
             self.kill()
     def canBeMeleeAttackedBy(self, mobile):
         # levitating creatures are out of reach for groundhuggers
@@ -445,15 +448,18 @@ class Mobile:
             return False
         return True
     def meleeAttack(self, target):
-        self.logVisual( "You %s %s%s!" % (self.attackVerb.second(), target.name.definiteSingular(), self.attackElaboration ),
-                        "%s " + self.attackVerb.third() + " " + ("you" if target.isPlayer() else target.name.definiteSingular()) + self.attackElaboration + "!" 
+        verb, elab = self.attackVerb, self.attackElaboration
+        if target.chesspiece:
+            verb, elab = Verb( "capture", "captures" ), ""
+        self.logVisual( "You %s %s%s!" % (verb.second(), target.name.definiteSingular(), elab ),
+                        "%s " + verb.third() + " " + ("you" if target.isPlayer() else target.name.definiteSingular()) + elab + "!" 
         )
         if target.ai:
             target.ai.provoked = True
         if self.weapon:
-            target.damage( self.weapon.damage )
+            target.damage( self.weapon.damage, noMessage = target.chesspiece )
         else:
-            target.damage( self.meleePower )
+            target.damage( self.meleePower, noMessage = target.chesspiece )
     def monsterstatus(self):
         rv = []
         if self.stunned:
