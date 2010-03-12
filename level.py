@@ -85,12 +85,14 @@ class Tile:
         self.groundTile = True
     def cannotEnterBecause(self, mobile):
         # may be called with a protomonster!
+        if self.mobile != None:
+            return "there's something in the way"
+        if mobile.incorporeal and not self.isBorder:
+            return ""
         if self.groundTile and not mobile.walking:
             return "you can't walk on solid ground"
         if self.impassable:
             return "tile is impassable"
-        if self.mobile != None:
-            return "there's something in the way"
         return ""
     def leaves(self):
         self.mobile = None
@@ -322,6 +324,8 @@ class Mobile:
                  swimming = False,
                  pushable = False,
                  destroyedByDigging = False,
+                 incorporeal = False,
+                 isBoulder = False,
                 ):
         assert fgColour != 'red' # used for traps
         self.rarity = rarity
@@ -346,6 +350,7 @@ class Mobile:
         self.groundhugger = groundhugger
         self.meleePower = meleePower
         self.cachedFov = []
+        self.isBoulder = isBoulder
         self.trapDetection = 0
             # I'm trying to avoid using HP a lot. The amounts of HP
             # in the game will be low, e.g.: 5-20 for the player, not hundreds.
@@ -367,6 +372,7 @@ class Mobile:
         self.stunned = False
         self.generated = 0
         self.debugname = "(spawned from no method)"
+        self.incorporeal = incorporeal
         self.deathHooks = []
         if onDeath:
             self.deathHooks.append( onDeath )
@@ -451,6 +457,8 @@ class Mobile:
             rv.append( "stunned" )
         if self.flying:
             rv.append( "flying" )
+        if self.incorporeal:
+            rv.append( "incorporeal" )
         return ", ".join( rv )
     def status(self):
         rv = []
@@ -521,10 +529,11 @@ class Mobile:
             if self.nonalive:
                 message = "You destroy %s!"
         self.logVisual( "You die...", message, usePronoun = usePronoun )
-    def kill(self):
+    def kill(self, noTriggerHooks = False):
         self.dead = True
-        for hook in self.deathHooks:
-            hook.onDeath( self )
+        if not noTriggerHooks:
+            for hook in self.deathHooks:
+                hook.onDeath( self )
         for item in self.inventory: #hooks ? yes/no?
             self.tile.items.append( item )
         self.inventory = []

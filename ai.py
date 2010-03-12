@@ -164,6 +164,32 @@ class MeleeSeeker:
         else:
             doRandomWalk( mob )
 
+class IncorporealSeeker:
+    # simply walk in the right dx, dy if you can
+    # doesn't need to be used for an incorporeal mob, but it's
+    #   a really stupid and robot-like way to move if not
+    def __init__(self):
+        self.frustration = 0
+    def trigger(self, mob):
+        p = mob.context.player
+        dx,dy = sign( p.tile.x - mob.tile.x ), sign( p.tile.y - mob.tile.y )
+        tile = mob.tile.getRelative( dx, dy )
+        if not tile:
+            return # omgwtf
+        if tile.mobile:
+            if tile.mobile != p:
+                self.frustration += 1
+                if self.frustration > 5:
+                    mob.logVisualMon( "%s touches " + tile.mobile.name.definiteSingular() + "." )
+                    tile.mobile.logVisualMon( "%s fades out of existence." )
+                    tile.mobile.kill( noTriggerHooks = True )
+            elif playerAccessibleForMelee( mob ):
+                mob.meleeAttack( p ) # for spectres, an instakill
+        else:
+            mob.logVisualMon( "%s floats slowly but steadily towards you." )
+            mob.moveto( tile )
+            self.frustration = 0
+
 class MeleeMagicHater:
     def __init__(self, radius, tolerance):
         self.radius = radius

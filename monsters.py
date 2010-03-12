@@ -57,6 +57,7 @@ Boulder = Mobile(
     destroyedByDigging = True,
     pushable = True,
     hindersLOS = True,
+    isBoulder = True,
 )
 
 lastMon = Imp = Mobile(
@@ -103,10 +104,29 @@ lastMon = BomberBug = Mobile(
     ai = MeleeSeeker( radius = 4 ),
     speed = Speed.Slow,
     groundhugger = True,
-    rarity = Rarity( freq = 100 ),
+    rarity = Rarity( freq = 1 ),
     hitpoints = 1,
     attackVerb = Verb( "bite", "bites" ),
     onDeath = ExplodesOnDeathHook( radius = 5, damage = 1 ), # might trigger a chain reaction..
+)
+Monsters.append( lastMon )
+
+lastMon = Spectre = Mobile(
+        # extremely slow, but instakills
+        # incorporeal!
+    name = Noun( "a", "spectre of death", "spectres of death" ),
+    symbol = "S",
+    fgColour = "white",
+    ai = IncorporealSeeker(),
+    speed = Speed.VerySlow,
+    groundhugger = True,
+    rarity = Rarity( freq = 100 ),
+    hitpoints = 1000,
+    meleePower = 1000,
+    incorporeal = True,
+    nonalive = True,
+    flying = True,
+    attackVerb = Verb( "touch", "touches" ),
 )
 Monsters.append( lastMon )
 
