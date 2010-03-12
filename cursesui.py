@@ -6,7 +6,7 @@ def main( rootwidget, *args, **kwargs ):
     from core import MainLoop
     rv = None
     try:
-        cui = CursesInterface( debug=False )
+        cui = CursesInterface( debug=True )
         rv = MainLoop( cui ).query( rootwidget, *args, **kwargs )
         cui.shutdown()
     except:
@@ -34,7 +34,6 @@ class CursesInterface:
         self.setupColours()
         self.setupKeyboard()
         self.previousCursorState = curses.curs_set(0)
-        self.warnfile = None
         self.warn( "session start at %s" % (str( time.time())))
     def inside(self, x, y):
         if x < 0 or y < 0:
@@ -47,10 +46,7 @@ class CursesInterface:
         self.stdscr.erase()
     def warn(self, warning):
         if self.debug:
-            if not self.warnfile:
-                self.warnfile = open( "debug.7drl.txt", "a" )
-            print >>self.warnfile, warning
-            self.warnfile.flush()
+            print >>sys.stderr, warning
     def setupKeyboard(self):
         curses.raw()
         curses.halfdelay(1)
@@ -60,7 +56,7 @@ class CursesInterface:
         import string
         for ch in string.printable:
             self.keymap[ ord(ch) ] = ch
-        self.keymap[ 127 ] = 'backspace'
+        self.keymap[ curses.KEY_BACKSPACE ] = 'backspace'
         self.keymap[ curses.KEY_LEFT ] = 'west'
         self.keymap[ curses.KEY_RIGHT ] = 'east'
         self.keymap[ curses.KEY_UP ] = 'north'
@@ -136,8 +132,6 @@ class CursesInterface:
         self.warn( "getch returned: %d" % rv )
         if rv == curses.KEY_RESIZE:
             raise ResizedException()
-        if rv == curses.KEY_MOUSE:
-            id, x, y, z, bstate = curses.getmouse()
         try:
             ch = self.keymap[ rv ]
             if ch != None:
@@ -150,8 +144,6 @@ class CursesInterface:
         curses.endwin()
         curses.curs_set( self.previousCursorState )
         self.warn( "session end at %s" % (str( time.time())))
-        if self.warnfile:
-            self.warnfile.close()
 
 if __name__ == '__main__':
     try:
