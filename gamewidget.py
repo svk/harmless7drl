@@ -8,8 +8,23 @@ import timing
 from level import PlayerKilledException
 
 class GameWidget ( Widget ):
-    def __init__(self, context, wasLoaded, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         Widget.__init__( self, *args, **kwargs )
+        name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: ", centered = True )
+        try:
+            # TODO check if there's a saved game
+            from core import loadOldGame
+            context = loadOldGame( name )
+            wasLoaded = True
+        except IOError:
+            from core import beginNewGame
+            gender = self.main.query( SelectionMenuWidget, choices = [
+                ('female', "Female"),
+                ('male', "Male"),
+            ], padding = 5, centered = True, title = "Please select your gender:", noInvert = True )
+            context = beginNewGame( name, gender )
+            wasLoaded = False
+        self.context = context
         self.name = None
         self.player = context.player
         context.game = self

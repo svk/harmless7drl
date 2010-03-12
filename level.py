@@ -676,10 +676,10 @@ def mapFromGenerator( context, ancestor = None):
         if tries > 0:
             singleCell = random.choice( [ TrapDoor, SpikePit, ExplodingMine ] )
             trap = singleCell( point, context = context )
-        valueTarget = random.randint( 1, 4 )
-        for protomonster in selectThings( rv.depth, valueTarget, context.protomonsters ):
-            tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) )
-            monster = protomonster.spawn( context, tile )
+    monsterValueTarget = random.randint( 10, 200 )
+    for protomonster in selectThings( rv.depth, monsterValueTarget, context.protomonsters ):
+        tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) and not lg.entryRoom.contains( tile.x, tile.y )  )
+        monster = protomonster.spawn( context, tile )
     noBoulders = random.randint( 0, 5 )
     from monsters import Boulder
     for i in range( noBoulders ):

@@ -265,18 +265,4 @@ class RootMenuWidget(Widget):
                 self.done = True
                 break
             elif result == 'new':
-                name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: ", centered = True )
-                try:
-                    # TODO check if there's a saved game
-                    from core import loadOldGame
-                    context = loadOldGame( name )
-                    wasLoaded = True
-                except IOError:
-                    from core import beginNewGame
-                    gender = self.main.query( SelectionMenuWidget, choices = [
-                        ('female', "Female"),
-                        ('male', "Male"),
-                    ], padding = 5, centered = True, title = "Please select your gender:", noInvert = True )
-                    context = beginNewGame( name, gender )
-                    wasLoaded = False
-                self.main.query( GameWidget, context = context, wasLoaded = wasLoaded )
+                self.main.query( GameWidget )
