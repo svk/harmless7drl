@@ -56,6 +56,7 @@ Boulder = Mobile(
     nonalive = True,
     destroyedByDigging = True,
     pushable = True,
+    hindersLOS = True,
 )
 
 lastMon = Imp = Mobile(
