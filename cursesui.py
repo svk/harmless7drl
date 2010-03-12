@@ -6,7 +6,7 @@ def main( rootwidget, *args, **kwargs ):
     from core import MainLoop
     rv = None
     try:
-        cui = CursesInterface( debug=True )
+        cui = CursesInterface( debug=False )
         rv = MainLoop( cui ).query( rootwidget, *args, **kwargs )
         cui.shutdown()
     except:
