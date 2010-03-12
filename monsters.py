@@ -138,10 +138,19 @@ lastMon = Sniffler = Mobile(
     ai = PlayerTrailFollower(radius = 5), #radius is just for seek if provoked
     speed = Speed.Normal,
     groundhugger = True,
-    rarity = Rarity( freq = 100 ),
+    rarity = Rarity( freq = 1 ),
     hitpoints = 10,
     meleePower = 2,
     attackVerb = Verb( "bite", "bites" ),
 )
 Monsters.append( lastMon )
 
+if __name__ == '__main__':
+    dungeonDepth = 10
+    for dlevel in range(1,dungeonDepth+1):
+        monsters = [ monster for monster in Monsters if monster.rarity.eligible( dlevel ) ]
+        totalWeight = sum( map( lambda monster : monster.rarity.frequency, monsters ) )
+        print "Dungeon level %d: %d creatures" % (dlevel, len(monsters))
+        for monster in monsters:
+            print "\t%.2lf%%: %s" % (monster.rarity.frequency * 100.0 / totalWeight, monster.name.plural)
+        print
