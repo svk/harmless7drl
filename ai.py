@@ -69,8 +69,7 @@ def doFleePlayer( mob ):
                 goodtiles.append( (d, tile ) )
     if not goodtiles:
         return
-    goodtiles.sort()
-    print >> sys.stderr , goodtiles
+    goodtiles.sort( reverse = True )
     goodtiles = list( filter( lambda (d,t) : d == goodtiles[0][0], goodtiles ) )
     d, tile = random.choice( goodtiles )
     mob.moveto( tile )
@@ -87,6 +86,21 @@ def doMeleePlayerOrFlee(mob):
             tile = random.choice( goodtiles )
             mob.moveto( tile )
         
+def doTrySpecialMeleePlayer(mob, radius):
+    path = seekPlayer( mob, radius )
+    if not path:
+        doRandomWalk( mob )
+    else:
+        target = mob.context.player
+        if len( path ) > 2:
+            tile = path[1]
+            if not tile.cannotEnterBecause( mob ):
+                mob.moveto( tile )
+        elif len( path ) == 2:
+            tile = path[1]
+            if tile.mobile and tile.mobile == target and target.canBeMeleeAttackedBy( mob ):
+                return True
+    return False
 
 class RandomWalker:
     def trigger(self, mob):
@@ -241,3 +255,23 @@ class DebufferAi:
                         buff = random.choice( target.buffs.keys() )
                         buff.debuff( mob.context )
                         self.cooldown = random.randint( 20, 40 )
+
+class StaffStealer:
+    def __init__(self, radius):
+        self.radius = radius
+        self.runmode = False
+    def trigger(self, mob):
+        if not self.runmode:
+            if not playerAccessibleForMelee( mob ) or mob.context.player.invisible or not mob.context.player.weapon:
+                doRandomWalk( mob )
+            else:
+                if doTrySpecialMeleePlayer( mob, self.radius ):
+                    mob.logVisualMon( "%s snatches your " + "%s!" % mob.context.player.weapon.name.singular )
+                    mob.logVisualMon( "%s turns to run away!", usePronoun = 'subject' )
+                    wep = mob.context.player.weapon
+                    mob.context.player.weapon = None
+                    mob.inventoryGive( wep )
+                    self.runmode = True
+        else:
+            # TODO cooler fleeing? e.g.: hopping down trap doors
+            doFleePlayer( mob )

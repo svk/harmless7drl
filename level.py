@@ -491,8 +491,9 @@ class Mobile:
                 message = "You destroy %s!"
         self.logVisual( "You die...", message, usePronoun = usePronoun )
     def kill(self):
-        for item in self.inventory:
+        for item in self.inventory: #hooks ? yes/no?
             self.tile.items.append( item )
+        self.inventory = []
         if self.scheduledAction:
             self.scheduledAction.cancel()
         if self.isPlayer():

@@ -65,8 +65,20 @@ lastMon = Imp = Mobile(
     ai = DebufferAi( radius = 8 ),
     speed = Speed.VeryQuick,
     rarity = Rarity( freq = 1 ),
-    hitpoints = 5, # it's easy to capture a chess piece..
+    hitpoints = 5,
     flying = True,
+)
+Monsters.append( lastMon )
+
+lastMon = Gnome = Mobile(
+    name = Noun( "a", "gnome", "gnomes", gender = 'random' ),
+    symbol = "g",
+    fgColour = "blue",
+    ai = StaffStealer( radius = 8 ),
+    speed = Speed.Normal,
+    groundhugger = True,
+    rarity = Rarity( freq = 10 ),
+    hitpoints = 5,
 )
 Monsters.append( lastMon )
 
