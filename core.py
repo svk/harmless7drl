@@ -115,7 +115,9 @@ def beginNewGame( name, gender, cheat = True ):
                              fgColour = "green",
                              proto = False,
                              tile = level.getPlayerSpawnSpot(),
-                             rarity = Rarity( freq = 0 )
+                             rarity = Rarity( freq = 0 ),
+                             walking = True,
+                             swimming = True,
     )
     context.player.rawname = name
     context.player.weapon = magic.Staff( Noun("an", "apprentice's staff", "apprentice's staves" ),

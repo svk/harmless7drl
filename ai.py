@@ -58,6 +58,23 @@ def playerIsAdjacentTo(mob, tile):
 def playerIsAdjacent(mob):
     return playerIsAdjacentTo(mob, mob.tile )
 
+def doFleePlayer( mob ):
+    # short-term flee "algo"
+    goodtiles = []
+    basic = mob.tile.distanceTo( mob.context.player.tile )
+    for tile in mob.tile.neighbours():
+        if not tile.cannotEnterBecause( mob ):
+            d = tile.distanceTo( mob.context.player.tile )
+            if d >= basic:
+                goodtiles.append( (d, tile ) )
+    if not goodtiles:
+        return
+    goodtiles.sort()
+    print >> sys.stderr , goodtiles
+    goodtiles = list( filter( lambda (d,t) : d == goodtiles[0][0], goodtiles ) )
+    d, tile = random.choice( goodtiles )
+    mob.moveto( tile )
+
 def doMeleePlayerOrFlee(mob):
     if playerAccessibleForMelee(mob):
         mob.meleeAttack( mob.context.player )
@@ -194,3 +211,33 @@ class BoulderAi:
         return self.direction != (0,0) and self.power > 0
     def trigger(self, mob):
         pass # pushing first, rolling comes later
+
+class DebufferAi:
+    def __init__(self, radius):
+        self.radius = radius
+        self.cooldown = 0
+    def trigger(self, mob):
+        # the debuffer can see invisible creatures.
+        if self.cooldown > 0:
+            self.cooldown -= 1
+            doFleePlayer( mob )
+        elif not playerAccessibleForMelee( mob ) or not mob.context.player.buffs:
+            doRandomWalk( mob )
+        else:
+            path = seekPlayer( mob, self.radius )
+            if not path:
+                doRandomWalk( mob )
+            else:
+                target = mob.context.player
+                if len( path ) > 2:
+                    tile = path[1]
+                    if not tile.cannotEnterBecause( mob ):
+                        mob.moveto( tile )
+                elif len( path ) == 2:
+                    tile = path[1]
+                    if tile.mobile and tile.mobile == target and target.canBeMeleeAttackedBy( mob ):
+                        # instead of attacking..
+                        mob.logVisualMon( "%s pricks you with a needle." )
+                        buff = random.choice( target.buffs.keys() )
+                        buff.debuff( mob.context )
+                        self.cooldown = random.randint( 20, 40 )

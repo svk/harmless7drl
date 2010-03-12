@@ -57,3 +57,16 @@ Boulder = Mobile(
     destroyedByDigging = True,
     pushable = True,
 )
+
+lastMon = Imp = Mobile(
+    name = Noun( "an", "imp", "imps", gender = 'random' ),
+    symbol = "i",
+    fgColour = "magenta",
+    ai = DebufferAi( radius = 8 ),
+    speed = Speed.VeryQuick,
+    rarity = Rarity( freq = 1 ),
+    hitpoints = 5, # it's easy to capture a chess piece..
+    flying = True,
+)
+Monsters.append( lastMon )
+

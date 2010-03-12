@@ -107,6 +107,9 @@ class Tile:
         if self.items:
             rv.append( self.describeItems() + "." )
         return " ".join( rv )
+    def distanceTo(self, that):
+        import math
+        return math.sqrt( self.distanceToSquared( that ) )
     def distanceToSquared(self, that):
         return (self.x-that.x)*(self.x-that.x) + (self.y-that.y)*(self.y-that.y)
     def withinRadiusFrom(self, origin, radius):
@@ -509,7 +512,6 @@ class Mobile:
             self.buffs[buff] -= dt
             if self.buffs[buff] < 0:
                 buff.debuff( self.context )
-                del self.buffs[buff]
     def trigger(self, t):
         self.checkBuffs( t )
         if self.ai:

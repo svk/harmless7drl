@@ -256,6 +256,7 @@ class LevitateSelf (Spell):
         context.log( "You feel heavier." )
         context.log( "You fall to the floor and land deftly on your feet." )
         context.player.tile.enters( context.player )
+        del context.player.buffs[ self ]
 
 class Invisibility (Spell):
     def __init__(self):
@@ -279,6 +280,7 @@ class Invisibility (Spell):
         context.player.invisible = False
         context.log( "Your limbs fade back into view." )
         context.log( "Your invisibility has worn off." )
+        del context.player.buffs[ self ]
 
 class Visions (Spell):
     def __init__(self):
@@ -300,6 +302,7 @@ class Visions (Spell):
     def debuff(self, context):
         context.player.visions = False
         context.log( "Your visions subside." )
+        del context.player.buffs[ self ]
 
 Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions() ]
 
