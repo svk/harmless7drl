@@ -83,6 +83,7 @@ class Tile:
         self.isBorder = False
         self.ceilingHole = None
         self.groundTile = True
+        self.playerTrail = None
     def cannotEnterBecause(self, mobile):
         # may be called with a protomonster!
         if self.mobile != None:
@@ -481,6 +482,8 @@ class Mobile:
             self.tile = tile
             self.schedule()
         else:
+            if self.tile and self.tile.level == tile.level and self.isPlayer():
+                self.tile.playerTrail = tile
             self.tile = tile
         self.tile.enters( self )
         if self.isPlayer():

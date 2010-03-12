@@ -119,14 +119,29 @@ lastMon = Spectre = Mobile(
     fgColour = "white",
     ai = IncorporealSeeker(),
     speed = Speed.VerySlow,
-    groundhugger = True,
-    rarity = Rarity( freq = 100 ),
+    rarity = Rarity( freq = 1 ),
     hitpoints = 1000,
     meleePower = 1000,
     incorporeal = True,
     nonalive = True,
     flying = True,
     attackVerb = Verb( "touch", "touches" ),
+)
+Monsters.append( lastMon )
+
+lastMon = Sniffler = Mobile(
+        # a cutesy low-level monster that might be less harmless
+        # than it appears
+    name = Noun( "a", "sniffler", "snifflers" ),
+    symbol = "s",
+    fgColour = "yellow",
+    ai = PlayerTrailFollower(radius = 5), #radius is just for seek if provoked
+    speed = Speed.Normal,
+    groundhugger = True,
+    rarity = Rarity( freq = 100 ),
+    hitpoints = 10,
+    meleePower = 2,
+    attackVerb = Verb( "bite", "bites" ),
 )
 Monsters.append( lastMon )
 

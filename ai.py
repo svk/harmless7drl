@@ -395,3 +395,28 @@ class ExplodesOnDeathHook:
             if affects:
                 affects.logVisual( "You are caught in the blast!", "%s is caught in the blast!" )
                 affects.damage( 1 )
+
+class PlayerTrailFollower:
+    # looks harmless, but will attack eventually if it stumbles on a trail
+    # also rather easily led for this reason
+    def __init__(self, radius):
+        self.provoked = False
+        self.radius = 5
+    def trigger(self, mob):
+        if self.provoked:
+            path = seekPlayer( mob, self.radius )
+            if not path:
+                self.doTryTrail( mob )
+            else:
+                doMeleeAlongPath( mob, mob.context.player, path )
+        else:
+            self.doTryTrail( mob )
+    def doTryTrail(self, mob):
+        tile = mob.tile.playerTrail
+        if not tile or tile.cannotEnterBecause( mob ):
+            if tile and tile.mobile.isPlayer() and tile.mobile.canBeMeleeAttackedBy( mob ):
+                mob.meleeAttack( tile.mobile )
+            else:
+                doRandomWalk( mob )
+        else:
+            mob.moveto( tile )
