@@ -363,13 +363,16 @@ class Mobile:
         self.invisible = False
         self.visions = False
         self.stunned = False
+        self.generated = 0
+        self.debugname = "(spawned from no method)"
         if not proto:
             self.context = context
-            self.sim = tile.level.sim
             self.moveto( tile )
     def spawn(self, context, tile ):
         import copy
+        self.generated += 1
         rv = copy.copy( self )
+        rv.debugname = "%s#%d" % (self.name.singular, self.generated)
         # this shallow copy causes SO MANY problems
         rv.name = self.name.selectGender()
         if self.ai:
@@ -526,7 +529,8 @@ class Mobile:
                                # the scheduled action is not enough
     def schedule(self):
         if not self.noSchedule and not self.scheduledAction:
-            self.scheduledAction = self.tile.level.sim.schedule( self, self.sim.t + self.speed )
+            print >> sys.stderr, self.debugname, "scheduling on level to", self.tile.level.sim
+            self.scheduledAction = self.tile.level.sim.schedule( self, self.tile.level.sim.t + self.speed )
     def checkBuffs(self, t):
         if not self.lastBuffCheck:
             self.lastBuffCheck = t
@@ -537,11 +541,14 @@ class Mobile:
             if self.buffs[buff] < 0:
                 buff.debuff( self )
     def trigger(self, t):
+        if self.ai:
+            print >> sys.stderr, self.debugname, "triggering"
         self.checkBuffs( t )
         if not self.stunned:
             if self.ai:
                 self.ai.trigger( self )
         if not self.noSchedule:
+            print >> sys.stderr, self.debugname, "rescheduling for", t + self.speed
             self.scheduledAction = self.tile.level.sim.schedule( self, t + self.speed )
         else: # wait, what?
             self.scheduledAction = None
@@ -698,7 +705,19 @@ def mapFromGenerator( context, ancestor = None):
         if tries > 0:
             singleCell = random.choice( [ TrapDoor, SpikePit, ExplodingMine ] )
             trap = singleCell( point, context = context )
-    monsterValueTarget = random.randint( 10, 200 )
+    for i in range(2): # XXX testing trapdoors
+        for room in lg.dangerRooms:
+            # simple sample trap
+            tries = 100
+            while tries > 0:
+                point = rv.tiles[ room.internalFloorpoint() ]
+                if not point.trap:
+                    break
+                tries -= 1
+            if tries > 0:
+                singleCell = TrapDoor
+                trap = singleCell( point, context = context )
+    monsterValueTarget = random.randint( 1, 1 )
     for protomonster in selectThings( rv.depth, monsterValueTarget, context.protomonsters ):
         tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) and not lg.entryRoom.contains( tile.x, tile.y )  )
         monster = protomonster.spawn( context, tile )

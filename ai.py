@@ -2,23 +2,37 @@ import random
 import sys
 from level import sign
 
-def seekMob(mob, target, radius):
+def seekGoal(mob, target, radius):
     from pathfind import Pathfinder, infinity
     import math
-    pf = Pathfinder(cost = lambda tile : infinity if tile.cannotEnterBecause( mob ) and not tile.mobile == target  else 1,
-                    goal = lambda tile : tile.mobile == target,
-                    heuristic = lambda tile : max( abs( tile.x - target.tile.x ), abs( tile.y - target.tile.y ) ),
-#                    tiebreaker = lambda tile : (tile.x - 5)**2 + (tile.y - 5)**2,
+    pf = Pathfinder(cost = lambda tile : infinity if tile.cannotEnterBecause( mob ) and not target(tile) else 1,
+                    goal = target,
+                    heuristic = lambda tile : 0,
                     limit = radius,
     )
     pf.addOrigin( mob.tile )
     path = pf.seek()
     return path
 
-def doRandomWalk( mob ):
+def seekMob(mob, target, radius):
+    from pathfind import Pathfinder, infinity
+    import math
+    pf = Pathfinder(cost = lambda tile : infinity if tile.cannotEnterBecause( mob ) and not tile.mobile == target  else 1,
+                    goal = lambda tile : tile.mobile == target,
+                    heuristic = lambda tile : max( abs( tile.x - target.tile.x ), abs( tile.y - target.tile.y ) ),
+                    tiebreaker = lambda tile : (tile.x - target.tile.x)**2 + (tile.y - target.tile.y)**2,
+                    limit = radius,
+    )
+    pf.addOrigin( mob.tile )
+    path = pf.seek()
+    return path
+
+def doRandomWalk( mob, avoidTraps = False ):
     goodtiles = []
     for tile in mob.tile.neighbours():
         if not tile.cannotEnterBecause( mob ):
+            if tile.trap and avoidTraps:
+                continue
             goodtiles.append( tile )
     if goodtiles:
         tile = random.choice( goodtiles )
@@ -58,16 +72,23 @@ def playerIsAdjacentTo(mob, tile):
 def playerIsAdjacent(mob):
     return playerIsAdjacentTo(mob, mob.tile )
 
-def doFleePlayer( mob ):
+def doFleePlayer( mob, openDoors = False ):
     # short-term flee "algo"
     goodtiles = []
+    doortiles = []
     basic = mob.tile.distanceTo( mob.context.player.tile )
     for tile in mob.tile.neighbours():
         if not tile.cannotEnterBecause( mob ):
             d = tile.distanceTo( mob.context.player.tile )
             if d >= basic:
                 goodtiles.append( (d, tile ) )
+        elif openDoors and tile.isDoor and tile.doorState == "closed":
+            doortiles.append( tile )
     if not goodtiles:
+        from level import openDoor
+        if doortiles:
+            door = random.choice( doortiles )
+            openDoor( door )
         return
     goodtiles.sort( reverse = True )
     goodtiles = list( filter( lambda (d,t) : d == goodtiles[0][0], goodtiles ) )
@@ -236,7 +257,7 @@ class DebufferAi:
             self.cooldown -= 1
             doFleePlayer( mob )
         elif not playerAccessibleForMelee( mob ) or not mob.context.player.buffs:
-            doRandomWalk( mob )
+            doFleePlayer( mob )
         else:
             path = seekPlayer( mob, self.radius )
             if not path:
@@ -261,9 +282,10 @@ class StaffStealer:
         self.radius = radius
         self.runmode = False
     def trigger(self, mob):
+        print >> sys.stderr, "gnome moving"
         if not self.runmode:
             if not playerAccessibleForMelee( mob ) or mob.context.player.invisible or not mob.context.player.weapon:
-                doRandomWalk( mob )
+                doRandomWalk( mob, avoidTraps = True )
             else:
                 if doTrySpecialMeleePlayer( mob, self.radius ):
                     mob.logVisualMon( "%s snatches your " + "%s!" % mob.context.player.weapon.name.singular )
@@ -273,8 +295,27 @@ class StaffStealer:
                     mob.inventoryGive( wep )
                     self.runmode = True
         else:
-            # TODO cooler fleeing? e.g.: hopping down trap doors
-            doFleePlayer( mob )
+            for tile in mob.tile.neighbours():
+                if tile and tile.name == "stairs down":
+                    below = tile.level.nextLevel.stairsUp
+                    if not below.cannotEnterBecause( mob ):
+                        mob.logVisualMon( "%s scuttles down the stairs." )
+                        print >> sys.stderr, mob.debugname, "flopped"
+                        mob.moveto( below )
+                        return
+                if tile and tile.trap and tile.trap.trapname == "trapdoor":
+                    below = tile.trap.getTarget()
+                    if not below.cannotEnterBecause( mob ):
+                        if mob.logVisualMon( "%s hops down a trapdoor!" ):
+                            tile.trap.difficulty = 0
+                        print >> sys.stderr, mob.debugname, "hopped"
+                        mob.moveto( below )
+                        return
+            path = seekGoal( mob, lambda tile : (tile.trap and tile.trap.trapname == "trapdoor") or (tile.name == "stairs down"), radius = 4 )
+            if path and len(path) > 1:
+                mob.moveto( path[1] )
+            else:
+                doFleePlayer( mob, openDoors = True )
 
 class DigAnimal:
     def __init__(self, radius):

@@ -42,6 +42,7 @@ class Simulator:
         # "during" the move. A slower player will advance less time per
         # move.
         self.t += dt
+        print >>sys.stderr, "advancing", self, "to", self.t
     def next(self):
         if not self.q:
             return None

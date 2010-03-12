@@ -65,7 +65,7 @@ lastMon = Imp = Mobile(
     fgColour = "magenta",
     ai = DebufferAi( radius = 8 ),
     speed = Speed.VeryQuick,
-    rarity = Rarity( freq = 100 ),
+    rarity = Rarity( freq = 1 ),
     hitpoints = 5,
     flying = True,
 )
@@ -78,7 +78,7 @@ lastMon = Gnome = Mobile(
     ai = StaffStealer( radius = 8 ),
     speed = Speed.Normal,
     groundhugger = True,
-    rarity = Rarity( freq = 1 ),
+    rarity = Rarity( freq = 100 ),
     hitpoints = 5,
 )
 Monsters.append( lastMon )
