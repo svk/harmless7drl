@@ -67,7 +67,7 @@ def loadOldGame( name ):
     filename = savefileName( name )
     return context.load( filename )
 
-def beginNewGame( name, gender, cheat = True ):
+def beginNewGame( context, name, gender, cheat = True ):
     from gamewidget import GameWidget
     from timing import Simulator, Speed
     import timing
@@ -79,7 +79,6 @@ def beginNewGame( name, gender, cheat = True ):
     import magic
     from monsters import Monsters
     
-    context = GameContext()
     context.levels = []
     
     # hack up a little new environment for us.

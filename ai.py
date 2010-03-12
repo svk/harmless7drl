@@ -253,7 +253,7 @@ class DebufferAi:
                         # instead of attacking..
                         mob.logVisualMon( "%s pricks you with a needle." )
                         buff = random.choice( target.buffs.keys() )
-                        buff.debuff( mob.context )
+                        buff.debuff( target  )
                         self.cooldown = random.randint( 20, 40 )
 
 class StaffStealer:

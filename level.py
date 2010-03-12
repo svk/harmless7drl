@@ -362,6 +362,7 @@ class Mobile:
         self.destroyedByDigging = destroyedByDigging
         self.invisible = False
         self.visions = False
+        self.stunned = False
         if not proto:
             self.context = context
             self.sim = tile.level.sim
@@ -369,9 +370,11 @@ class Mobile:
     def spawn(self, context, tile ):
         import copy
         rv = copy.copy( self )
+        # this shallow copy causes SO MANY problems
         rv.name = self.name.selectGender()
         if self.ai:
             rv.ai = copy.copy( self.ai )
+        rv.buffs = {}
         rv.context = context
         rv.sim = tile.level.sim
         rv.moveto( tile )
@@ -383,6 +386,13 @@ class Mobile:
         item.leavesInventory( self )
         self.inventory.remove( item )
         return item
+    def addBuff(self, buff, timespan):
+        try:
+            self.buffs[buff] += timespan
+            buff.buff( self, novel = False )
+        except KeyError:
+            self.buffs[buff] = timespan
+            buff.buff( self, novel = True )
     def inventoryWeight(self):
         return (self.weapon.weight if self.weapon else 0) + sum( [ item.weight for item in self.inventory ] )
     def payForSpell(self, cost):
@@ -403,7 +413,10 @@ class Mobile:
             return True
         return False
     def describe(self):
-        return capitalizeFirst( "%s (%d/%d hp)." % (self.name.indefiniteSingular(), self.hitpoints, self.maxHitpoints ) )
+        statuses = self.monsterstatus()
+        if statuses:
+            statuses = ", " + statuses
+        return capitalizeFirst( "%s (%d/%d hp%s)." % (self.name.indefiniteSingular(), self.hitpoints, self.maxHitpoints, statuses ) )
     def damage(self, n, fromPlayer = False):
         self.hitpoints -= n
         if self.hitpoints <= 0:
@@ -424,8 +437,16 @@ class Mobile:
             target.damage( self.weapon.damage )
         else:
             target.damage( self.meleePower )
+    def monsterstatus(self):
+        rv = []
+        if self.stunned:
+            rv.append( "stunned" )
+        if self.flying:
+            rv.append( "flying" )
+        return ", ".join( rv )
     def status(self):
         rv = []
+        # stun is not a player-applicable status
         if self.flying:
             rv.append( "Flying" )
         if self.invisible:
@@ -514,11 +535,12 @@ class Mobile:
         for buff in self.buffs.keys():
             self.buffs[buff] -= dt
             if self.buffs[buff] < 0:
-                buff.debuff( self.context )
+                buff.debuff( self )
     def trigger(self, t):
         self.checkBuffs( t )
-        if self.ai:
-            self.ai.trigger( self )
+        if not self.stunned:
+            if self.ai:
+                self.ai.trigger( self )
         if not self.noSchedule:
             self.scheduledAction = self.tile.level.sim.schedule( self, t + self.speed )
         else: # wait, what?

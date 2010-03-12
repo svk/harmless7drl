@@ -25,7 +25,7 @@ class GameWidget ( Widget ):
                 ('female', "Female"),
                 ('male', "Male"),
             ], padding = 5, centered = True, title = "Please select your gender:", noInvert = True )
-            context = beginNewGame( name, gender )
+            context = beginNewGame( self.context, name, gender )
             wasLoaded = False
         self.context = context
         self.name = None
@@ -397,7 +397,10 @@ class GameWidget ( Widget ):
         except PlayerKilledException:
             self.playerDied()
     def showEffects(self, effects, t = 0.05):
-        fov = self.player.fov( setRemembered = True )
+        try:
+            fov = self.player.fov( setRemembered = True )
+        except AttributeError:
+            return # traps triggering before everything is set up
         seen = False
         for x,y in effects.keys():
             if (x,y) in fov:

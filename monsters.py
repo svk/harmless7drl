@@ -65,7 +65,7 @@ lastMon = Imp = Mobile(
     fgColour = "magenta",
     ai = DebufferAi( radius = 8 ),
     speed = Speed.VeryQuick,
-    rarity = Rarity( freq = 1 ),
+    rarity = Rarity( freq = 100 ),
     hitpoints = 5,
     flying = True,
 )
@@ -90,7 +90,7 @@ lastMon = GiantMole = Mobile(
     ai = DigAnimal( radius = 8 ),
     speed = Speed.Slow,
     groundhugger = True,
-    rarity = Rarity( freq = 100 ),
+    rarity = Rarity( freq = 1 ),
     hitpoints = 8,
     attackElaboration = " with its claws",
 )

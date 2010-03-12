@@ -3,6 +3,7 @@ from grammar import Noun, capitalizeFirst, makeCountingList
 import grammar
 import random
 from widgets import *
+import sys
 
 ArcaneNames  = [ "Me", "Im", "Taz", "Ka", "Xe", "Mon", "Wil", "Vi", "Fon", "Bri", "Mos", "Han", "Osh", "Us", "Ik", "Mav", "Ex" ]
 EnglishNames = { # -> rarity (level / inverse freq)
@@ -251,12 +252,12 @@ class LevitateSelf (Spell):
             context.log( "You float into the air!" )
             context.player.flying = True
             context.player.buffs[ self ] = random.randint( minduration, maxduration )
-    def debuff(self, context):
-        context.player.flying = False
-        context.log( "You feel heavier." )
-        context.log( "You fall to the floor and land deftly on your feet." )
-        context.player.tile.enters( context.player )
-        del context.player.buffs[ self ]
+    def debuff(self, player):
+        player.flying = False
+        player.context.log( "You feel heavier." )
+        player.context.log( "You fall to the floor and land deftly on your feet." )
+        player.tile.enters( player )
+        del player.buffs[ self ]
 
 class Invisibility (Spell):
     def __init__(self):
@@ -276,11 +277,11 @@ class Invisibility (Spell):
             context.log( "You are now invisible." )
             context.player.invisible = True
             context.player.buffs[ self ] = random.randint( minduration, maxduration )
-    def debuff(self, context):
-        context.player.invisible = False
-        context.log( "Your limbs fade back into view." )
-        context.log( "Your invisibility has worn off." )
-        del context.player.buffs[ self ]
+    def debuff(self, player):
+        player.invisible = False
+        player.context.log( "Your limbs fade back into view." )
+        player.context.log( "Your invisibility has worn off." )
+        del player.buffs[ self ]
 
 class MagicMap (Spell):
     def __init__(self):
@@ -291,6 +292,81 @@ class MagicMap (Spell):
         for tile in context.player.tile.level.tiles.values():
             tile.remembered = True
         context.log( "You sense the shape of the dungeon around you." )
+
+class FlyerKnockback (Spell): # might be really useful against imps
+    def __init__(self):
+        Spell.__init__( self, 'g', 'Windblast', [ "Move", "Air" ] )
+    def cost(self):
+        return 3
+    def cast(self, context):
+        from level import expandingCircle
+        cx, cy = cxcy = context.player.tile.x, context.player.tile.y
+        movers = []
+        from math import atan2, sqrt
+        radius = 8
+        perimeter = []
+        for region in expandingCircle( cxcy, size = radius ):
+            fx = {}
+            for x, y in region:
+                fx[x,y] = dict( ch = ' ', fg = 'white', bg = 'blue' )
+                dx, dy = x-cx, y-cy
+                try:
+                    tile = context.player.tile.level.tiles[x,y]
+                    if tile.mobile and tile.mobile.flying and tile.mobile not in movers:
+                        movers.append( tile.mobile )
+                    perimeter.append( (atan2(dy, dx), sqrt(dx*dx+dy*dy), tile ) )
+                except KeyError:
+                    pass
+            context.game.showEffects( fx )
+        movers.reverse()
+        for mover in movers:
+            mover.logVisual( "You are caught in the blast!", "%s is caught in the blast!" )
+            mx, my = mover.tile.x, mover.tile.y
+            from level import sign
+            dx, dy = sign(mx-cx), sign(my-cy)
+            dirs = [ (dx,dy) ]
+            if dx and dy:
+                dirs.append( (dx,0) )
+                dirs.append( (0,dy) )
+            elif dx:
+                dirs.append( (dx,1) )
+                dirs.append( (dx,-1) )
+            elif dy:
+                dirs.append( (1,dy) )
+                dirs.append( (-1,dy) )
+            ma = atan2( my - cy, mx - cx )
+            actuallyMoved = 0
+            for i in range( radius ):
+                bestAdist = 2**31
+                step = None
+                for dx, dy in dirs:
+                    tile = mover.tile.getRelative(dx,dy)
+                    if not tile:
+                        continue
+                    if tile.cannotEnterBecause( mover ):
+                        continue
+                    ta = atan2( tile.y - cy, tile.x - cx )
+                    adist = abs( ma - ta )
+                    if adist < bestAdist:
+                        bestAdist = adist
+                        step = tile
+                if not step:
+                    break
+                mover.moveto( step )
+                actuallyMoved += 1
+            if actuallyMoved:
+                duration = random.randint( actuallyMoved * 20, actuallyMoved * 40 )
+                mover.addBuff( self, duration )
+#            score, tile = min( map( lambda (a,r,t) : (abs(a-ma) - r + 0.01 * random.random(), t),
+#                               filter( lambda (a,r,t) : abs(a-ma) < 0.5 and (t.mobile == mover or not t.cannotEnterBecause(mover)),
+#                                       perimeter ) ) )
+    def buff(self, mob, novel):
+        mob.stunned = True
+        if novel:
+            mob.logVisualMon( "%s is stunned!" )
+    def debuff(self, mob):
+        mob.stunned = False
+        del mob.buffs[ self ]
 
 class Visions (Spell):
     def __init__(self):
@@ -309,12 +385,12 @@ class Visions (Spell):
             context.log( "You begin to receive visions of your surroundings." )
             context.player.visions = True
             context.player.buffs[ self ] = random.randint( minduration, maxduration )
-    def debuff(self, context):
-        context.player.visions = False
-        context.log( "Your visions subside." )
-        del context.player.buffs[ self ]
+    def debuff(self, player):
+        player.visions = False
+        player.context.log( "Your visions subside." )
+        del player.buffs[ self ]
 
-Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap() ]
+Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback() ]
 
 if __name__ == '__main__':
     counts = {}
