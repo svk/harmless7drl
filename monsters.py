@@ -138,9 +138,9 @@ lastMon = Sniffler = Mobile(
     ai = PlayerTrailFollower(radius = 5), #radius is just for seek if provoked
     speed = Speed.Normal,
     groundhugger = True,
-    rarity = Rarity( freq = 1 ),
-    hitpoints = 10,
-    meleePower = 2,
+    rarity = Rarity( freq = 100 ),
+    hitpoints = 5,
+    meleePower = 1,
     attackVerb = Verb( "bite", "bites" ),
 )
 Monsters.append( lastMon )

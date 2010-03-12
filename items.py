@@ -1,6 +1,6 @@
 import magic
 from grammar import Noun
-from level import Rarity
+from level import Rarity, Item
 
 Items = []
 
@@ -38,6 +38,17 @@ lastItem = Treasure = magic.Treasure(
     Noun( "a", "heavy spellbook", "heavy spellbooks" ),
     weight = 10,
     rarity = Rarity(worth = 10, freq = 1)
+)
+Items.append( lastItem )
+
+lastItem = HealPotion = Item(
+        # restores a single HP -- you're meant to use magic.
+    Noun( "a", "vial of healing essences", "vials of healing essences" ),
+    '!',
+    'magenta',
+    itemType = "healing",
+    weight = 5,
+    rarity = Rarity( worth = 8, freq = 4 ),
 )
 Items.append( lastItem )
 

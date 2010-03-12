@@ -275,13 +275,13 @@ class GameWidget ( Widget ):
         if not self.player.weapon:
             return None # shouldn't happen
         self.player.inventoryGive( self.player.weapon )
-        self.log( "You stop wielding your %s." % self.player.weapon.name.definiteSingular() )
+        self.log( "You stop wielding your %s." % self.player.weapon.name.singular )
         self.player.weapon = None
         self.tookAction( 1 )
     def accessInventory(self):
         stacked = countItems( self.player.inventory )
         chosen = self.main.query( SelectionMenuWidget, choices = [
-            (('unwield', weapon.name.definiteSingular() + " (wielded)")) for weapon in [self.player.weapon] if weapon
+            (('unwield', weapon.name.indefiniteSingular() + " (wielded)")) for weapon in [self.player.weapon] if weapon
         ] + [
             (items[0], name.amount( len(items), informal = True )) for name, items in stacked.items()
         ] + [ (None, "cancel") ], padding = 5 )
@@ -297,6 +297,16 @@ class GameWidget ( Widget ):
             elif chosen.itemType == 'tome':
                 if chosen.identifyRune( self.context, self.player.inventory ):
                     self.tookAction( 1 )
+            elif chosen.itemType == 'healing':
+                self.log( "You chug down the small vial of purple liquid." )
+                if self.player.hitpoints < self.player.maxHitpoints:
+                    self.player.hitpoints += 1
+                    if self.player.hitpoints == self.player.maxHitpoints:
+                        self.log( "You feel better." )
+                    else:
+                        self.log( "You feel a bit better." )
+                self.player.inventory.remove( chosen )
+                self.tookAction( 1 )
             elif chosen.itemType == 'spellbook':
                 self.log( "It's of no use at the moment -- you need some more applicable magic." )
                 self.log( "%s would probably appreciate it being returned to the library, though." % self.context.bossName.definiteSingular() )
