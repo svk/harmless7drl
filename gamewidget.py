@@ -77,7 +77,8 @@ class GameWidget ( Widget ):
         screenw, screenh = self.ui.dimensions()
         fov = self.player.fov( setRemembered = True )
         if self.restrictVisionByFov:
-            visibility = lambda tile : (tile.x, tile.y) in fov
+            visionsRadius = 12
+            visibility = lambda tile : ((tile.x, tile.y) in fov or (self.player.visions and self.player.tile.withinRadiusFrom( tile, visionsRadius ) ) )
         else:
             visibility = lambda tile : True
         vp = Viewport( level = self.player.tile.level,

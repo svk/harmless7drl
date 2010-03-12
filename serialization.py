@@ -88,7 +88,6 @@ def registerClasses():
     c.register( R.TrapDoor )
     import ai as A
     c.register( A.RandomWalker )
-    c.register( A.HugBot )
     c.register( A.TurnerBot )
     import magic as M
     c.register( M.Rune )

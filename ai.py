@@ -75,25 +75,6 @@ class RandomWalker:
     def trigger(self, mob):
         doRandomWalk( mob )
 
-class HugBot:
-    def __init__(self, target, radius):
-        self.target = target
-        self.radius = radius
-    def trigger(self, mob):
-        from pathfind import Pathfinder, infinity
-        import math
-        pf = Pathfinder(cost = lambda tile : infinity if tile.cannotEnterBecause( mob ) and not tile.mobile == self.target  else 1,
-                        goal = lambda tile : tile.mobile == self.target,
-                        heuristic = lambda tile : max( abs( tile.x - self.target.tile.x ), abs( tile.y - self.target.tile.y ) ),
-                        limit = self.radius,
-        )
-        pf.addOrigin( mob.tile )
-        path = pf.seek()
-        if path and len( path ) > 1:
-            tile = path[1]
-            if not tile.cannotEnterBecause( mob ):
-                mob.moveto( path[1] )
-
 class TurnerBot:
     def __init__(self):
         self.directions = {
@@ -122,7 +103,7 @@ class MeleeSeeker:
     def __init__(self, radius):
         self.radius = radius
     def trigger(self, mob):
-        if playerAccessibleForMelee( mob ):
+        if playerAccessibleForMelee( mob ) and not mob.context.player.invisible:
             path = seekPlayer( mob, self.radius )
             if not path:
                 doRandomWalk( mob )
@@ -141,6 +122,9 @@ class MeleeMagicHater:
             return 0
         return mob.context.player.weapon.mana
     def trigger(self, mob):
+        if mob.context.player.invisible:
+            doRandomWalk( mob )
+            return
         if playerIsAdjacent( mob ):
             doMeleePlayerOrFlee( mob )
         else:
@@ -168,6 +152,8 @@ class Rook:
         # straight line to the player. If it does, moves 8 (radius)
         # tiles
         pl = mob.context.player
+        if pl.invisible:
+            return
         dx, dy = sign(pl.tile.x - mob.tile.x), sign(pl.tile.y - mob.tile.y)
         if dx != 0 and dy != 0:
             return # not a straight line, stationary

@@ -12,6 +12,7 @@ EnglishNames = { # -> rarity (level / inverse freq)
     "Destroy": Rarity( worth = 10, freq = 1, minLevel = 2 ),
     "Earth": Rarity( worth = 10, freq = 1),
     "Air": Rarity( worth = 10, freq = 1),
+    "See": Rarity( worth = 10, freq = 1),
 }
 
 class Rune ( Item ):
@@ -256,7 +257,51 @@ class LevitateSelf (Spell):
         context.log( "You fall to the floor and land deftly on your feet." )
         context.player.tile.enters( context.player )
 
-Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf() ]
+class Invisibility (Spell):
+    def __init__(self):
+        Spell.__init__( self, 'i', 'Invisibility', [ "Negate", "See", "Self" ] )
+        self.buffName = "invisibility"
+    def cost(self):
+        return 10
+    def cast(self, context):
+        minduration, maxduration = 400, 800
+        if context.player.flying:
+            for key in context.player.buffs:
+                if key.buffName == self.buffName:
+                    context.player.buffs[ key ] += random.randint( minduration, maxduration )
+            context.log( "You feel less opaque." )
+        else:
+            context.log( "You disappear in a puff of smoke!" )
+            context.log( "You are now invisible." )
+            context.player.invisible = True
+            context.player.buffs[ self ] = random.randint( minduration, maxduration )
+    def debuff(self, context):
+        context.player.invisible = False
+        context.log( "Your limbs fade back into view." )
+        context.log( "Your invisibility has worn off." )
+
+class Visions (Spell):
+    def __init__(self):
+        Spell.__init__( self, 'v', 'Visions', [ "Self", "See" ] )
+        self.buffName = "visions"
+    def cost(self):
+        return 10
+    def cast(self, context):
+        minduration, maxduration = 400, 800
+        if context.player.flying:
+            for key in context.player.buffs:
+                if key.buffName == self.buffName:
+                    context.player.buffs[ key ] += random.randint( minduration, maxduration )
+            context.log( "Your visions become more vivid." )
+        else:
+            context.log( "You begin to receive visions of your surroundings." )
+            context.player.visions = True
+            context.player.buffs[ self ] = random.randint( minduration, maxduration )
+    def debuff(self, context):
+        context.player.visions = False
+        context.log( "Your visions subside." )
+
+Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions() ]
 
 if __name__ == '__main__':
     counts = {}

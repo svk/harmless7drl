@@ -107,6 +107,10 @@ class Tile:
         if self.items:
             rv.append( self.describeItems() + "." )
         return " ".join( rv )
+    def distanceToSquared(self, that):
+        return (self.x-that.x)*(self.x-that.x) + (self.y-that.y)*(self.y-that.y)
+    def withinRadiusFrom(self, origin, radius):
+        return self.distanceToSquared( origin ) <= radius * radius
     def describeRemembered(self):
         return self.tileTypeDesc
     def enters(self, mobile):
@@ -123,7 +127,12 @@ class Tile:
         if self.items:
             mergeAppearance( rv, self.items[-1].appearance() )
         if self.mobile:
-            mergeAppearance( rv, self.mobile.appearance() )
+            if not self.mobile.invisible:
+                mergeAppearance( rv, self.mobile.appearance() )
+            else:
+                appie = self.mobile.appearance()
+                appie['fg'] = 'black'
+                mergeAppearance( rv, appie )
         if self.trap and self.trap.canSpot( self.context.player ):
             rv['bg'] = 'red'
         rv['fg'] = "bold-" + rv['fg']
@@ -348,6 +357,8 @@ class Mobile:
         self.swimming = swimming
         self.pushable = pushable
         self.destroyedByDigging = destroyedByDigging
+        self.invisible = False
+        self.visions = False
         if not proto:
             self.context = context
             self.sim = tile.level.sim
@@ -412,6 +423,10 @@ class Mobile:
         rv = []
         if self.flying:
             rv.append( "Flying" )
+        if self.invisible:
+            rv.append( "Invisible" )
+        if self.visions:
+            rv.append( "Visions" )
         return " ".join( rv )
     def moveto(self, tile):
         assert not tile.cannotEnterBecause( self )
@@ -420,6 +435,7 @@ class Mobile:
         if not self.tile or self.tile.level != tile.level:
             if self.scheduledAction:
                 self.scheduledAction.cancel()
+                self.scheduledAction = None
             self.tile = tile
             self.schedule()
         else:
