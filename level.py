@@ -418,6 +418,8 @@ class Mobile:
         self.logVisual( "You %s %s%s!" % (self.attackVerb.second(), target.name.definiteSingular(), self.attackElaboration ),
                         "%s " + self.attackVerb.third() + " " + ("you" if target.isPlayer() else target.name.definiteSingular()) + self.attackElaboration + "!" 
         )
+        if target.ai:
+            target.ai.provoked = True
         if self.weapon:
             target.damage( self.weapon.damage )
         else:

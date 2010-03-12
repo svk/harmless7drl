@@ -20,7 +20,7 @@ Nibblefish = Mobile(
 
 lastMon = Mufflon = Mobile(
     name = Noun( "a", "mufflon", "mufflons" ),
-    symbol = "m",
+    symbol = "M",
     fgColour = "blue",
     ai = MeleeMagicHater( radius = 5, tolerance = 0 ),
     speed = Speed.Normal,
@@ -78,8 +78,21 @@ lastMon = Gnome = Mobile(
     ai = StaffStealer( radius = 8 ),
     speed = Speed.Normal,
     groundhugger = True,
-    rarity = Rarity( freq = 10 ),
+    rarity = Rarity( freq = 1 ),
     hitpoints = 5,
+)
+Monsters.append( lastMon )
+
+lastMon = GiantMole = Mobile(
+    name = Noun( "a", "giant mole", "giant moles" ),
+    symbol = "m",
+    fgColour = "yellow",
+    ai = DigAnimal( radius = 8 ),
+    speed = Speed.Slow,
+    groundhugger = True,
+    rarity = Rarity( freq = 100 ),
+    hitpoints = 8,
+    attackElaboration = " with its claws",
 )
 Monsters.append( lastMon )
 

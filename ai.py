@@ -275,3 +275,35 @@ class StaffStealer:
         else:
             # TODO cooler fleeing? e.g.: hopping down trap doors
             doFleePlayer( mob )
+
+class DigAnimal:
+    def __init__(self, radius):
+        self.radius = radius
+        self.provoked = False
+    def trigger(self, mob):
+        # not affected by invisibility, since a mole navigates by smell (or what do I know, atleast not sight)
+        if self.provoked:
+            path = seekPlayer( mob, self.radius )
+            if not path:
+                self.randomDigWalk( mob )
+            else:
+                doMeleeAlongPath( mob, mob.context.player, path )
+        else:
+            self.randomDigWalk( mob )
+    def randomDigWalk(self, mob ):
+        digtiles = []
+        goodtiles = []
+        for tile in mob.tile.neighbours():
+            if not tile.cannotEnterBecause( mob ):
+                goodtiles.append( tile )
+            elif tile.diggable() and tile.impassable:
+                digtiles.append( tile )
+        if digtiles and random.randint(0,1) > 0:
+            from level import makeFloor
+            digtile = random.choice( digtiles )
+            mob.logVisualMon( "%s digs out a cave wall." )
+            makeFloor( digtile )
+            mob.moveto( digtile )
+        elif goodtiles:
+            tile = random.choice( goodtiles )
+            mob.moveto( tile )
