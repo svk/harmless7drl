@@ -724,7 +724,7 @@ def mapFromGenerator( context, ancestor = None):
             if tries > 0:
                 singleCell = TrapDoor
                 trap = singleCell( point, context = context )
-    monsterValueTarget = random.randint( 1, 100 )
+    monsterValueTarget = random.randint( 1, 2 )
     for protomonster in selectThings( rv.depth, monsterValueTarget, context.protomonsters ):
         tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) and not lg.entryRoom.contains( tile.x, tile.y )  )
         monster = protomonster.spawn( context, tile )
