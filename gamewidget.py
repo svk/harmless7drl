@@ -159,7 +159,7 @@ class GameWidget ( Widget ):
         tile = self.player.tile.getRelative( dx, dy )
         if not tile:
             # At some point I encounteded this. Fairly sure that shouldn't happen.
-            print "warning: tile not present"
+            print >>sys.stderr, "warning: tile not present"
         else:
             if not tile.cannotEnterBecause( self.player ):
                 self.player.moveto( tile )
