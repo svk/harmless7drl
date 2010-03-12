@@ -5,6 +5,7 @@ P2E_EXTRAS=SDL.dll libtcod-mingw.dll arial12x12.png
 ALL_EXTRAS=README
 
 clean:
+	rm -f errars
 	rm -f *.pyc
 	rm -f savegame-*-harmless7drl.gz
 	rm -rf harmless7drl-win32
