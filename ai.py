@@ -353,8 +353,15 @@ class ExplodesOnDeathHook:
     def onDeath(self, mob):
         if not mob.logVisualMon( "%s explodes!" ):
             mob.logAural( "You hear an explosion." )
+            # This is a hack -- should really be able to see only the parts of the explosion
+            # in FOV. But hiding it entirely when the origin isn't in range looks better than
+            # showing it all if any tile is in view.
+            from level import disk
+            region = disk( (mob.tile.x, mob.tile.y), self.radius )
+        else:
+            region = mob.context.game.showExplosion( (mob.tile.x, mob.tile.y), self.radius )
         affectlist = []
-        for x, y in mob.context.game.showExplosion( (mob.tile.x, mob.tile.y), self.radius ):
+        for x, y in region:
             affects = mob.tile.level.tiles[x,y].mobile
             if affects and affects != mob and not affects.dead:
                 affectlist.append( affects )
