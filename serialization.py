@@ -25,9 +25,13 @@ class GameContext:
     def __init__(self):
         from grammar import ProperNoun
         import random
+        from monsters import MacGuffinMobileMale, MacGuffinMobileFemale
+        from items import MacGuffinMale, MacGuffinFemale
         # some mad libs for the plot
         self.bossName = ProperNoun( "Askarmon", "male" ) if random.randint(0,1) else ProperNoun( "Adrachia", "female" )
         self.bossTitle = "High Wizard" if self.bossName.gender == "male" else "Grand Witch"
+        self.macGuffinMobile = MacGuffinMobileMale if random.randint(0,1) else MacGuffinMobileFemale
+        self.macGuffin = MacGuffinMale if self.macGuffinMobile.name.gender == "male" else MacGuffinFemale
     def log(self, s):
         try:
             self.game.log( capitalizeFirst(s) )

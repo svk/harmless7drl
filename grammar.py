@@ -124,6 +124,10 @@ class Noun:
 class ProperNoun ( Noun ):
     def __init__(self, name, gender ):
         Noun.__init__(self, None, name, "<no plural: %s>" % name, the = False, gender = gender )
+    def amount(self, n, informal = False):
+        if n == 1:
+            return self.singular
+        return Noun.amount(self, n, informal = informal)
 
 if __name__ == '__main__':
     penguin = Noun( "a", "penguin", "penguins" )

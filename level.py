@@ -12,6 +12,9 @@ from traps import *
 from grammar import *
 from widgets import SelectionMenuWidget
 
+DungeonDepth = 1 # the dungeon is infinite, but the macguffin will be at this
+                 # level and there will be no further variety in monsters/items etc.
+
 class Rarity:
     def __init__(self, worth = 1, freq = 1, minLevel = -2**31, maxLevel = 2**31):
         self.worth = 1
@@ -452,6 +455,8 @@ class Mobile:
             statuses = ", " + statuses
         return capitalizeFirst( "%s (%d/%d hp%s)." % (self.name.indefiniteSingular(), self.hitpoints, self.maxHitpoints, statuses ) )
     def damage(self, n, fromPlayer = False, noMessage = False):
+        if self.essential:
+            return
         self.hitpoints -= n
         if self.hitpoints <= 0:
             if not noMessage:
@@ -732,6 +737,9 @@ def mapFromGenerator( context, ancestor = None):
             }[ lg.data[y][x] ]( rv.tiles[x,y] )
     makeStairsUp( rv.tiles[ lg.entryRoom.internalFloorpoint() ], isPortal = not ancestor )
     makeStairsDown( rv.tiles[ lg.exitRoom.internalFloorpoint() ] )
+    if rv.depth == DungeonDepth:
+        tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( context.macGuffinMobile ) and lg.exitRoom.contains( tile.x, tile.y )  )
+        monster = context.macGuffinMobile.spawn( context, tile )
     for room in lg.rewardRooms:
         # should be in chests: that way it's hard to
         # distinguish between danger rooms and reward rooms

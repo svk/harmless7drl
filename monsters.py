@@ -146,9 +146,36 @@ lastMon = Sniffler = Mobile(
 )
 Monsters.append( lastMon )
 
+from items import MacGuffinMale, MacGuffinFemale
+MacGuffinMobileMale = Mobile(
+    name = MacGuffinMale.name,
+    symbol = MacGuffinMale.symbol,
+    fgColour = "black",
+    ai = RandomWalker( avoidTraps = True ),
+    speed = Speed.Slow,
+    swimming = False,
+    groundhugger = True,
+    hitpoints = 100,
+    rarity = Rarity( freq = 0 ), # especially generated
+    essential = True,
+)
+MacGuffinMobileFemale = Mobile(
+    name = MacGuffinFemale.name,
+    symbol = MacGuffinFemale.symbol,
+    fgColour = "black",
+    ai = RandomWalker( avoidTraps = True ),
+    speed = Speed.Slow,
+    swimming = False,
+    groundhugger = True,
+    hitpoints = 100,
+    rarity = Rarity( freq = 0 ), # especially generated
+    essential = True,
+)
+
+
 if __name__ == '__main__':
-    dungeonDepth = 10
-    for dlevel in range(1,dungeonDepth+1):
+    from level import DungeonDepth
+    for dlevel in range(1,DungeonDepth+1):
         monsters = [ monster for monster in Monsters if monster.rarity.eligible( dlevel ) ]
         totalWeight = sum( map( lambda monster : monster.rarity.frequency, monsters ) )
         print "Dungeon level %d: %d creatures" % (dlevel, len(monsters))

@@ -59,7 +59,7 @@ lastItem = MacGuffinMale = Item(
     'black',
     itemType = "macguffin",
     weight = 30, # mcg + n heavy books should be full capacity (no staff etc.) - might be a nice challenge for completists
-    rarity = Rarity( freq = 100 ), # should be freq 0! unique, generated when you bump into Nislakh.
+    rarity = Rarity( freq = 0 ), # should be freq 0! unique, generated when you bump into Nislakh.
     isMacGuffin = True,
 )
 
@@ -70,22 +70,19 @@ lastItem = MacGuffinFemale = Item(
     'black',
     itemType = "macguffin",
     weight = 30, # mcg + n heavy books should be full capacity (no staff etc.) - might be a nice challenge for completists
-    rarity = Rarity( freq = 100 ), # should be freq 0! unique, generated when you bump into Nislakh.
+    rarity = Rarity( freq = 0 ), # should be freq 0! unique, generated when you bump into Nislakh.
     isMacGuffin = True,
 )
 
-Items.append( MacGuffinMale ) # XXX
-Items.append( MacGuffinFemale ) # XXX
-
 
 if __name__ == '__main__':
-    dungeonDepth = 10
+    from level import DungeonDepth
 
     for protorune in magic.generateProtorunes():
         protorune.identify()
         Items.append( protorune )
 
-    for dlevel in range(1,dungeonDepth+1):
+    for dlevel in range(1,DungeonDepth+1):
         items = [ item for item in Items if item.rarity.eligible( dlevel ) ]
         totalWeight = sum( map( lambda item : item.rarity.frequency, items ) )
         print "Dungeon level %d: %d items" % (dlevel, len(items))

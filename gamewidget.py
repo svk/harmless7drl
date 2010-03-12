@@ -185,6 +185,10 @@ YAY""", width = 60 )
             elif tile.mobile:
                 if tile.mobile.pushable:
                     self.tryPush( tile.mobile, dx, dy )
+                elif tile.mobile.essential:
+                    # warning: hilarity would ensue if any other essential objects were introduced
+                    from plot import convertMacGuffin
+                    convertMacGuffin( tile.mobile )
                 elif tile.mobile.canBeMeleeAttackedBy( self.player ):
                     target = tile.mobile
                     self.player.meleeAttack( target )
@@ -331,8 +335,11 @@ YAY""", width = 60 )
             elif chosen.itemType == 'spellbook':
                 self.log( "It's of no use at the moment -- you need some more applicable magic." )
                 self.log( "%s would probably appreciate it being returned to the library, though." % self.context.bossName.definiteSingular() )
+            elif chosen.itemType == 'macguffin':
+                self.log( "You don't see much of a use for %s." % self.context.macGuffin.name.definiteSingular() )
+                self.log( "However, %s would probably appreciate getting %s back in one piece." % (self.context.bossName.definiteSingular(), self.context.macGuffin.name.pronounObject() ) )
             else:
-                self.log( "You don't see how you could maek use of %s." % chosen.name.definiteSingular() )
+                self.log( "You don't see how you could make use of %s." % chosen.name.definiteSingular() )
     def writeSpell(self):
         from magic import Spells
         goodSpells = list(filter( lambda spell: spell not in self.context.player.spellbook and spell.canBuild( self.context.player.inventory ), Spells ))

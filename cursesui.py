@@ -129,7 +129,8 @@ class CursesInterface:
         self.stdscr.refresh()
     def get(self):
         rv = self.stdscr.getch()
-        self.warn( "getch returned: %d" % rv )
+        if rv == -1:
+            return None
         if rv == curses.KEY_RESIZE:
             raise ResizedException()
         try:
