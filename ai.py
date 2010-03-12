@@ -124,8 +124,10 @@ def doTrySpecialMeleePlayer(mob, radius):
     return False
 
 class RandomWalker:
+    def __init__(self, avoidTraps = False)
+        self.avoidTraps = avoidTraps
     def trigger(self, mob):
-        doRandomWalk( mob )
+        doRandomWalk( mob, avoidTraps = self.avoidTraps )
 
 class TurnerBot:
     def __init__(self):
@@ -181,8 +183,13 @@ class IncorporealSeeker:
                 self.frustration += 1
                 if self.frustration > 5:
                     mob.logVisualMon( "%s touches " + tile.mobile.name.definiteSingular() + "." )
-                    tile.mobile.logVisualMon( "%s fades out of existence." )
-                    tile.mobile.kill( noTriggerHooks = True )
+                    if not tile.mobile.essential:
+                        tile.mobile.logVisualMon( "%s fades out of existence." )
+                        tile.mobile.kill( noTriggerHooks = True )
+                    else:
+                        mob.logVisualMon( "%s stares at " + tile.mobile.name.definiteSingular() + " in surprise." )
+                        mob.logVisualMon( "%s fades out of existence." )
+                        mob.kill()
             elif playerAccessibleForMelee( mob ):
                 mob.meleeAttack( p ) # for spectres, an instakill
         else:

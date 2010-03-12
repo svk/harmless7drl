@@ -327,6 +327,7 @@ class Mobile:
                  destroyedByDigging = False,
                  incorporeal = False,
                  isBoulder = False,
+                 essential = False,
                 ):
         assert fgColour != 'red' # used for traps
         self.rarity = rarity
@@ -353,6 +354,7 @@ class Mobile:
         self.cachedFov = []
         self.isBoulder = isBoulder
         self.trapDetection = 0
+        self.essential = essential
             # I'm trying to avoid using HP a lot. The amounts of HP
             # in the game will be low, e.g.: 5-20 for the player, not hundreds.
             # Basically, the goal is: if you take damage, you've made a mistake,
@@ -533,6 +535,9 @@ class Mobile:
                 message = "You destroy %s!"
         self.logVisual( "You die...", message, usePronoun = usePronoun )
     def kill(self, noTriggerHooks = False):
+        if self.essential:
+            print >> sys.stderr, "warning: saving essential monster", self.debugname
+            return
         self.dead = True
         if not noTriggerHooks:
             for hook in self.deathHooks:
