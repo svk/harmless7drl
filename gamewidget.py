@@ -14,6 +14,7 @@ class GameWidget ( Widget ):
         name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: ", centered = True )
         self.context = GameContext()
         self.context.game = self
+        self.initialized = False
         try:
             # TODO check if there's a saved game
             from core import loadOldGame
@@ -28,6 +29,7 @@ class GameWidget ( Widget ):
             context = beginNewGame( self.context, name, gender )
             wasLoaded = False
         self.context = context
+        self.initialized = True
         self.name = None
         self.player = context.player
         context.game = self
@@ -391,12 +393,14 @@ class GameWidget ( Widget ):
                         self.player.spellbook.append( spell )
                 self.player.weapon.mana += 500
             elif key == 'C':
-                self.showExplosion( (self.player.tile.x, self.player.tile.y), 5 )
+                self.showExplosion( (0,0), 8 )
             elif key == 'X':
                 self.player.damage( 100 )
         except PlayerKilledException:
             self.playerDied()
     def showEffects(self, effects, t = 0.05):
+        if not self.initialized:
+            return
         try:
             fov = self.player.fov( setRemembered = True )
         except AttributeError:
@@ -412,6 +416,8 @@ class GameWidget ( Widget ):
         self.main.query( DelayWidget, t )
         self.visualEffects = {}
     def showExplosion(self, origin, radius, distribution = ( 'red', 'yellow', 'red', 'red', 'yellow', 'yellow', 'white', 'black' ) ):
+        if not self.initialized:
+            return [] # hax
         cx, cy = origin
         fx = {}
         for region in expandingDisk( (cx, cy), radius):
@@ -420,13 +426,15 @@ class GameWidget ( Widget ):
                 if random.randint(0,1):
                     fg = 'bold-' + fg
                 fx[x,y] = {
-                    'ch': random.choice( ['-', '.', '*', '`', '`' ] ),
+                   'ch': random.choice( ['-', '.', '*', '`', '`' ] ),
                    'fg': fg,
                    'bg': bg,
                 }
             self.showEffects( fx, 0.05 )
         return region
     def showStraightRay(self, origin, direction, radius, fg, bg, stopper = lambda xy : False ):
+        if not self.initialized:
+            return [] # hax
         cx, cy = origin
         dx, dy = direction
         ch = {

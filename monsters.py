@@ -78,7 +78,7 @@ lastMon = Gnome = Mobile(
     ai = StaffStealer( radius = 8 ),
     speed = Speed.Normal,
     groundhugger = True,
-    rarity = Rarity( freq = 100 ),
+    rarity = Rarity( freq = 1 ),
     hitpoints = 5,
 )
 Monsters.append( lastMon )
@@ -93,6 +93,20 @@ lastMon = GiantMole = Mobile(
     rarity = Rarity( freq = 1 ),
     hitpoints = 8,
     attackElaboration = " with its claws",
+)
+Monsters.append( lastMon )
+
+lastMon = BomberBug = Mobile(
+    name = Noun( "a", "bomber beetle", "bomber beetles" ),
+    symbol = "b",
+    fgColour = "black",
+    ai = MeleeSeeker( radius = 4 ),
+    speed = Speed.Slow,
+    groundhugger = True,
+    rarity = Rarity( freq = 100 ),
+    hitpoints = 1,
+    attackVerb = Verb( "bite", "bites" ),
+    onDeath = ExplodesOnDeathHook( radius = 5, damage = 1 ), # might trigger a chain reaction..
 )
 Monsters.append( lastMon )
 

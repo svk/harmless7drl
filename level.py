@@ -315,6 +315,7 @@ class Mobile:
                  rarity = None,
                  proto = True,
                  meleePower = 1,
+                 onDeath = None,
                  hindersLOS = False, # behaviour flags
                  nonalive = False,
                  walking = True,
@@ -331,6 +332,7 @@ class Mobile:
         self.fgColour = fgColour
         self.bgColour = bgColour
         self.tile = None
+        self.dead = False
         self.scheduledAction = None
         self.speed = speed
         self.ai = ai
@@ -365,6 +367,9 @@ class Mobile:
         self.stunned = False
         self.generated = 0
         self.debugname = "(spawned from no method)"
+        self.deathHooks = []
+        if onDeath:
+            self.deathHooks.append( onDeath )
         if not proto:
             self.context = context
             self.moveto( tile )
@@ -517,6 +522,9 @@ class Mobile:
                 message = "You destroy %s!"
         self.logVisual( "You die...", message, usePronoun = usePronoun )
     def kill(self):
+        self.dead = True
+        for hook in self.deathHooks:
+            hook.onDeath( self )
         for item in self.inventory: #hooks ? yes/no?
             self.tile.items.append( item )
         self.inventory = []
@@ -524,6 +532,7 @@ class Mobile:
             self.scheduledAction.cancel()
         if self.isPlayer():
             raise PlayerKilledException()
+        print >> sys.stderr, self.debugname, "shuffling coil from", self.tile.x, self.tile.y
         self.tile.leaves()
         self.noSchedule = True # likely we're actually call-descendants of .trigger(), so blanking
                                # the scheduled action is not enough
@@ -717,7 +726,7 @@ def mapFromGenerator( context, ancestor = None):
             if tries > 0:
                 singleCell = TrapDoor
                 trap = singleCell( point, context = context )
-    monsterValueTarget = random.randint( 1, 1 )
+    monsterValueTarget = random.randint( 1, 100 )
     for protomonster in selectThings( rv.depth, monsterValueTarget, context.protomonsters ):
         tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) and not lg.entryRoom.contains( tile.x, tile.y )  )
         monster = protomonster.spawn( context, tile )

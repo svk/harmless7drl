@@ -348,3 +348,21 @@ class DigAnimal:
         elif goodtiles:
             tile = random.choice( goodtiles )
             mob.moveto( tile )
+
+class ExplodesOnDeathHook:
+    def __init__(self, radius, damage):
+        self.radius = radius
+        self.damage = damage
+    def onDeath(self, mob):
+        if not mob.logVisualMon( "%s explodes!" ):
+            mob.logAural( "You hear an explosion." )
+        affectlist = []
+        for x, y in mob.context.game.showExplosion( (mob.tile.x, mob.tile.y), self.radius ):
+            affects = mob.tile.level.tiles[x,y].mobile
+            if affects and affects != mob and not affects.dead:
+                print >> sys.stderr, affects.debugname, "caught in explosion from", mob.debugname
+                affectlist.append( affects )
+        for affects in affectlist:
+            if affects:
+                affects.logVisual( "You are caught in the blast!", "%s is caught in the blast!" )
+                affects.damage( 1 )
