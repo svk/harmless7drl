@@ -282,6 +282,16 @@ class Invisibility (Spell):
         context.log( "Your invisibility has worn off." )
         del context.player.buffs[ self ]
 
+class MagicMap (Spell):
+    def __init__(self):
+        Spell.__init__( self, 'm', 'Reveal Map', [ "See", "Earth" ] )
+    def cost(self):
+        return 10
+    def cast(self, context):
+        for tile in context.player.tile.level.tiles.values():
+            tile.remembered = True
+        context.log( "You sense the shape of the dungeon around you." )
+
 class Visions (Spell):
     def __init__(self):
         Spell.__init__( self, 'v', 'Visions', [ "Self", "See" ] )
@@ -304,7 +314,7 @@ class Visions (Spell):
         context.log( "Your visions subside." )
         del context.player.buffs[ self ]
 
-Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions() ]
+Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap() ]
 
 if __name__ == '__main__':
     counts = {}

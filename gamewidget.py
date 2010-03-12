@@ -5,12 +5,15 @@ from textwrap import TextWrapper
 from grammar import *
 import timing
 
+from serialization import GameContext
 from level import PlayerKilledException
 
 class GameWidget ( Widget ):
     def __init__(self, *args, **kwargs):
         Widget.__init__( self, *args, **kwargs )
         name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: ", centered = True )
+        self.context = GameContext()
+        self.context.game = self
         try:
             # TODO check if there's a saved game
             from core import loadOldGame
