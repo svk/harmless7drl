@@ -6,7 +6,7 @@ from grammar import *
 import timing
 
 from serialization import GameContext
-from level import PlayerKilledException
+from level import PlayerKilledException, PlayerWonException
 
 class GameWidget ( Widget ):
     def __init__(self, *args, **kwargs):
@@ -28,6 +28,13 @@ class GameWidget ( Widget ):
             ], padding = 5, centered = True, title = "Please select your gender:", noInvert = True )
             context = beginNewGame( self.context, name, gender )
             wasLoaded = False
+            self.main.query( WallOfTextWidget, text = """\
+It was many and many a year ago,
+In a kingdom by the sea,
+That a maiden there lived whom you may know
+By the name of ANNABEL LEE;
+And this maiden she lived with no other thought
+Than to love and be loved by me.""", width = 60 )
         self.context = context
         self.initialized = True
         self.name = None
@@ -87,6 +94,12 @@ class GameWidget ( Widget ):
         screenw, screenh = self.ui.dimensions()
         self.turnlogWrapper = TextWrapper( screenw, self.textfieldheight )
         self.turnlogLines = []
+    def playerWon(self):
+        self.main.query( WallOfTextWidget, text = """\
+<fill in victory text>\
+YAY""", width = 60 )
+        self.done = True
+        self.result = False
     def playerDied(self):
         self.main.query( HitEnterWidget )
         self.done = True
@@ -164,6 +177,11 @@ class GameWidget ( Widget ):
             if not tile.cannotEnterBecause( self.player ):
                 self.player.moveto( tile )
                 self.tookAction( 1 )
+            elif tile.isPortal:
+                if self.player.hasMacGuffin():
+                    raise PlayerWonException()
+                else:
+                    self.log( "You can't turn back now." )
             elif tile.mobile:
                 if tile.mobile.pushable:
                     self.tryPush( tile.mobile, dx, dy )
@@ -385,8 +403,13 @@ class GameWidget ( Widget ):
             elif key == 'V':
                 self.restrictVisionByFov = not self.restrictVisionByFov
             elif key == 'T':
-                newLevel = mapFromGenerator( self.context )
-                self.player.moveto( newLevel.getPlayerSpawnSpot() )
+                self.main.query( WallOfTextWidget, text = """\
+It was many and many a year ago,
+In a kingdom by the sea,
+That a maiden there lived whom you may know
+By the name of ANNABEL LEE;
+And this maiden she lived with no other thought
+Than to love and be loved by me.""", width = 60 )
             elif key == 'N':
                 from widgets import TextInputWidget
                 import string
@@ -414,6 +437,8 @@ class GameWidget ( Widget ):
                 self.player.damage( 100 )
         except PlayerKilledException:
             self.playerDied()
+        except PlayerWonException:
+            self.playerWon()
     def showEffects(self, effects, t = 0.05):
         if not self.initialized:
             return

@@ -45,6 +45,9 @@ def selectThings( dlevel, target, things ):
     # as appropriately (e.g. .spawn() for items)
     return rv
 
+class PlayerWonException:
+    pass
+
 class PlayerKilledException:
     pass
 
@@ -84,6 +87,7 @@ class Tile:
         self.ceilingHole = None
         self.groundTile = True
         self.playerTrail = None
+        self.isPortal = False
     def cannotEnterBecause(self, mobile):
         # may be called with a protomonster!
         if self.mobile != None:
@@ -214,9 +218,17 @@ def makeStairsDown( tile ):
     tile.level.stairsDown = tile
     tile.tileTypeDesc = "Stairs leading down to the dungeon below."
     
-def makeStairsUp( tile, justSpawnSpot = False ):
-    if justSpawnSpot:
-        makeFloor( tile )
+def makeStairsUp( tile, isPortal = False ):
+    if isPortal:
+        tile.name = "magical portal"
+        tile.symbol = "O"
+        tile.fgColour = "black"
+        tile.bgColour = "magenta"
+        tile.impassable = True
+        tile.spawnMonsters = False
+        tile.spawnItems = False
+        tile.tileTypeDesc = "The magical portal leading back to the University Library."
+        tile.isPortal = True
     else:
         tile.name = "stairs up"
         tile.symbol = "<"
@@ -398,6 +410,9 @@ class Mobile:
         rv.sim = tile.level.sim
         rv.moveto( tile )
         return rv
+    def hasMacGuffin(self):
+        mgs = [ item for item in self.inventory if item.isMacGuffin ]
+        return len(mgs) > 0
     def inventoryGive(self, item):
         item.entersInventory( self )
         self.inventory.append( item )
@@ -592,7 +607,7 @@ class Mobile:
         return rv
 
 class Item:
-    def __init__(self, name, symbol, fgColour, bgColour = None, itemType = None, weight = None, rarity = None):
+    def __init__(self, name, symbol, fgColour, bgColour = None, itemType = None, weight = None, rarity = None, isMacGuffin = False):
         self.rarity = rarity
         assert isinstance( self.rarity, Rarity )
         self.name = name
@@ -601,6 +616,7 @@ class Item:
         self.bgColour = bgColour
         self.itemType = name.singular if not itemType else itemType
         self.weight = weight
+        self.isMacGuffin = isMacGuffin
         self.inventoryHooks = []
     def spawn(self):
         import copy
@@ -714,7 +730,7 @@ def mapFromGenerator( context, ancestor = None):
                 '.': makeFloor,
                 '#': makeWall,
             }[ lg.data[y][x] ]( rv.tiles[x,y] )
-    makeStairsUp( rv.tiles[ lg.entryRoom.internalFloorpoint() ], justSpawnSpot = not ancestor )
+    makeStairsUp( rv.tiles[ lg.entryRoom.internalFloorpoint() ], isPortal = not ancestor )
     makeStairsDown( rv.tiles[ lg.exitRoom.internalFloorpoint() ] )
     for room in lg.rewardRooms:
         # should be in chests: that way it's hard to

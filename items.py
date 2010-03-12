@@ -1,5 +1,5 @@
 import magic
-from grammar import Noun
+from grammar import Noun, ProperNoun
 from level import Rarity, Item
 
 Items = []
@@ -51,6 +51,32 @@ lastItem = HealPotion = Item(
     rarity = Rarity( worth = 8, freq = 4 ),
 )
 Items.append( lastItem )
+
+lastItem = MacGuffinMale = Item(
+        # restores a single HP -- you're meant to use magic.
+    ProperNoun( "Professor Nislakh", "male" ),
+    'h',
+    'black',
+    itemType = "macguffin",
+    weight = 30, # mcg + n heavy books should be full capacity (no staff etc.) - might be a nice challenge for completists
+    rarity = Rarity( freq = 100 ), # should be freq 0! unique, generated when you bump into Nislakh.
+    isMacGuffin = True,
+)
+
+lastItem = MacGuffinFemale = Item(
+        # restores a single HP -- you're meant to use magic.
+    ProperNoun( "Professor Nislene", "female" ),
+    'h',
+    'black',
+    itemType = "macguffin",
+    weight = 30, # mcg + n heavy books should be full capacity (no staff etc.) - might be a nice challenge for completists
+    rarity = Rarity( freq = 100 ), # should be freq 0! unique, generated when you bump into Nislakh.
+    isMacGuffin = True,
+)
+
+Items.append( MacGuffinMale ) # XXX
+Items.append( MacGuffinFemale ) # XXX
+
 
 if __name__ == '__main__':
     dungeonDepth = 10

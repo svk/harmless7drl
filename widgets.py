@@ -2,6 +2,7 @@ from core import Widget
 import string
 import time
 from textwrap import TextWrapper
+import sys
 
 MovementKeys = { # authoritative in gamewidget.py
     'h': (-1, 0),
@@ -132,12 +133,32 @@ class TextInputWidget (Widget):
                 self.done = True
                 self.result = "".join( self.data )
         elif not self.done:
+            print >> sys.stderr, key, ord(key) if len(key) == 1 else None
             if key == 'backspace':
                 if self.data:
                     self.data.pop()
             elif key in self.okay:
                 if len( self.data ) < self.width:
                     self.data.append( key )
+
+class WallOfTextWidget (HitEnterWidget):
+    def __init__(self, text, width, *args, **kwargs):
+        HitEnterWidget.__init__(self, *args, **kwargs)
+        self.width = width
+        self.text = text
+    def draw(self):
+        bg = PrimaryColour
+        fg = SecondaryColour
+        screenw, screenh = self.ui.dimensions()
+        tw = TextWrapper( self.width - 2 )
+        tw.feed( self.text )
+        height = min( tw.numberOfLines() + 2, screenh )
+        dialog = centeredSubwindow( self.ui, self.width, height )
+        dialog.decorate( fg, bg )
+        i = 0
+        for i in range(1, height-1):
+            dialog.putString( 1, i, tw.line(i-1), fg, bg )
+        
 
 class CursorWidget (Widget):
     def __init__(self, game, *args, **kwargs):
