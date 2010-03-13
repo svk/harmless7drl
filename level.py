@@ -91,6 +91,19 @@ class Tile:
         self.groundTile = True
         self.playerTrail = None
         self.isPortal = False
+        self.turbulenceRedirect = None
+    def isTurbulent(self):
+        return self.turbulenceRedirect != None
+    def createTurbulence(self):
+        try:
+            self.turbulenceRedirect = random.choice( [ n for n in self.neighbours() if not n.impassable ] )
+        except IndexError:
+            self.turbulenceRedirect = random.choice( [ n for n in self.neighbours() ] )
+    def calmTurbulence(self):
+        self.turbulenceRedirect = None
+        for n in self.neighbours():
+            if n.turbulenceRedirect:
+                n.calmTurbulence()
     def cannotEnterBecause(self, mobile):
         # may be called with a protomonster!
         if self.mobile != None:
@@ -126,7 +139,7 @@ class Tile:
         return self.distanceToSquared( origin ) <= radius * radius
     def describeRemembered(self):
         return self.tileTypeDesc
-    def enters(self, mobile):
+    def enters(self, mobile, turbulenceProbability = 1.0):
         if mobile.isBoulder and self.trap and self.trap.fillable:
             self.trap.remove()
             mobile.kill()
@@ -135,6 +148,13 @@ class Tile:
         if not mobile.flying:
             for trigger in self.onEnter: # XXX should be called onStep
                 trigger( mobile )
+        if self.turbulenceRedirect and mobile.isPlayer():
+            if random.random() < 0.75 and not mobile.flying:
+                self.context.log( "You resist a gust of unnatural wind!" )
+            elif random.random() < turbulenceProbability and not self.turbulenceRedirect.cannotEnterBecause( mobile ):
+                if turbulenceProbability == 1.0:
+                    self.context.log( "You are blown away by a gust of magical wind!" )
+                mobile.moveto( self.turbulenceRedirect, turbulenceProbability = turbulenceProbability / 2.0 )
     def appearance(self):
         rv = {
             'ch': self.symbol,
@@ -520,7 +540,7 @@ class Mobile:
         if self.visions:
             rv.append( "Visions" )
         return " ".join( rv )
-    def moveto(self, tile):
+    def moveto(self, tile, turbulenceProbability = 1.0):
         assert not tile.cannotEnterBecause( self )
         if self.tile:
             self.tile.leaves()
@@ -535,7 +555,7 @@ class Mobile:
             if self.tile and self.tile.level == tile.level and self.isPlayer():
                 self.tile.playerTrail = tile
             self.tile = tile
-        self.tile.enters( self )
+        self.tile.enters( self, turbulenceProbability = turbulenceProbability )
         if self.isPlayer():
             self.tile.describeHere()
     def isPlayer(self):
@@ -788,6 +808,12 @@ def mapFromGenerator( context, ancestor = None):
         if tries > 0:
             singleCell = random.choice( [ TrapDoor, SpikePit, ExplodingMine ] )
             trap = singleCell( point, context = context )
+    for x, y in lg.exitRoom.coordinates(): # XXX don't always have the exit room turbulent
+        try:
+            tile = rv.tiles[x,y]
+        except KeyError:
+            continue
+        tile.createTurbulence()
     for i in range(2): # XXX testing trapdoors
         for room in lg.dangerRooms:
             # simple sample trap

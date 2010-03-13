@@ -454,6 +454,18 @@ class Pacify (Spell):
     def debuff(self, mob):
         mob.pacified = False
 
+class CalmAirSpell (Spell):
+    def __init__(self):
+        Spell.__init__( self, 's', 'Serenity', [ "Calm", "Air" ] )
+    def cost(self):
+        return 10
+    def cast(self, context):
+        if not context.player.tile.isTurbulent():
+            context.log( "The air around here is already calm." )
+            raise CancelCasting()
+        context.player.tile.calmTurbulence()
+        context.log( "The unnatural winds cease." )
+
 class SummonBoulder (Spell):
     def __init__(self):
         Spell.__init__( self, 'b', 'Create Boulder', [ "Create", "Earth" ] )
@@ -469,7 +481,7 @@ class SummonBoulder (Spell):
             spot = random.choice( spots )
             Boulder.spawn( context, spot )
 
-Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther(), SummonBoulder(), Pacify() ]
+Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther(), SummonBoulder(), Pacify(), CalmAirSpell() ]
 
 if __name__ == '__main__':
     counts = {}

@@ -40,6 +40,8 @@ class Rectangle:
         return self.x0, self.y0, self.w, self.h
     def midpoint(self):
         return self.x0 + int(self.w/2), self.y0 + int(self.h/2)
+    def coordinates(self):
+        return [ (x,y) for x in range(self.x0,self.x0+self.w) for y in range(self.y0,self.y0+self.h) ]
 
 class LevelGenerator:
     def __init__(self, width, height, bigRects = (32,44,32,44), smallRects = (12,32,12,22), delay = None):
