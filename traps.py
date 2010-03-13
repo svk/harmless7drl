@@ -231,7 +231,10 @@ class RockslideTrap (Trap):
     def describe(self):
         return "A rockslide trap."
     def __call__(self, mob):
-        pfov = mob.context.player.fov()
+        try:
+            pfov = mob.context.player.fov()
+        except AttributeError:
+            pfov = []
         doShow = mob.logVisual( "You trigger a trap!", "%s triggers a trap!" )
         moveAway = []
         for nb in mob.tile.neighbours():
