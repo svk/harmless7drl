@@ -399,6 +399,8 @@ class Mobile:
         if not proto:
             self.context = context
             self.moveto( tile )
+    def itemTypeCount(self, kind):
+        return len( list( filter( lambda item: item.itemType == kind, self.inventory ) ) )
     def spawn(self, context, tile ):
         import copy
         self.generated += 1

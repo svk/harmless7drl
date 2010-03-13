@@ -28,13 +28,8 @@ class GameWidget ( Widget ):
             ], padding = 5, centered = True, title = "Please select your gender:", noInvert = True )
             context = beginNewGame( self.context, name, gender )
             wasLoaded = False
-            self.main.query( WallOfTextWidget, text = """\
-It was many and many a year ago,
-In a kingdom by the sea,
-That a maiden there lived whom you may know
-By the name of ANNABEL LEE;
-And this maiden she lived with no other thought
-Than to love and be loved by me.""", width = 60 )
+            from plot import displayIntro
+            displayIntro( self )
         self.context = context
         self.initialized = True
         self.name = None
@@ -95,9 +90,8 @@ Than to love and be loved by me.""", width = 60 )
         self.turnlogWrapper = TextWrapper( screenw, self.textfieldheight )
         self.turnlogLines = []
     def playerWon(self):
-        self.main.query( WallOfTextWidget, text = """\
-<fill in victory text>\
-YAY""", width = 60 )
+        from plot import displayOutro
+        displayOutro( self, self.player.itemTypeCount( 'spellbook' ) )
         self.done = True
         self.result = False
     def playerDied(self):
@@ -407,6 +401,8 @@ YAY""", width = 60 )
                 self.done = True
             elif key == 'Q':
                 self.done = True
+            elif key == 'W':
+                raise PlayerWonException()
             elif key == 'V':
                 self.restrictVisionByFov = not self.restrictVisionByFov
             elif key == 'T':

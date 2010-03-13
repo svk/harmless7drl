@@ -133,7 +133,6 @@ class TextInputWidget (Widget):
                 self.done = True
                 self.result = "".join( self.data )
         elif not self.done:
-            print >> sys.stderr, key, ord(key) if len(key) == 1 else None
             if key == 'backspace':
                 if self.data:
                     self.data.pop()
