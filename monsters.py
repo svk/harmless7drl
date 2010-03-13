@@ -39,7 +39,7 @@ lastMon = Rook = Mobile(
     fgColour = "white",
     ai = Rook( radius = 8 ), # just for testing, should be 8
     speed = Speed.Normal, # actually moves several tiles in a turn, though.
-    rarity = Rarity( freq = 1000 ),
+    rarity = Rarity( freq = 1 ),
     attackVerb = Verb( "slam into", "slams into" ),
     meleePower = 3, # another don't-get-hit puzzle
     hitpoints = 1, # it's easy to capture a chess piece..
@@ -95,6 +95,21 @@ lastMon = GiantMole = Mobile(
     rarity = Rarity( freq = 1 ),
     hitpoints = 8,
     attackElaboration = " with its claws",
+)
+Monsters.append( lastMon )
+
+lastMon = Alfon = Mobile(
+    name = Noun( "an", "alfon", "alfons" ),
+    symbol = "A",
+    fgColour = "cyan",
+    ai = PursueWoundedAnimal( radius = 6 ),
+    speed = Speed.Normal,
+    groundhugger = False,
+    rarity = Rarity( freq = 100 ),
+    hitpoints = 10,
+    meleePower = 3,
+    attackVerb = Verb( "attack", "attacks" ),
+    attackElaboration = " with its tusks",
 )
 Monsters.append( lastMon )
 

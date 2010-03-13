@@ -12,7 +12,7 @@ from traps import *
 from grammar import *
 from widgets import SelectionMenuWidget
 
-DungeonDepth = 1 # the dungeon is infinite, but the macguffin will be at this
+DungeonDepth = 2 # the dungeon is infinite, but the macguffin will be at this
                  # level and there will be no further variety in monsters/items etc.
 
 class Rarity:
@@ -399,6 +399,7 @@ class Mobile:
         self.spawnCount = 0
         self.killCount = 0
         self.directKillCount = 0
+        self.protomonster = self
         if onDeath:
             self.deathHooks.append( onDeath )
         if not proto:
@@ -788,7 +789,7 @@ def mapFromGenerator( context, ancestor = None):
             if tries > 0:
                 singleCell = TrapDoor
                 trap = singleCell( point, context = context )
-    monsterValueTarget = random.randint( 1, 2 )
+    monsterValueTarget = random.randint( 8, 12 )
     for protomonster in selectThings( rv.depth, monsterValueTarget, context.protomonsters ):
         tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) and not lg.entryRoom.contains( tile.x, tile.y )  )
         monster = protomonster.spawn( context, tile )

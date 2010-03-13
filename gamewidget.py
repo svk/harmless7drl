@@ -440,6 +440,9 @@ Than to love and be loved by me.""", width = 60 )
                     if spell not in self.player.spellbook:
                         self.player.spellbook.append( spell )
                 self.player.weapon.mana += 500
+            elif key == 'H':
+                self.player.hitpoints -= 1
+                self.tookAction(1)
             elif key == 'C':
                 self.showExplosion( (0,0), 8 )
             elif key == 'X':

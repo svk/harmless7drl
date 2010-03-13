@@ -427,3 +427,29 @@ class PlayerTrailFollower:
                 doRandomWalk( mob )
         else:
             mob.moveto( tile )
+
+class PursueWoundedAnimal:
+    def __init__(self, radius):
+        self.radius = radius
+        self.enraged = False
+        self.provoked = False
+    def playerPower(self, mob):
+        if not mob.context.player.weapon:
+            return 0
+        return mob.context.player.weapon.mana
+    def trigger(self, mob):
+        path = None
+        if mob.context.player.hitpoints < mob.context.player.maxHitpoints:
+            path = seekPlayer( mob, self.radius )
+        enraged = self.provoked or path
+        if enraged and not self.enraged:
+            if not mob.logVisualMon( "%s roars!" ):
+                mob.logAural( "You hear a an animal roaring." )
+        self.enraged = enraged
+        if not self.enraged:
+            if playerIsAdjacent( mob ):
+                doMeleePlayerOrFlee( mob )
+            else:
+                doRandomWalk( mob )
+        else:
+            doMeleeAlongPath( mob, mob.context.player, path )
