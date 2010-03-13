@@ -23,7 +23,9 @@
 # Some traps are "obvious", having difficulty 0; any
 # character can spot these
 
+import sys
 import random
+from level import Rarity
 
 def clearTraps( tile ):
     tile.trap = None
@@ -68,6 +70,10 @@ class Trap:
             mob.logVisual( "You trigger a generic trap!", "%s triggers a generic trap!" )
 
 class SpikePit (Trap):
+    # since this one is always visible, it is mostly a help
+    # rather than a hindrance to players -- they can trick monsters
+    # into it.
+    rarity = Rarity( freq = 1 )
     def __init__(self, tile, *args, **kwargs):
         Trap.__init__(self, difficulty = 0, fillable = True, *args, **kwargs)
         installStepTrigger( tile, self )
@@ -79,9 +85,11 @@ class SpikePit (Trap):
         return "A spike pit."
 
 class ExplodingMine (Trap):
+    rarity = Rarity( freq = 1, minLevel = 3 )
     def __init__(self, tile, *args, **kwargs):
-        Trap.__init__(self, difficulty = 0, *args, **kwargs)
+        Trap.__init__(self, difficulty = 2, *args, **kwargs)
         self.blastSize = 5
+        self.power = 3
         installStepTrigger( tile, self )
     def __call__(self, mob):
         if not mob.logVisual( "You set off a mine!", "%s sets off a mine!" ):
@@ -90,12 +98,13 @@ class ExplodingMine (Trap):
             affects = mob.tile.level.tiles[x,y].mobile
             if affects:
                 affects.logVisual( "You are caught in the explosion!", "%s is caught in the explosion!" )
-                affects.damage( 1 )
+                affects.damage( self.power )
         self.remove()
     def describe(self):
         return "A mine."
 
 class TrapDoor (Trap):
+    rarity = Rarity( freq = 1, minLevel = 2 )
     def __init__(self, tile, *args, **kwargs):
         Trap.__init__(self, difficulty = 4, *args, **kwargs)
         self.blastSize = 5
@@ -123,3 +132,68 @@ class TrapDoor (Trap):
     def setTarget(self, tile):
         self.target = tile
         self.target.ceilingHole = self.tiles[0]
+
+class CannotPlaceTrap:
+    pass
+
+class ArrowTrap (Trap):
+    rarity = Rarity( freq = 50 )
+    def __init__(self, tile, *args, **kwargs):
+        directions = {
+            'west': (-1,0),
+            'east': (1,0),
+            'north': (0,-1),
+            'south': (0,1),
+        }
+        self.directionName = random.choice( directions.keys() )
+        next = tile
+        while next and not next.impassable:
+            next = next.getRelative( *directions[self.directionName] )
+        if not next or next.arrowSlit or next.name != "wall":
+            raise CannotPlaceTrap()
+        self.arrowOrigin = next
+        dx, dy = directions[self.directionName]
+        self.arrowDirection = -dx,-dy
+        Trap.__init__(self, difficulty = 4, *args, **kwargs)
+        self.blastSize = 5
+        installStepTrigger( tile, self )
+        self.target = None
+        self.trapname = "arrowtrap"
+        self.ammo = random.randint(1,10)
+        self.power = 1
+        self.arrowOrigin.arrowSlit = True
+    def describe(self):
+        return "An arrow trap."
+        return "A dart trap (arrow slit to the %s)." % self.directionName
+    def __call__(self, mob):
+        didHear = mob.logVisual( "You trigger a trap!", "%s triggers a trap!" )
+        if didHear:
+            self.difficulty = 0
+        if self.ammo < 1:
+            if didHear:
+                mob.context.log( "You hear a click from a mechanism in a nearby wall." )
+            return
+        self.ammo -= 1
+        tile = self.arrowOrigin
+        hit = mob.context.game.showStraightRay( (self.arrowOrigin.x, self.arrowOrigin.y),
+                                     self.arrowDirection,
+                                     2**31,
+                                     'yellow',
+                                     'black', 
+                                     stopper = lambda k : not tile.level.tiles.has_key( k ) or tile.level.tiles[k].impassable or tile.level.tiles[k].mobile,
+                                     projectile = True,
+        )
+        try:
+            hit = hit[0]
+            arrowHit = mob.tile.level.tiles[hit].mobile
+            arrowHit.tile
+        except (IndexError,KeyError, AttributeError):
+            return # not sure that this is possible
+        arrowHit.logVisual( "You're struck by an arrow!", "%s is struck by an arrow!" )
+        arrowHit.damage( self.power )
+
+Traps = [ SpikePit, ExplodingMine, ArrowTrap, TrapDoor ]
+        
+        
+# 21:20
+        

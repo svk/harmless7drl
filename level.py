@@ -8,7 +8,6 @@ import sys
 import random
 from timing import Speed
 import timing
-from traps import *
 from grammar import *
 from widgets import SelectionMenuWidget
 
@@ -23,6 +22,8 @@ class Rarity:
         self.maxLevel = maxLevel
     def eligible(self, dlevel):
         return dlevel >= self.minLevel and dlevel <= self.maxLevel
+
+from traps import *
 
 def weightedSelect( things ):
     totalWeight = sum( map( lambda thing : thing.rarity.frequency, things ) )
@@ -63,6 +64,30 @@ def countItems( l ):
             rv[item.stackname()] = [item]
     return rv
 
+def generateTrapsForRoom( rv, context, room ):
+    # simple sample trap
+    from traps import Traps, CannotPlaceTrap
+    for trap in selectThings( rv.depth, random.randint(2,5), Traps ):
+        tries = 100
+        while tries > 0:
+            point = rv.tiles[ room.internalFloorpoint() ]
+            if not point.trap:
+                break
+            tries -= 1
+        if tries > 0:
+            try:
+                singleCell = trap
+                trap = singleCell( point, context = context )
+            except CannotPlaceTrap:
+                pass
+    if rv.depth > 5 and random.random() < 0.25:
+        for x, y in room.coordinates(): # XXX don't always have the exit room turbulent
+            try:
+                tile = rv.tiles[x,y]
+            except KeyError:
+                continue
+            tile.createTurbulence()
+
 class Tile:
     # Yes, keeping each tile in its own object, because I intend to do funky
     # stuff with the environment.
@@ -92,6 +117,7 @@ class Tile:
         self.playerTrail = None
         self.isPortal = False
         self.turbulenceRedirect = None
+        self.arrowSlit = False
     def isTurbulent(self):
         return self.turbulenceRedirect != None
     def createTurbulence(self):
@@ -125,6 +151,8 @@ class Tile:
             rv.append( self.mobile.describe() )
         if self.trap and self.trap.canSpot( self.context.player ):
             rv.append( self.trap.describe() )
+        if self.arrowSlit:
+            rv.append( "An arrow slit." )
         if self.ceilingHole:
             rv.append( "A hole in the ceiling." )
         if self.items:
@@ -798,34 +826,7 @@ def mapFromGenerator( context, ancestor = None):
             tile = rv.tiles[ room.internalFloorpoint() ]
             tile.items.append( item )
     for room in lg.dangerRooms:
-        # simple sample trap
-        tries = 100
-        while tries > 0:
-            point = rv.tiles[ room.internalFloorpoint() ]
-            if not point.trap:
-                break
-            tries -= 1
-        if tries > 0:
-            singleCell = random.choice( [ TrapDoor, SpikePit, ExplodingMine ] )
-            trap = singleCell( point, context = context )
-    for x, y in lg.exitRoom.coordinates(): # XXX don't always have the exit room turbulent
-        try:
-            tile = rv.tiles[x,y]
-        except KeyError:
-            continue
-        tile.createTurbulence()
-    for i in range(2): # XXX testing trapdoors
-        for room in lg.dangerRooms:
-            # simple sample trap
-            tries = 100
-            while tries > 0:
-                point = rv.tiles[ room.internalFloorpoint() ]
-                if not point.trap:
-                    break
-                tries -= 1
-            if tries > 0:
-                singleCell = TrapDoor
-                trap = singleCell( point, context = context )
+        generateTrapsForRoom( rv, context, room )
     monsterValueTarget = random.randint( 8, 12 )
     for protomonster in selectThings( rv.depth, monsterValueTarget, context.protomonsters ):
         tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) and not lg.entryRoom.contains( tile.x, tile.y )  )

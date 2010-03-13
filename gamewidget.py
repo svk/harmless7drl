@@ -489,7 +489,7 @@ Than to love and be loved by me.""", width = 60 )
                 }
             self.showEffects( fx, 0.05 )
         return region
-    def showStraightRay(self, origin, direction, radius, fg, bg, stopper = lambda xy : False ):
+    def showStraightRay(self, origin, direction, radius, fg, bg, stopper = lambda xy : False, projectile = False ):
         if not self.initialized:
             return [] # hax
         cx, cy = origin
@@ -507,9 +507,12 @@ Than to love and be loved by me.""", width = 60 )
         }[direction]
         fx = {}
         rv = []
-        for i in range( radius ):
+        for i in xrange( radius ):
             cx += dx
             cy += dy
+            if projectile:
+                rv = []
+                fx = {}
             rv.append( (cx,cy) )
             fx[cx,cy] = {
                 'ch': ch,
