@@ -126,6 +126,7 @@ class Spell:
     def __init__(self, hotkey, name, recipe):
         self.hotkey = hotkey
         self.name = name
+        self.castCount = 0
         self.description = "%s (%s)" % (name, " ".join( recipe ) )
         self.recipe = set(recipe) # no repeated runes
     def canBuild(self, inventory):

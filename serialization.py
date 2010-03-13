@@ -32,6 +32,7 @@ class GameContext:
         self.bossTitle = "High Wizard" if self.bossName.gender == "male" else "Grand Witch"
         self.macGuffinMobile = MacGuffinMobileMale if random.randint(0,1) else MacGuffinMobileFemale
         self.macGuffin = MacGuffinMale if self.macGuffinMobile.name.gender == "male" else MacGuffinFemale
+        self.totalTime = 0
     def log(self, s):
         try:
             self.game.log( capitalizeFirst(s) )

@@ -394,6 +394,11 @@ class Mobile:
         self.debugname = "(spawned from no method)"
         self.incorporeal = incorporeal
         self.deathHooks = []
+        self.manaUsed = 0
+        self.greatestDepth = 0
+        self.spawnCount = 0
+        self.killCount = 0
+        self.directKillCount = 0
         if onDeath:
             self.deathHooks.append( onDeath )
         if not proto:
@@ -402,9 +407,11 @@ class Mobile:
     def itemTypeCount(self, kind):
         return len( list( filter( lambda item: item.itemType == kind, self.inventory ) ) )
     def spawn(self, context, tile ):
+        self.spawnCount +=1
         import copy
         self.generated += 1
         rv = copy.copy( self )
+        rv.protomonster = self
         rv.debugname = "%s#%d" % (self.name.singular, self.generated)
         # this shallow copy causes SO MANY problems
         rv.name = self.name.selectGender()
@@ -439,6 +446,7 @@ class Mobile:
             self.context.log( "You don't have a staff or a wand handy.." )
         else:
             if cost <= self.weapon.mana:
+                self.manaUsed += cost
                 self.weapon.mana -= cost
                 return True
             self.context.log( "There's not enough energy left in your %s to cast that." % self.weapon.name.singular )
@@ -483,6 +491,8 @@ class Mobile:
             target.damage( self.weapon.damage, noMessage = target.chesspiece )
         else:
             target.damage( self.meleePower, noMessage = target.chesspiece )
+        if self.isPlayer() and target.dead:
+            target.protomonster.directKillCount += 1
     def monsterstatus(self):
         rv = []
         if self.stunned:
@@ -511,6 +521,7 @@ class Mobile:
                 self.scheduledAction.cancel()
                 self.scheduledAction = None
             self.tile = tile
+            self.greatestDepth = max( self.greatestDepth, self.tile.level )
             self.schedule()
         else:
             if self.tile and self.tile.level == tile.level and self.isPlayer():
@@ -567,7 +578,10 @@ class Mobile:
         if self.essential:
             print >> sys.stderr, "warning: saving essential monster", self.debugname
             return
+        if self.dead:
+            return
         self.dead = True
+        self.protomonster.killCount += 1
         if not noTriggerHooks:
             for hook in self.deathHooks:
                 hook.onDeath( self )

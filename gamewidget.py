@@ -7,6 +7,7 @@ import timing
 
 from serialization import GameContext
 from level import PlayerKilledException, PlayerWonException
+from plot import writeReport
 
 class GameWidget ( Widget ):
     def __init__(self, *args, **kwargs):
@@ -92,10 +93,12 @@ class GameWidget ( Widget ):
         self.turnlogLines = []
     def playerWon(self):
         from plot import displayOutro
+        writeReport( self, True, self.player.itemTypeCount( 'spellbook' ) )
         displayOutro( self, self.player.itemTypeCount( 'spellbook' ) )
         self.done = True
         self.result = False
     def playerDied(self):
+        writeReport( self, False )
         self.main.query( HitEnterWidget )
         self.done = True
         self.result = False
@@ -138,6 +141,7 @@ class GameWidget ( Widget ):
         if self.player.status():
             sbx = self.ui.putString( sbx + 5, sby, self.player.status(), 'bold-white' )
     def advanceTime(self, dt):
+        self.context.totalTime += dt
         self.player.tile.level.sim.advance( dt )
         while True:
             ev = self.player.tile.level.sim.next()
@@ -364,6 +368,7 @@ class GameWidget ( Widget ):
             )
             if chosen:
                 if self.context.player.payForSpell( chosen.cost() ):
+                    chosen.castCount += 1
                     chosen.cast( self.context ) # intransitive spells only at the moment
                     self.tookAction( 1 )
     def keyboard(self, key):

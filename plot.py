@@ -1,5 +1,6 @@
 from widgets import WallOfTextWidget
 from grammar import capitalizeFirst, NumberWord
+from level import countItems
 
 def convertMacGuffin( mob ):
     if mob.scheduledAction:
@@ -130,3 +131,79 @@ Having saved the day and lived to tell the tale, you breathe\
     game.main.query( WallOfTextWidget, width = 60, center = True, text = """\
 Congratulations on your victory! A log file has been written to\
  the game directory. (not really yet)""")
+
+def writeReport( game, won, books = 0 ):
+    import time
+    unfriendlytime = time.strftime( "%Y-%m-%d-%H-%M-%S-%Z" )
+    friendlytime = time.strftime( "%d/%m/%Y %H:%M" )
+    name = game.player.name.singular
+    Psub = capitalizeFirst( game.player.name.pronounSubject() )
+    reportName = "harmless7drl-%s-%s.txt" % (name, unfriendlytime )
+    f = open( reportName, "w" )
+    
+    if won:
+        print >>f, "%s successfully retrieved the Professor at %s." % (name, friendlytime)
+        if books > 0:
+            if books == 1:
+                print >>f, "%s also returned a valuable books to the library." % (Psub)
+            else:
+                print >>f, "%s also returned %d valuable books to the library." % (Psub, books)
+    else:
+        print >>f, "%s perished in the dungeon at %s." % (name, friendlytime)
+    print >>f
+    
+    print >>f, "%s spent %d ticks in the dungeon." % (Psub, game.context.totalTime)
+    print >>f, "%s reached dungeon level %d." % (Psub, game.player.greatestDepth )
+    print >>f, "%s drained %d points' worth of magical energy from artifacts while in the dungeon." % (Psub, game.player.manaUsed)
+    print >>f, "%s had %d/%d hit points." % (Psub, game.player.hitpoints, game.player.maxHitpoints )
+    if game.player.weapon:
+        print >>f, "%s was wielding %s." % (Psub, game.player.weapon.name.indefiniteSingular() )
+    print >>f
+
+    identifiedProtorunes = [ protorune for protorune in game.context.protorunes if protorune.identified ]
+    if identifiedProtorunes:
+        for protorune in identifiedProtorunes:
+            print >>f, "%s had identified the \"%s\" rune as \"%s\"." % (Psub, protorune.arcaneName, protorune.englishName )
+    else:
+        print >>f, "%s hadn't identified any runes."
+
+    if game.player.inventory:
+        print >>f, "%s was carrying:" % Psub
+        for name, items in countItems( game.player.inventory ).items():
+            print >>f, "\t", name.amount( len(items) )
+    else:
+        print >>f, "%s was not carrying anything." % Psub
+    print >>f
+
+    if game.player.spellbook:
+        print >>f, "%s had the following spells in %s spellbook:" % (Psub, game.player.name.pronounPossessive() )
+        for spell in game.player.spellbook:
+            if spell.castCount == 0:
+                x = "(never cast)"
+            else:
+                if spell.castCount == 1:
+                    x = "(cast one time)"
+                else:
+                    x = "(cast %d times)" % spell.castCount
+            print >>f, "\t", spell.name, x
+    else:
+        print >>f, "%s had no spells in %s spellbook." % (Psub, game.player.name.pronounPossessive() )
+    print >>f
+
+
+    print >>f, "%s encountered the following creatures:" % (Psub)
+    for protomonster in game.context.protomonsters:
+        if protomonster.spawnCount == 0:
+            continue
+        x = []
+        if protomonster.killCount > 0:
+            x.append( "%d perished" % protomonster.killCount )
+        if protomonster.directKillCount > 0:
+            x.append( "%d %s directly" % (protomonster.directKillCount, "killed" if not protomonster.nonalive else "destroyed" )  )
+        if x:
+            x = " (" + ", of which ".join( x ) + ")"
+        else:
+            x = ""
+        print >>f, "\t", protomonster.name.amount( protomonster.spawnCount ), x
+
+    f.close()

@@ -11,6 +11,7 @@ clean:
 	rm -rf harmless7drl-win32
 	rm -rf build
 	rm -f debug.7drl.txt
+	rm -f harmless7drl-*.txt
 
 harmless7drl-win32:
 	rm -rf dist
