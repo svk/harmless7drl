@@ -137,7 +137,7 @@ class CannotPlaceTrap:
     pass
 
 class ArrowTrap (Trap):
-    rarity = Rarity( freq = 50 )
+    rarity = Rarity( freq = 1 )
     def __init__(self, tile, *args, **kwargs):
         directions = {
             'west': (-1,0),
@@ -192,7 +192,33 @@ class ArrowTrap (Trap):
         arrowHit.logVisual( "You're struck by an arrow!", "%s is struck by an arrow!" )
         arrowHit.damage( self.power )
 
-Traps = [ SpikePit, ExplodingMine, ArrowTrap, TrapDoor ]
+class TeleportationTrap (Trap):
+    rarity = Rarity( freq = 100, maxLevel = 5 )
+    def __init__(self, tile, *args, **kwargs):
+        Trap.__init__(self, difficulty = 10, *args, **kwargs)
+        installStepTrigger( tile, self )
+        self.target = None
+        self.trapname = "teletrap"
+    def describe(self):
+        return "A teleportation trap."
+    def __call__(self, mob):
+        if mob.isPlayer():
+            self.difficulty = 0
+        mob.logVisual( "Your surroundings suddenly shift!", "%s disappears!" )
+        self.getTarget()
+        tile = self.target.level.getClearTileAround( self.target, lambda tile : not tile.impassable and not tile.mobile )
+        mob.moveto( tile )
+        if not mob.isPlayer():
+            mob.logVisualMon( "%s reappears!" )
+    def getTarget(self):
+        if not self.target:
+            tile = self.tiles[0].level.randomTile( lambda tile : not tile.impassable )
+            self.setTarget( tile )
+        return self.target
+    def setTarget(self, tile):
+        self.target = tile
+
+Traps = [ SpikePit, ExplodingMine, ArrowTrap, TrapDoor, TeleportationTrap ]
         
         
 # 21:20
