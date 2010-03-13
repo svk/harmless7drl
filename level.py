@@ -104,7 +104,6 @@ class Tile:
         self.level = level
         self.isDoor = False
         self.context = context
-        self.remembered = False
         self.x, self.y = x, y
         self.items = []
         self.trap = None
@@ -118,6 +117,7 @@ class Tile:
         self.isPortal = False
         self.turbulenceRedirect = None
         self.arrowSlit = False
+        self.rememberedAs = None
     def isTurbulent(self):
         return self.turbulenceRedirect != None
     def createTurbulence(self):
@@ -238,7 +238,11 @@ class Tile:
             return True
         return self.hindersLOS
     def remember(self):
-        self.remembered = True
+        import copy
+        if not self.rememberedAs or self.rememberedAs.name != self.name:
+            self.rememberedAs = copy.copy( self )
+            self.rememberedAs.items = []
+            self.rememberedAs.mobile = None
     def diggable(self):
         return not self.isBorder
 
@@ -913,8 +917,8 @@ class Viewport:
                     outgoing = effects[ x, y ]
                 elif tile and self.visibility( tile ):
                     outgoing = tile.appearance()
-                elif tile and tile.remembered:
-                    outgoing = tile.appearanceRemembered()
+                elif tile and tile.rememberedAs:
+                    outgoing = tile.rememberedAs.appearanceRemembered()
                 else:
                     outgoing = darkness
                 if highlight and x == cx and y == cy:
