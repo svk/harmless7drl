@@ -14,7 +14,12 @@ EnglishNames = { # -> rarity (level / inverse freq)
     "Earth": Rarity( worth = 10, freq = 1),
     "Air": Rarity( worth = 10, freq = 1),
     "See": Rarity( worth = 10, freq = 1),
+    "Calm": Rarity( worth = 10, freq = 1),
+    "Other": Rarity( worth = 10, freq = 3),
 }
+
+class CancelCasting:
+    pass
 
 class Rune ( Item ):
     def __init__(self, arcaneName, englishName):
@@ -157,6 +162,33 @@ class TeleportSelf (Spell):
         context.log( "You cast the Escape spell and teleport away!" )
         tile = context.player.tile.level.randomTile( lambda tile : not tile.trap and not tile.cannotEnterBecause( context.player ) )
         context.player.moveto( tile )
+
+class TeleportOther (Spell):
+    def __init__(self):
+        Spell.__init__( self, 't', 'Teleport Other', [ "Move", "Other" ] )
+    def cost(self):
+        return 5
+    def cast(self, context):
+        # teleport the player randomly. (greater teleport allows you to specify destination.)
+        x, y = context.game.main.query( CursorWidget, context.game )
+        try:
+            tile = context.player.tile.level.tiles[x,y]
+        except KeyError:
+            tile = None
+        if not (x,y) in context.player.fov():
+            context.log( "You need to have a clear line of sight to whatever you wish to wish away." )
+            raise CancelCasting()
+        if not tile or not tile.mobile:
+            context.log( "There's nothing there to teleport away." )
+            raise CancelCasting()
+        if tile.mobile.isPlayer():
+            context.log( "Though the spells seem superficially similar, the magics required to teleport oneself are almost entirely different from those that can be used to teleport others." )
+            raise CancelCasting()
+        mob = tile.mobile
+        tile = context.player.tile.level.randomTile( lambda tile : not tile.cannotEnterBecause( mob ) )
+        mob.logVisualMon( "%s disappears!" )
+        mob.moveto( tile )
+        mob.logVisualMon( "%s reappears." )
 
 class Dig (Spell):
     def __init__(self):
@@ -394,7 +426,7 @@ class Visions (Spell):
         player.context.log( "Your visions subside." )
         del player.buffs[ self ]
 
-Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback() ]
+Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther() ]
 
 if __name__ == '__main__':
     counts = {}

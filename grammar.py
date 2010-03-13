@@ -127,7 +127,7 @@ class Noun:
 
 class ProperNoun ( Noun ):
     def __init__(self, name, gender ):
-        Noun.__init__(self, "<no article: %s>" % name, name, "<no plural: %s>" % name, the = False, gender = gender )
+        Noun.__init__(self, None, name, "<no plural: %s>" % name, the = False, gender = gender )
     def amount(self, n, informal = False):
         if n == 1:
             return self.singular

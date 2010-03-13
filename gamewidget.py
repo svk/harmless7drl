@@ -4,6 +4,7 @@ from widgets import *
 from textwrap import TextWrapper
 from grammar import *
 import timing
+import magic
 
 from serialization import GameContext
 from level import PlayerKilledException, PlayerWonException
@@ -368,9 +369,12 @@ class GameWidget ( Widget ):
             )
             if chosen:
                 if self.context.player.payForSpell( chosen.cost() ):
-                    chosen.castCount += 1
-                    chosen.cast( self.context ) # intransitive spells only at the moment
-                    self.tookAction( 1 )
+                    try:
+                        chosen.cast( self.context ) # intransitive spells only at the moment
+                        chosen.castCount += 1
+                        self.tookAction( 1 )
+                    except magic.CancelCasting:
+                        pass
     def keyboard(self, key):
         try:
             try:

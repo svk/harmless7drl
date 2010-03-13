@@ -441,7 +441,7 @@ class PursueWoundedAnimal:
         path = None
         if mob.context.player.hitpoints < mob.context.player.maxHitpoints:
             path = seekPlayer( mob, self.radius )
-        enraged = self.provoked or path
+        enraged = (self.provoked or path) and not mob.context.player.invisible
         if enraged and not self.enraged:
             if not mob.logVisualMon( "%s roars!" ):
                 mob.logAural( "You hear a an animal roaring." )
