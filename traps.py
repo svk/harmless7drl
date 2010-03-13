@@ -193,7 +193,7 @@ class ArrowTrap (Trap):
         arrowHit.damage( self.power )
 
 class TeleportationTrap (Trap):
-    rarity = Rarity( freq = 100, maxLevel = 5 )
+    rarity = Rarity( freq = 1, maxLevel = 5 )
     def __init__(self, tile, *args, **kwargs):
         Trap.__init__(self, difficulty = 10, *args, **kwargs)
         installStepTrigger( tile, self )
@@ -218,7 +218,38 @@ class TeleportationTrap (Trap):
     def setTarget(self, tile):
         self.target = tile
 
-Traps = [ SpikePit, ExplodingMine, ArrowTrap, TrapDoor, TeleportationTrap ]
+class RockslideTrap (Trap):
+    # when moving about below level 5, you need to have digging,
+    # teleportation, OR good trap detection. Otherwise you risk
+    # an effective instadeath.
+    rarity = Rarity( freq = 100 ) # TODO should have minLevel set
+    def __init__(self, tile, *args, **kwargs):
+        Trap.__init__(self, difficulty = 6, *args, **kwargs)
+        installStepTrigger( tile, self )
+        self.target = None
+        self.trapname = "teletrap"
+    def describe(self):
+        return "A rockslide trap."
+    def __call__(self, mob):
+        pfov = mob.context.player.fov()
+        doShow = mob.logVisual( "You trigger a trap!", "%s triggers a trap!" )
+        moveAway = []
+        for nb in mob.tile.neighbours():
+            nb.impassable = True
+            if nb.mobile:
+                moveAway.append( nb.mobile )
+        for mb in moveAway:
+            tile = self.target.level.getClearTileAround( mb.tile, lambda tile : not tile.cannotEnterBecause( mb ) )
+            mb.moveto( tile )
+        for nb in mob.tile.neighbours():
+            from level import makeWall
+            makeWall( nb )
+        if not mob.logVisual( "The dungeon collapses around you!", "The dungeon collapses around %s!" ):
+            if doShow:
+                mob.context.log( "The dungeon collapses around %s!" % mob.definiteSingular() )
+        self.remove()
+
+Traps = [ SpikePit, ExplodingMine, ArrowTrap, TrapDoor, TeleportationTrap, RockslideTrap ]
         
         
 # 21:20
