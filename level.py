@@ -127,6 +127,10 @@ class Tile:
     def describeRemembered(self):
         return self.tileTypeDesc
     def enters(self, mobile):
+        if mobile.isBoulder and self.trap and self.trap.fillable:
+            self.trap.remove()
+            mobile.kill()
+            return
         self.mobile = mobile
         if not mobile.flying:
             for trigger in self.onEnter: # XXX should be called onStep

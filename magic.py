@@ -16,6 +16,7 @@ EnglishNames = { # -> rarity (level / inverse freq)
     "See": Rarity( worth = 10, freq = 1),
     "Calm": Rarity( worth = 10, freq = 1),
     "Other": Rarity( worth = 10, freq = 3),
+    "Create": Rarity( worth = 10, freq = 2),
 }
 
 class CancelCasting:
@@ -426,7 +427,22 @@ class Visions (Spell):
         player.context.log( "Your visions subside." )
         del player.buffs[ self ]
 
-Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther() ]
+class SummonBoulder (Spell):
+    def __init__(self):
+        Spell.__init__( self, 'b', 'Create Boulder', [ "Create", "Earth" ] )
+    def cost(self):
+        return 10
+    def cast(self, context):
+        from monsters import Boulder
+        spots = [ neighbour for neighbour in context.player.tile.neighbours() if not neighbour.cannotEnterBecause( Boulder ) ]
+        if not spots:
+            context.player.context.log( "Nothing happens." )
+        else:
+            context.player.context.log( "A boulder appears!" )
+            spot = random.choice( spots )
+            Boulder.spawn( context, spot )
+
+Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther(), SummonBoulder() ]
 
 if __name__ == '__main__':
     counts = {}

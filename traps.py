@@ -45,13 +45,14 @@ def installOpenDoorTrigger( tile, trap ):
     tile.onOpen.append( trap )
 
 class Trap:
-    def __init__(self, context, difficulty):
+    def __init__(self, context, difficulty, fillable = False):
         self.difficulty = random.randint(0, difficulty)
         self.context = context
         self.active = True
         self.tiles = []
         self.lists = []
         self.trapname = None
+        self.fillable = fillable
     def canSpot(self, mob):
         return mob.trapDetection >= self.difficulty
     def describe(self):
@@ -68,7 +69,7 @@ class Trap:
 
 class SpikePit (Trap):
     def __init__(self, tile, *args, **kwargs):
-        Trap.__init__(self, difficulty = 0, *args, **kwargs)
+        Trap.__init__(self, difficulty = 0, fillable = True, *args, **kwargs)
         installStepTrigger( tile, self )
     def __call__(self, mob):
         mob.logVisual( "You fall into the spike pit!", "%s falls into the spike pit!" )
