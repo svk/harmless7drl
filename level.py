@@ -477,7 +477,8 @@ class Mobile:
                         "%s " + verb.third() + " " + ("you" if target.isPlayer() else target.name.definiteSingular()) + elab + "!" 
         )
         if target.ai:
-            target.ai.provoked = True
+            if self.isPlayer(): # infighting: not a 7DRL feature
+                target.ai.provoked = True
         if self.weapon:
             target.damage( self.weapon.damage, noMessage = target.chesspiece )
         else:
