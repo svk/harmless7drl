@@ -390,6 +390,7 @@ class Mobile:
         self.walking = walking
         self.swimming = swimming
         self.pushable = pushable
+        self.pacified = False
         self.destroyedByDigging = destroyedByDigging
         self.invisible = False
         self.visions = False
@@ -502,6 +503,8 @@ class Mobile:
         rv = []
         if self.stunned:
             rv.append( "stunned" )
+        if self.pacified:
+            rv.append( "pacified" )
         if self.flying:
             rv.append( "flying" )
         if self.incorporeal:
@@ -619,7 +622,11 @@ class Mobile:
         self.checkBuffs( t )
         if not self.stunned:
             if self.ai:
-                self.ai.trigger( self )
+                if self.pacified:
+                    from ai import RandomWalker
+                    RandomWalker(avoidTraps = True).trigger( self )
+                else:
+                    self.ai.trigger( self )
         if not self.noSchedule:
             self.scheduledAction = self.tile.level.sim.schedule( self, t + self.speed )
         else: # wait, what?

@@ -427,6 +427,33 @@ class Visions (Spell):
         player.context.log( "Your visions subside." )
         del player.buffs[ self ]
 
+class Pacify (Spell):
+    def __init__(self):
+        Spell.__init__( self, 'p', 'Pacify', [ "Calm", "Other" ] )
+    def cost(self):
+        return 10
+    def cast(self, context):
+        x, y = context.game.main.query( CursorWidget, context.game )
+        try:
+            tile = context.player.tile.level.tiles[x,y]
+        except KeyError:
+            tile = None
+        if not tile or not tile.mobile or tile.mobile.isPlayer() or not (x,y) in context.player.fov():
+            context.log( "Pacify must be cast on a creature within sight." )
+            raise CancelCasting()
+        duration = random.randint( 100, 200 )
+        if tile.mobile.nonalive:
+            tile.mobile.logVisualMon( "%s seems unaffected!" )
+        else:
+            tile.mobile.addBuff( self, duration )
+    def buff(self, mob, novel ):
+        mob.logVisualMon( "%s seems calmer." )
+        mob.pacified = True
+        if mob.ai:
+            mob.ai.provoked = False
+    def debuff(self, mob):
+        mob.pacified = False
+
 class SummonBoulder (Spell):
     def __init__(self):
         Spell.__init__( self, 'b', 'Create Boulder', [ "Create", "Earth" ] )
@@ -442,7 +469,7 @@ class SummonBoulder (Spell):
             spot = random.choice( spots )
             Boulder.spawn( context, spot )
 
-Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther(), SummonBoulder() ]
+Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther(), SummonBoulder(), Pacify() ]
 
 if __name__ == '__main__':
     counts = {}
