@@ -42,6 +42,12 @@ SmallNumbers = {
     20 : "twenty",
 }
 
+def NumberWord( n ):
+    try:
+        m = SmallNumbers[n]
+    except KeyError:
+        m = "%d" % n
+
 class Verb:
     def __init__(self, person2, person3 = None): # plural or first-person is not really needed
         self.person2 = person2
@@ -96,10 +102,7 @@ class Noun:
             rv.insert( 0, self.article )
         return " ".join( rv )
     def amount(self, n, informal = False):
-        try:
-            m = SmallNumbers[n]
-        except KeyError:
-            m = "%d" % n
+        m = NumberWord( n )
         if informal and n == 1 and self.article:
             m = self.article
         return " ".join( [ m, self.plural if n != 1 else self.singular ] )

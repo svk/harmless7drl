@@ -141,9 +141,10 @@ class TextInputWidget (Widget):
                     self.data.append( key )
 
 class WallOfTextWidget (HitEnterWidget):
-    def __init__(self, text, width, *args, **kwargs):
+    def __init__(self, text, width, center = False, *args, **kwargs):
         HitEnterWidget.__init__(self, *args, **kwargs)
         self.width = width
+        self.center = center
         self.text = text
     def draw(self):
         bg = PrimaryColour
@@ -156,7 +157,10 @@ class WallOfTextWidget (HitEnterWidget):
         dialog.decorate( fg, bg )
         i = 0
         for i in range(1, height-1):
-            dialog.putString( 1, i, tw.line(i-1), fg, bg )
+            s = tw.line(i-1)
+            if self.center:
+                s = s.center( self.width - 2 )
+            dialog.putString( 1, i, s, fg, bg )
         
 
 class CursorWidget (Widget):

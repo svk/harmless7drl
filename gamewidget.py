@@ -29,6 +29,7 @@ class GameWidget ( Widget ):
             context = beginNewGame( self.context, name, gender )
             wasLoaded = False
             from plot import displayIntro
+            self.context = context
             displayIntro( self )
         self.context = context
         self.initialized = True
