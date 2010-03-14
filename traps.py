@@ -104,7 +104,7 @@ class ExplodingMine (Trap):
         return "A mine."
 
 class TrapDoor (Trap):
-    rarity = Rarity( freq = 100, minLevel = 2 ) # minlevel 2
+    rarity = Rarity( freq = 1, minLevel = 2 ) # minlevel 2
     def __init__(self, tile, *args, **kwargs):
         Trap.__init__(self, difficulty = 4, *args, **kwargs)
         self.blastSize = 5
@@ -264,7 +264,7 @@ class NonlethalPit (Trap):
         return "A pit."
 
 class UncoveredHole (Trap):
-    rarity = Rarity( freq = 100, minLevel = 1, maxLevel = 4 )
+    rarity = Rarity( freq = 1, minLevel = 1, maxLevel = 4 )
     def __init__(self, tile, *args, **kwargs):
         TrapDoor.__init__(self, tile, *args, **kwargs)
         self.difficulty = 0
