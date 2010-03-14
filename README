@@ -1,5 +1,177 @@
+                      Harmless
+               A seven-day roguelike
+
+    == CONCEPT ==
+
+This is a game about surviving by using your abilities
+cleverly. Direct hack-and-slash approaches are
+probably -- hopefully! -- doomed to failure (though
+if you become very skilled at the game, it may be fun
+to try as a challenge game).
+
+Nearly every monster in the game has some sort of
+special behaviour. Observing how the monsters behave
+and figuring out ways to deal with them (not
+necessarily kill them) is a large part of the game.
+
+Good luck!
+
+    == MAGIC SYSTEM ==
+
+Figuring out the magic system is not meant to be
+"part of the challenge", so I will explain it here
+in case it is confusing.
+
+To succeed in the game, you will almost certainly need
+to cast spells -- the ability to cast these is the only
+advantage you have over the monsters (well, besides
+human-level intelligence).
+
+You start the game with no spells in your spellbook.
+To obtain spells, you need to collect magical runes
+and identify them. Unidentified runes in your
+possession can be identified by using a magic
+scroll (by selecting it from the inventory menu).
+At any time, you can press 'w' to attempt to scribe
+a spell. If you have identified runes in your
+possession that would form a spell, you will be
+given the option to write it into your spellbook,
+losing the runes.
+
+After you have written a spell into your spellbook,
+you can cast it as often as you like from the
+magic menu ('m'). However, you are limited by the
+amount of mana available in your staff. This amount
+does not recharge -- after your staff is depleted,
+you must discard it and find a new staff. (Of course,
+it's probably wise to keep spare staves, so that you
+will not ever end up in a situation where you are
+completely unable to cast spells.)
+
+    == ABOUT ROGUELIKES IN GENERAL ==
+
+Roguelikes with traditional interfaces (like this one)
+can be daunting to first-time players. If you have not
+played any other roguelikes (games like NetHack or ADOM),
+reading the "Instructions" on the main menu may be
+of help in comprehending how the game works.
+
+    == WIN REPORTS ==
+
+The game writes reports on wins and losses as .txt
+files in the main game directory.
+
+If you win, or just play an interesting game, please
+do share these -- I'd find it intestesting to see how
+other people are playing the game.
+
+    == ABOUT THE SOURCE ==
+
+The source is freely available, but if you want to play
+the game unspoiled (which might lead to the best play
+experience, since the game is at least partly one of
+discovery), you should stay away from certain source
+files until you have played for a while.
+
+These files are marked with comments in the first few
+lines.
+
+Note also that this is hardly exemplary code, having
+been written under a strict time limit.
+
+The code has been released under the MIT license.
+The full text of the license can be found in the
+LICENSE file.
+
+    == CONTROLS ==
+
+Movement (use any of the listed keys)
+
+                    Vi      Numpad      Arrow
+    north           k       8           up
+    south           j       2           down
+    east            l       6           right
+    west            h       4           left
+    northeast       u       9
+    northwest       y       7
+    southeast       n       3
+    southwest       b       1
+
+Menu system
+    up              k       8           up
+    down            j       2           down
+
+    select              enter, space
+
+Other game keys
+    wait                .
+    pick up             ,
+    drop                d
+    close door          c
+    down                >
+    up                  <
+    write spell         w
+    cast spell          m
+    inventory           i
+    look-mode           :
+
+Game management keys
+    quit and save       q
+    abandon game        Q
+    help                ?
+
+    == ACKNOWLEDGEMENTS ==
+
 Stuff included in this package that is not my own work:
     Cerealizer 0.7
     http://home.gna.org/oomadness/en/cerealizer/index.html
     Python License
     Jean-Baptiste Lamy "Jiba"
+
+    == DEVELOPMENT TIME ==
+
+This game was coded entirely in 168 hours starting from
+18:00 on Sunday March 7 2010, UTC+1. It was an entry
+in the 2010 7DRL challenge.
+
+    == THINGS I'VE LEARNED DURING THE CODING OF THIS GAME ==
+
+ -Learning Haskell really changes your Python code.
+ -WCurses (the Python curses port for Windows) is not
+  terribly great.
+ -But libtcod is pretty good. I can't imagine ever hacking
+  up an ASCII window in SDL for a 7DRL ever again.
+ -Tea tastes a great deal better when it's fresh.
+ -Being restricted to the curses standard colours is hell
+  on UI designers.
+ -Cerealizer is pretty neat!
+ -..but looking at the uncompressed stream in a hex editor
+  really makes you wonder about it.
+ -I'll never be able to get Spiral FOV right on the first
+  try.
+ -Sometimes, it might be better to have separate classes
+  for boulders, monsters and player objects. (This is
+  advice I did not actually take with this project.)
+ -With an average height of 16 inches and a weight of 2
+  pounds, the little blue penguin is the smallest of all
+  18 species of penguins. [Thanks to an educational site
+  for 4th to 6th graders for that one.]
+ -git is pretty useful, and not just as a dev-log writing
+  tool.
+ -Random brainstorming tends to be more effective with
+  just pen and paper than with the code in front of you.
+ -Working on Windows is tolerable as long as you can
+  stay within PuTTY for all your work.
+ -Going back to Python 2.5 string formatting after getting
+  used to the 2.6 way is painful.
+ -Py2Exe binaries don't actually need to be tens of
+  megabytes!
+ -Freeze is.. not a realistic alternative. Terribly sorry
+  to people who want binaries for Mac/Linux.
+ -Writing lists for the README during dev time is a form
+  of procrastination.
+
+    == CONTACTING THE AUTHOR ==
+If you have questions or comments about the game, please
+do contact me. I can be reached on kaw.dev@gmail.com or
+as "kaw" on #rgrd on QuakeNet (IRC).

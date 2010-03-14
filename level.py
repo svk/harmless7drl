@@ -15,7 +15,7 @@ DungeonDepth = 10 # the dungeon is infinite, but the macguffin will be at this
                   # level and there will be no further variety in monsters/items etc.
 
 class Rarity:
-    def __init__(self, worth = 1, freq = 1, minLevel = -2**31, maxLevel = 2**31):
+    def __init__(self, worth = 1, freq = 1, minLevel = -2**30, maxLevel = 2**30):
         self.worth = 1
         self.frequency = freq
         self.minLevel = minLevel
@@ -884,7 +884,7 @@ def mapFromGenerator( context, ancestor = None):
             tile.items.append( item )
     for room in lg.dangerRooms:
         generateTrapsForRoom( rv, context, room )
-    monsterValueTarget = random.randint( 8, 12 )
+    monsterValueTarget = random.randint( 10, 16 )
     potentialMonsters = [ thing for thing in context.protomonsters if thing.rarity.eligible( rv.depth ) ]
     populateLevel( rv, context, monsterValueTarget, potentialMonsters, excludeRoom = lg.entryRoom )
     from monsters import Boulder

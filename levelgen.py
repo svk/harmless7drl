@@ -319,7 +319,7 @@ class LevelGenerator:
         entryRoom = rooms[0]
         rooms.remove( entryRoom )
         for room in rooms:
-            room.distance = 2**31
+            room.distance = 2**30
         def exploreFrom( node ):
             v = set()
             q = []
@@ -419,7 +419,7 @@ class Room (Rectangle):
         for x in range( self.w ):
             for y in range( self.h ):
                 hubness = min( x, self.w - x - 1, y, self.h - y - 1)
-                edginess = max( self.w, self.h ) - hubness if hubness > 0 else 2**31 #hax
+                edginess = max( self.w, self.h ) - hubness if hubness > 0 else 2**30 #hax
                 tiles[x,y] = edginess
         cset = []
         oset = [ (int(self.w/2), int(self.h/2)) ]

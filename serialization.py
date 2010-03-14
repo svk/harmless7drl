@@ -33,6 +33,7 @@ class GameContext:
         self.macGuffinMobile = MacGuffinMobileMale if random.randint(0,1) else MacGuffinMobileFemale
         self.macGuffin = MacGuffinMale if self.macGuffinMobile.name.gender == "male" else MacGuffinFemale
         self.totalTime = 0
+        self.debugmode = False
     def log(self, s):
         try:
             self.game.log( capitalizeFirst(s) )
@@ -100,6 +101,7 @@ def registerClasses():
     c.register( R.ArrowTrap )
     c.register( R.TeleportationTrap )
     c.register( R.RockslideTrap )
+    c.register( R.NonlethalPit )
     import ai as A
     c.register( A.RandomWalker )
     c.register( A.TurnerBot )
@@ -114,6 +116,9 @@ def registerClasses():
     c.register( A.ExplodesOnDeathHook )
     c.register( A.PlayerTrailFollower )
     c.register( A.PursueWoundedAnimal )
+    c.register( A.ChokepointSleeperAnimal )
+    c.register( A.SpawnProtectorAnimal )
+    c.register( A.SpawnAnimal )
     import magic as M
     c.register( M.Rune )
     c.register( M.Treasure )
