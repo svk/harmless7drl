@@ -264,6 +264,11 @@ class GameWidget ( Widget ):
         elif self.player.tile.ceilingHole:
             if not self.player.flying:
                 self.log( "You can't reach the hole in the ceiling." )
+            elif self.player.hasMacGuffin():
+                # balance -- this would've been too easy
+                self.log( "%s suddenly feels very heavy." % self.context.macGuffin.name.definiteSingular() )
+                self.log( "Some sort of enchantment prevents you from flying through the hole in the ceiling carrying %s!" % self.context.macGuffin.name.definiteSingular() )
+                self.tookAction( 1 )
             else:
                 spot = self.player.tile.ceilingHole.level.getClearTileAround( self.player.tile.ceilingHole )
                 self.player.moveto( spot, neverfail = True )

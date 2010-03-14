@@ -237,7 +237,7 @@ Monsters.append( lastMon )
 # need more! TODO
 # perhaps one monster unique to the ascent, very nasty?
 # a very quick combat robot that replicates?
-AscentMonsters = [ Alfon, Mufflon ]
+AscentMonsters = [ Alfon, Mufflon, Imp ]
 
 
 if __name__ == '__main__':
