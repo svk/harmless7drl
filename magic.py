@@ -374,7 +374,7 @@ class FlyerKnockback (Spell): # might be really useful against imps
             ma = atan2( my - cy, mx - cx )
             actuallyMoved = 0
             for i in range( radius ):
-                bestAdist = 2**31
+                bestAdist = 2**30
                 step = None
                 for dx, dy in dirs:
                     tile = mover.tile.getRelative(dx,dy)

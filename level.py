@@ -15,7 +15,7 @@ DungeonDepth = 10 # the dungeon is infinite, but the macguffin will be at this
                   # level and there will be no further variety in monsters/items etc.
 
 class Rarity:
-    def __init__(self, worth = 1, freq = 1, minLevel = -2**31, maxLevel = 2**31):
+    def __init__(self, worth = 1, freq = 1, minLevel = -2**30, maxLevel = 2**30):
         self.worth = 1
         self.frequency = freq
         self.minLevel = minLevel

@@ -275,7 +275,7 @@ class Rook:
             mob.meleeAttack( pl )
 
 class BoulderAi:
-    def __init__(self, direction = (0,0), power = 2**31, speed = 16 ):
+    def __init__(self, direction = (0,0), power = 2**30, speed = 16 ):
         self.direction = direction
         self.power = power
         self.speed = speed

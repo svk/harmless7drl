@@ -177,7 +177,7 @@ class ArrowTrap (Trap):
         tile = self.arrowOrigin
         hit = mob.context.game.showStraightRay( (self.arrowOrigin.x, self.arrowOrigin.y),
                                      self.arrowDirection,
-                                     2**31,
+                                     2**30,
                                      'yellow',
                                      'black', 
                                      stopper = lambda k : not tile.level.tiles.has_key( k ) or tile.level.tiles[k].impassable or tile.level.tiles[k].mobile,
