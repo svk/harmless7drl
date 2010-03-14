@@ -1,4 +1,4 @@
-from core import Widget
+from harmless7drl import Widget
 from level import *
 from widgets import *
 from textwrap import TextWrapper
@@ -18,11 +18,11 @@ class GameWidget ( Widget ):
         self.context.game = self
         self.initialized = False
         try:
-            from core import loadOldGame
+            from harmless7drl import loadOldGame
             context = loadOldGame( name )
             wasLoaded = True
         except IOError:
-            from core import beginNewGame
+            from harmless7drl import beginNewGame
             gender = self.main.query( SelectionMenuWidget, choices = [
                 ('female', "Female"),
                 ('male', "Male"),
@@ -427,7 +427,7 @@ class GameWidget ( Widget ):
             elif key == ':': # Look command
                 self.main.query( CursorWidget, self )
             elif key == 'q':
-                from core import savefileName
+                from harmless7drl import savefileName
                 self.log( "Quitting, please wait..." )
                 self.main.query( DelayWidget, 0 )
                 self.context.save( savefileName( self.context.player.rawname ) )

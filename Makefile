@@ -19,7 +19,5 @@ harmless7drl-win32:
 	$(WPY26) py2exe_setup.py py2exe
 	cp $(P2E_EXTRAS) dist
 	cp $(ALL_EXTRAS) dist
-#	rm -f dist\python25.dll
-#	rm -f dist\msvcr71.dll
-	mv dist\core.exe dist\harmless7drl.exe
 	mv dist harmless7drl-win32
+	upx harmless7drl-win32\python26.dll

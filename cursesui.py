@@ -3,7 +3,7 @@ import sys
 import time
 
 def main( rootwidget, *args, **kwargs ):
-    from core import MainLoop
+    from harmless7drl import MainLoop
     rv = None
     try:
         cui = CursesInterface( debug=False )
@@ -25,7 +25,7 @@ class KeypressEvent:
         self.type = "keypress"
         self.key = key
 
-from core import ResizedException
+from harmless7drl import ResizedException
 
 class CursesInterface:
     def __init__(self, debug = False):

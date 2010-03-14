@@ -16,7 +16,7 @@ from grammar import capitalizeFirst
 # required.
 
 Signature = "Harmless7DRL"
-Version = 0.1
+Version = 1.0
 
 class InvalidSaveException: pass
 

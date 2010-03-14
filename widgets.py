@@ -1,4 +1,4 @@
-from core import Widget
+from harmless7drl import Widget
 import string
 import time
 from textwrap import TextWrapper

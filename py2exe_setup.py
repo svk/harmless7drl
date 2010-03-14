@@ -8,7 +8,7 @@ p2e_options = dict (
         compressed = True,
 )
 
-setup(windows=['core.py'],
+setup(windows=['harmless7drl.py'],
       bundle_files=1,
       zipfile = None,
       name = 'Harmless7DRL',

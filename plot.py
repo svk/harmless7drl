@@ -140,7 +140,7 @@ Congratulations on your victory! A log file has been written to\
  the game directory.""")
 
 def writeReport( game, won, books = 0, didQuit = False ):
-    import core
+    import harmless7drl
     import time
     unfriendlytime = time.strftime( "%Y-%m-%d-%H-%M-%S-%Z" )
     friendlytime = time.strftime( "%d/%m/%Y %H:%M" )

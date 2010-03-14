@@ -2,7 +2,7 @@ import libtcodpy as libtcod
 import time
 
 def main( rootwidget, *args, **kwargs ):
-    from core import MainLoop
+    from harmless7drl import MainLoop
     rv = None
     try:
         tui = TcodInterface( debug = True )
