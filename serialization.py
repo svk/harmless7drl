@@ -114,6 +114,9 @@ def registerClasses():
     c.register( A.ExplodesOnDeathHook )
     c.register( A.PlayerTrailFollower )
     c.register( A.PursueWoundedAnimal )
+    c.register( A.ChokepointSleeperAnimal )
+    c.register( A.SpawnProtectorAnimal )
+    c.register( A.SpawnAnimal )
     import magic as M
     c.register( M.Rune )
     c.register( M.Treasure )
