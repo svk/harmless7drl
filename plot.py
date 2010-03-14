@@ -19,7 +19,14 @@ def convertMacGuffin( mob ):
     else:
         mob.context.log( "As you shout the code word into what looks like a sound receptor, %s winds down immediately, allowing you to pick %s up without much difficulty." % (name.pronounSubject(), name.pronounObject() ))
         player.inventoryGive( item )
-    # TODO spawn more monsters on all levels above this one
+    lev = player.tile.level.previousLevel
+    while lev:
+        from level import populateLevel
+        from monsters import AscentMonsters
+        import random
+        amount = random.randint( 10, 14 )
+        populateLevel( lev, mob.context, amount, AscentMonsters )
+        lev = lev.previousLevel
 
 def displayIntro( game ):
     game.main.query( WallOfTextWidget, width = 60, center = True, text = """\

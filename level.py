@@ -11,8 +11,8 @@ import timing
 from grammar import *
 from widgets import SelectionMenuWidget
 
-DungeonDepth = 2 # the dungeon is infinite, but the macguffin will be at this
-                 # level and there will be no further variety in monsters/items etc.
+DungeonDepth = 10 # the dungeon is infinite, but the macguffin will be at this
+                  # level and there will be no further variety in monsters/items etc.
 
 class Rarity:
     def __init__(self, worth = 1, freq = 1, minLevel = -2**31, maxLevel = 2**31):
@@ -37,10 +37,12 @@ def weightedSelect( things ):
             return thing
     return None
 
-def selectThings( dlevel, target, things ):
+def selectThings( dlevel, target, things, noDlevelTest = False ):
     rv = []
+    if not noDlevelTest:
+        things = [ thing for thing in things if thing.rarity.eligible( dlevel ) ]
     while target > 0:
-        thing = weightedSelect( [ thing for thing in things if thing.rarity.eligible( dlevel ) ] )
+        thing = weightedSelect( things )
         if not thing:
             break
         rv.append( thing )
@@ -875,7 +877,7 @@ def mapFromGenerator( context, ancestor = None):
     for room in lg.rewardRooms:
         # should be in chests: that way it's hard to
         # distinguish between danger rooms and reward rooms
-        valueTarget = 40 # per room, people!
+        valueTarget = 4 # per room, people!
         for protoitem in selectThings( rv.depth, valueTarget, context.protoitems ):
             item = protoitem.spawn()
             tile = rv.tiles[ room.internalFloorpoint() ]
@@ -883,16 +885,21 @@ def mapFromGenerator( context, ancestor = None):
     for room in lg.dangerRooms:
         generateTrapsForRoom( rv, context, room )
     monsterValueTarget = random.randint( 8, 12 )
-    for protomonster in selectThings( rv.depth, monsterValueTarget, context.protomonsters ):
-        tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) and not lg.entryRoom.contains( tile.x, tile.y )  )
-        monster = protomonster.spawn( context, tile )
-    noBoulders = random.randint( 0, 5 )
+    monsterValueTarget = 0 # XXX
+    potentialMonsters = [ thing for thing in context.protomonsters if thing.rarity.eligible( rv.depth ) ]
+    populateLevel( rv, context, monsterValueTarget, potentialMonsters, excludeRoom = lg.entryRoom )
     from monsters import Boulder
+    noBoulders = random.randint( 2, 6 )
     for i in range( noBoulders ):
         tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( Boulder ) )
         monster = Boulder.spawn( context, tile )
     context.levels.append( rv )
     return rv
+
+def populateLevel( rv, context, monsterValueTarget, potentialMonsters, excludeRoom = None):
+    for protomonster in selectThings( None, monsterValueTarget, potentialMonsters, noDlevelTest = True ):
+        tile = rv.randomTile( lambda tile : not tile.cannotEnterBecause( protomonster ) and not (excludeRoom and excludeRoom.contains( tile.x, tile.y ))  )
+        monster = protomonster.spawn( context, tile )
 
 def innerRectangle( o, n = 0):
     return o.x0 + n, o.y0 + n, o.w - 2*n, o.h - 2*n

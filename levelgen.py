@@ -315,7 +315,8 @@ class LevelGenerator:
     def generateRoomOrdering(self):
         import copy
         rooms = [ room for room in self.rooms if not room.vault ]
-        entryRoom = random.choice( rooms )
+        rooms.sort(key = lambda room : room.area() )
+        entryRoom = rooms[0]
         rooms.remove( entryRoom )
         for room in rooms:
             room.distance = 2**31

@@ -232,6 +232,12 @@ lastMon = Ufflian = Mobile(
 )
 Monsters.append( lastMon )
 
+# the ascent monsters should generally be aggressive monsters,
+# but not the instakill ones like the spectre
+# need more! TODO
+# perhaps one monster unique to the ascent, very nasty?
+# a very quick combat robot that replicates?
+AscentMonsters = [ Alfon, Mufflon ]
 
 
 if __name__ == '__main__':
