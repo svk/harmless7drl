@@ -15,8 +15,8 @@ EnglishNames = { # -> rarity (level / inverse freq)
     "Air": Rarity( worth = 10, freq = 1),
     "See": Rarity( worth = 10, freq = 1),
     "Calm": Rarity( worth = 10, freq = 1),
-    "Other": Rarity( worth = 10, freq = 3),
-    "Create": Rarity( worth = 10, freq = 2),
+    "Other": Rarity( worth = 10, freq = 1, minLevel = 3),
+    "Create": Rarity( worth = 10, freq = 1, minLevel = 2),
 }
 
 class CancelCasting:
@@ -497,7 +497,7 @@ class Rockform (Spell):
 
 class DetectLivingMonsters (Spell):
     def __init__(self):
-        Spell.__init__( self, 'd', 'Lifesense', [ "See", "Other" ] )
+        Spell.__init__( self, 'l', 'Lifesense', [ "See", "Other" ] )
         self.buffName = "lifesense"
     def cost(self):
         return 10
