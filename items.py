@@ -54,14 +54,14 @@ Items.append( lastItem )
 
 lastItem = Tome = magic.TrapTalisman(
     Noun( "a", "talisman of perception", "talismans of perception" ),
-    weight = 5,
+    weight = 3,
     rarity = Rarity( freq = 2, worth = 7 )
 )
 Items.append( lastItem )
 
 lastItem = HealthTalisman = magic.HealthTalisman(
     Noun( "a", "talisman of health", "talismans of health" ),
-    weight = 5,
+    weight = 3,
     rarity = Rarity(worth = 20, freq = 1 , minLevel = 5)
 )
 Items.append( lastItem )
