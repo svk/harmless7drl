@@ -401,7 +401,10 @@ class ExplodesOnDeathHook:
             region = mob.context.game.showExplosion( (mob.tile.x, mob.tile.y), self.radius )
         affectlist = []
         for x, y in region:
-            affects = mob.tile.level.tiles[x,y].mobile
+            try:
+                affects = mob.tile.level.tiles[x,y].mobile
+            except KeyError:
+                continue
             if affects and affects != mob and not affects.dead:
                 affectlist.append( affects )
         for affects in affectlist:
