@@ -270,7 +270,7 @@ To succeed, you must make every effort to avoid fighting. Study the behaviour of
 \n
 If you play carelessly, you may end up in a state where you are alive, but\
  trapped. If this happens and you see no way out of the situation,\
- you can press 'Q' to give up on a character.\
+ you can press 'Q' to give up on your character, allowing you to start over.\
 \n
 Good luck!""")
 
