@@ -442,7 +442,7 @@ class PursueWoundedAnimal:
             return 0
         return mob.context.player.weapon.mana
     def trigger(self, mob):
-        if not playerAccessibleFOrMelee( mob ):
+        if not playerAccessibleForMelee( mob ):
             doRandomWalk( mob )
         path = None
         if mob.context.player.hitpoints < mob.context.player.maxHitpoints:

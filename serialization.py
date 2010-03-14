@@ -134,6 +134,8 @@ def registerClasses():
     c.register( M.Pacify )
     c.register( M.CalmAirSpell )
     c.register( M.SummonBoulder )
+    c.register( M.Rockform )
+    c.register( M.DetectLivingMonsters )
 
 def saveObject( o, filename ):
     # overwrites without warning!

@@ -166,7 +166,7 @@ class Tile:
     def withinRadiusFrom(self, origin, radius):
         return self.distanceToSquared( origin ) <= radius * radius
     def describeRemembered(self):
-        return self.tileTypeDesc
+        return self.rememberedAs.tileTypeDesc
     def enters(self, mobile, turbulenceProbability = 1.0):
         if mobile.isBoulder and self.trap and self.trap.fillable:
             self.trap.remove()
@@ -458,6 +458,7 @@ class Mobile:
         self.killCount = 0
         self.directKillCount = 0
         self.protomonster = self
+        self.lifesense = False
         if onDeath:
             self.deathHooks.append( onDeath )
         if not proto:
@@ -498,6 +499,12 @@ class Mobile:
         except KeyError:
             self.buffs[buff] = timespan
             buff.buff( self, novel = True )
+    def lifesensible(self): # yes, the name is just silliness
+        # debating whether to allow nonalive creatures
+        # also, what about abstracts like chesspieces?
+        # probably best to allow all
+        # but definitely not boulders.
+        return not self.isBoulder
     def inventoryWeight(self):
         return (self.weapon.weight if self.weapon else 0) + sum( [ item.weight for item in self.inventory ] )
     def payForSpell(self, cost):
@@ -570,12 +577,16 @@ class Mobile:
     def status(self):
         rv = []
         # stun is not a player-applicable status
+        if self.unattackable:
+            rv.append( "Rockform" )
         if self.flying:
             rv.append( "Flying" )
         if self.invisible:
             rv.append( "Invisible" )
         if self.visions:
             rv.append( "Visions" )
+        if self.lifesense:
+            rv.append( "Lifesense" )
         return " ".join( rv )
     def moveto(self, tile, turbulenceProbability = 1.0):
         assert not tile.cannotEnterBecause( self )

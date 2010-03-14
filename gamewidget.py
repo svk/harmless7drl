@@ -103,15 +103,24 @@ class GameWidget ( Widget ):
         self.main.query( HitEnterWidget )
         self.done = True
         self.result = False
+    def playerVisibility(self, fov):
+        def visibility( tile ):
+            visionsRadius = 12
+            if (tile.x, tile.y) in fov:
+                return True
+            if self.player.visions and self.player.tile.withinRadiusFrom( tile, visionsRadius ):
+                return True
+            if self.player.lifesense and tile.mobile and tile.mobile.lifesensible():
+                return True
+            return False
+        return visibility
     def draw(self):
         import time
         statusbarHeight = 2
         screenw, screenh = self.ui.dimensions()
         fov = self.player.fov( setRemembered = True )
-        if self.restrictVisionByFov:
-            visionsRadius = 12
-            visibility = lambda tile : ((tile.x, tile.y) in fov or (self.player.visions and self.player.tile.withinRadiusFrom( tile, visionsRadius ) ) )
-        else:
+        visibility = self.playerVisibility( fov )
+        if not self.restrictVisionByFov:
             visibility = lambda tile : True
         vp = Viewport( level = self.player.tile.level,
                        window = Subwindow( self.ui, 0,

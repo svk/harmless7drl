@@ -168,7 +168,7 @@ class CursorWidget (Widget):
         Widget.__init__(self, *args, **kwargs)
         self.game = game
         self.game.cursor = self.game.player.tile.x, self.game.player.tile.y
-        self.fov = game.player.fov()
+        self.visibility = game.playerVisibility( game.player.fov() )
         self.description = ""
     def draw(self):
         screenw, screenh = self.game.ui.dimensions()
@@ -189,16 +189,19 @@ class CursorWidget (Widget):
             dx, dy = MovementKeys[ key ]
             x, y = self.game.cursor
             self.game.cursor = x+dx,y+dy
-            if self.game.cursor in self.fov:
+            try:
+                tile = self.game.player.tile.level.tiles[ self.game.cursor ]
+            except KeyError:
+                tile = None
+            if tile and self.visibility( tile ):
                 self.description = self.game.player.tile.level.tiles[ self.game.cursor ].describe()
             else:
                 self.description = ""
                 try:
-                    if self.game.player.tile.level.tiles[ self.game.cursor ].remembered:
+                    if self.game.player.tile.level.tiles[ self.game.cursor ].rememberedAs:
                         self.description = self.game.player.tile.level.tiles[ self.game.cursor ].describeRemembered()
                 except IndexError:
                     pass
-        
         except KeyError:
             if key == '\n' or key == ' ':
                 self.result = self.game.cursor

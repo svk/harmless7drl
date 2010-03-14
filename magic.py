@@ -495,7 +495,26 @@ class Rockform (Spell):
         context.log( "Your spell subsides." )
         context.log( "You regain the ability to move around." )
 
-Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther(), SummonBoulder(), Pacify(), CalmAirSpell(), Rockform() ]
+class DetectLivingMonsters (Spell):
+    def __init__(self):
+        Spell.__init__( self, 'd', 'Lifesense', [ "See", "Other" ] )
+        self.buffName = "lifesense"
+    def cost(self):
+        return 10
+    def cast(self, context):
+        minduration, maxduration = 500, 1000
+        context.player.addBuff( self, random.randint( minduration, maxduration ) )
+    def buff(self, mob, novel ):
+        if novel:
+            mob.context.log( "You begin to sense the creatures around you." )
+        else:
+            mob.context.log( "You can sense the creatures around you more strongly." )
+        mob.lifesense = True
+    def debuff(self, mob):
+        mob.context.log( "Your spell subsides and you lose your extrasensory awareness of the creatures around you." )
+        mob.lifesense = False
+
+Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther(), SummonBoulder(), Pacify(), CalmAirSpell(), Rockform(), DetectLivingMonsters() ]
 
 if __name__ == '__main__':
     counts = {}
