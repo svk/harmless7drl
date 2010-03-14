@@ -25,6 +25,16 @@ lastItem = CrookedStaff = magic.Staff(
 )
 Items.append( lastItem )
 
+lastItem = SteelStaff = magic.Staff(
+    Noun('a', 'steel staff', 'steel staves'),
+    damage = 4,
+    minMana = 0,
+    maxMana = 0,
+    weight = 15,
+    rarity = Rarity( worth = 20, freq = 1, minLevel = 8 )
+)
+Items.append( lastItem )
+
 lastItem = CrookedStaff = magic.Staff(
     Noun('a', 'magnificent staff', 'magnificent staves'),
     damage = 2,

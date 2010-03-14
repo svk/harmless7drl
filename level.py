@@ -877,11 +877,14 @@ def mapFromGenerator( context, ancestor = None):
     for room in lg.rewardRooms:
         # should be in chests: that way it's hard to
         # distinguish between danger rooms and reward rooms
-        valueTarget = 4 # per room, people!
+        valueTarget = random.randint(4,7) # per room, people!
+        print >> sys.stderr, "generating to valueTarget", valueTarget
         for protoitem in selectThings( rv.depth, valueTarget, context.protoitems ):
             item = protoitem.spawn()
+            print >> sys.stderr, item.name.indefiniteSingular()
             tile = rv.tiles[ room.internalFloorpoint() ]
             tile.items.append( item )
+        print >> sys.stderr, "stop"
     for room in lg.dangerRooms:
         generateTrapsForRoom( rv, context, room )
     monsterValueTarget = random.randint( 10, 16 )
