@@ -10,20 +10,40 @@ lastItem = CrookedStaff = magic.Staff(
     minMana = 50,
     maxMana = 100,
     weight = 10,
-    rarity = Rarity( worth = 20, freq = 1, minLevel = 2 )
+    rarity = Rarity( worth = 20, freq = 1, minLevel = 2, maxLevel = 7 )
+)
+Items.append( lastItem )
+
+lastItem = CrookedStaff = magic.Staff(
+    Noun('an', 'ornate staff', 'ornate staves'),
+    damage = 2,
+    minMana = 100,
+    maxMana = 200,
+    weight = 10,
+    rarity = Rarity( worth = 20, freq = 1, minLevel = 5 )
+)
+Items.append( lastItem )
+
+lastItem = CrookedStaff = magic.Staff(
+    Noun('a', 'magnificent staff', 'magnificent staves'),
+    damage = 2,
+    minMana = 200,
+    maxMana = 300,
+    weight = 10,
+    rarity = Rarity( worth = 20, freq = 1, minLevel = 8 )
 )
 Items.append( lastItem )
 
 lastItem = Tome = magic.Tome(
     Noun( "a", "scroll of magic", "scrolls of magic" ),
-    rarity = Rarity( worth = 10,freq = 1 )
+    rarity = Rarity( worth = 10,freq = 2 )
 )
 Items.append( lastItem )
 
 lastItem = Tome = magic.TrapTalisman(
     Noun( "a", "talisman of perception", "talismans of perception" ),
     weight = 5,
-    rarity = Rarity( freq = 2, worth = 10 )
+    rarity = Rarity( freq = 2, worth = 7 )
 )
 Items.append( lastItem )
 
@@ -48,12 +68,11 @@ lastItem = HealPotion = Item(
     'magenta',
     itemType = "healing",
     weight = 5,
-    rarity = Rarity( worth = 8, freq = 4 ),
+    rarity = Rarity( worth = 8, freq = 2 ),
 )
 Items.append( lastItem )
 
 lastItem = MacGuffinMale = Item(
-        # restores a single HP -- you're meant to use magic.
     ProperNoun( "Professor Nislakh", "male" ),
     'h',
     'black',
@@ -64,7 +83,6 @@ lastItem = MacGuffinMale = Item(
 )
 
 lastItem = MacGuffinFemale = Item(
-        # restores a single HP -- you're meant to use magic.
     ProperNoun( "Professor Nislene", "female" ),
     'h',
     'black',
