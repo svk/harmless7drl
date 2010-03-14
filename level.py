@@ -16,7 +16,7 @@ DungeonDepth = 10 # the dungeon is infinite, but the macguffin will be at this
 
 class Rarity:
     def __init__(self, worth = 1, freq = 1, minLevel = -2**30, maxLevel = 2**30):
-        self.worth = 1
+        self.worth = worth
         self.frequency = freq
         self.minLevel = minLevel
         self.maxLevel = maxLevel
@@ -877,7 +877,7 @@ def mapFromGenerator( context, ancestor = None):
     for room in lg.rewardRooms:
         # should be in chests: that way it's hard to
         # distinguish between danger rooms and reward rooms
-        valueTarget = random.randint(4,7) # per room, people!
+        valueTarget = random.randint(40,70) # per room, people!
         print >> sys.stderr, "generating to valueTarget", valueTarget
         for protoitem in selectThings( rv.depth, valueTarget, context.protoitems ):
             item = protoitem.spawn()
