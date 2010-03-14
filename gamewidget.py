@@ -441,7 +441,7 @@ class GameWidget ( Widget ):
             elif key == '?':
                 from plot import displayHelp
                 displayHelp( self.main )
-           elif False:
+            elif False:
 #            elif key == '!':
                 if self.main.query( SelectionMenuWidget, choices = [
                     (False, "No"),
