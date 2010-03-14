@@ -27,7 +27,7 @@ Items.append( lastItem )
 
 lastItem = SteelStaff = magic.Staff(
     Noun('a', 'steel staff', 'steel staves'),
-    damage = 4,
+    damage = 5,
     minMana = 0,
     maxMana = 0,
     weight = 15,
@@ -79,7 +79,7 @@ lastItem = HealPotion = Item(
     '!',
     'magenta',
     itemType = "healing",
-    weight = 5,
+    weight = 3,
     rarity = Rarity( worth = 8, freq = 4 ),
 )
 Items.append( lastItem )
