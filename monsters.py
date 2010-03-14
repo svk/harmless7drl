@@ -119,13 +119,13 @@ lastMon = BomberBug = Mobile(
     name = Noun( "a", "bomber beetle", "bomber beetles" ),
     symbol = "b",
     fgColour = "black",
-    ai = MeleeSeeker( radius = 4 ),
+    ai = MeleeSeeker( radius = 7 ),
     speed = Speed.Slow,
     groundhugger = True,
     rarity = Rarity( freq = 2, minLevel = 2, maxLevel = 8),
     hitpoints = 1,
     attackVerb = Verb( "bite", "bites" ),
-    onDeath = ExplodesOnDeathHook( radius = 5, damage = 1 ), # might trigger a chain reaction..
+    onDeath = ExplodesOnDeathHook( radius = 4, damage = 1 ), # might trigger a chain reaction..
 )
 Monsters.append( lastMon )
 
