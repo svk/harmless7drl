@@ -330,7 +330,7 @@ class MagicMap (Spell):
         return 20
     def cast(self, context):
         for tile in context.player.tile.level.tiles.values():
-            tile.remembered = True
+            tile.remember()
         context.log( "You sense the shape of the dungeon around you." )
 
 class FlyerKnockback (Spell): # might be really useful against imps

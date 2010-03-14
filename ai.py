@@ -248,7 +248,7 @@ class Rook:
         dx, dy = sign(pl.tile.x - mob.tile.x), sign(pl.tile.y - mob.tile.y)
         if dx != 0 and dy != 0:
             return # not a straight line, stationary
-        tile = mob.tile.getRelative( dx, dy )
+        lastTile = tile = mob.tile.getRelative( dx, dy )
         dist = 0
         while not tile.mobile == pl:
             if not tile:

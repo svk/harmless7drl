@@ -11,7 +11,7 @@ lastItem = CrookedStaff = magic.Staff(
     minMana = 50,
     maxMana = 100,
     weight = 10,
-    rarity = Rarity( worth = 20, freq = 1, minLevel = 2, maxLevel = 7 )
+    rarity = Rarity( worth = 20, freq = 1, minLevel = 1, maxLevel = 7 )
 )
 Items.append( lastItem )
 
