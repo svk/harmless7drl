@@ -1,3 +1,5 @@
+#Warning - contains lots of spoilers
+
 from level import Mobile, Rarity
 from ai import *
 from grammar import *

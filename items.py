@@ -1,3 +1,4 @@
+# Warning - contains lots of spoilers
 import magic
 from grammar import Noun, ProperNoun
 from level import Rarity, Item

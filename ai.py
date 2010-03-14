@@ -1,3 +1,5 @@
+# Warning - contains lots of spoilers
+
 import random
 import sys
 from level import sign

@@ -1,3 +1,5 @@
+# Warning - contains lots of spoilers
+
 from level import Item, countItems, Rarity
 from grammar import Noun, capitalizeFirst, makeCountingList
 import grammar
