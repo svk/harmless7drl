@@ -25,7 +25,7 @@ lastMon = Mufflon = Mobile(
     ai = MeleeMagicHater( radius = 5, tolerance = 0 ),
     speed = Speed.Normal,
     groundhugger = True,
-    rarity = Rarity( freq = 1 ),
+    rarity = Rarity( freq = 1, minLevel = 5 ),
     attackVerb = Verb( "ram", "rams" ),
     attackElaboration = " with its horn",
     meleePower = 3, # very powerful melee, incentive to stay away
@@ -39,7 +39,7 @@ lastMon = Rook = Mobile(
     fgColour = "white",
     ai = Rook( radius = 8 ), # just for testing, should be 8
     speed = Speed.Normal, # actually moves several tiles in a turn, though.
-    rarity = Rarity( freq = 1 ),
+    rarity = Rarity( freq = 2, minLevel = 3, maxLevel = 5 ),
     attackVerb = Verb( "slam into", "slams into" ),
     meleePower = 3, # another don't-get-hit puzzle
     hitpoints = 1, # it's easy to capture a chess piece..
@@ -67,7 +67,7 @@ lastMon = Imp = Mobile(
     fgColour = "magenta",
     ai = DebufferAi( radius = 8 ),
     speed = Speed.VeryQuick,
-    rarity = Rarity( freq = 1 ),
+    rarity = Rarity( freq = 1, minLevel = 7 ),
     hitpoints = 5,
     flying = True,
 )
@@ -80,7 +80,7 @@ lastMon = Gnome = Mobile(
     ai = StaffStealer( radius = 8 ),
     speed = Speed.Normal,
     groundhugger = True,
-    rarity = Rarity( freq = 1 ),
+    rarity = Rarity( freq = 1, minLevel = 6 ),
     hitpoints = 5,
 )
 Monsters.append( lastMon )
@@ -92,7 +92,7 @@ lastMon = GiantMole = Mobile(
     ai = DigAnimal( radius = 8 ),
     speed = Speed.Slow,
     groundhugger = True,
-    rarity = Rarity( freq = 1 ),
+    rarity = Rarity( freq = 1, maxLevel = 6 ),
     hitpoints = 8,
     attackElaboration = " with its claws",
 )
@@ -105,7 +105,7 @@ lastMon = Alfon = Mobile(
     ai = PursueWoundedAnimal( radius = 6 ),
     speed = Speed.Normal,
     groundhugger = False,
-    rarity = Rarity( freq = 1 ),
+    rarity = Rarity( freq = 1, minLevel = 4 ),
     hitpoints = 10,
     meleePower = 3,
     attackVerb = Verb( "attack", "attacks" ),
@@ -120,7 +120,7 @@ lastMon = BomberBug = Mobile(
     ai = MeleeSeeker( radius = 4 ),
     speed = Speed.Slow,
     groundhugger = True,
-    rarity = Rarity( freq = 1 ),
+    rarity = Rarity( freq = 2, minLevel = 2, maxLevel = 8),
     hitpoints = 1,
     attackVerb = Verb( "bite", "bites" ),
     onDeath = ExplodesOnDeathHook( radius = 5, damage = 1 ), # might trigger a chain reaction..
@@ -135,7 +135,7 @@ lastMon = Spectre = Mobile(
     fgColour = "white",
     ai = IncorporealSeeker(),
     speed = Speed.VerySlow,
-    rarity = Rarity( freq = 1 ),
+    rarity = Rarity( freq = 1, minLevel = 8 ),
     hitpoints = 1000,
     meleePower = 1000,
     incorporeal = True,
@@ -154,7 +154,7 @@ lastMon = Sniffler = Mobile(
     ai = PlayerTrailFollower(radius = 5), #radius is just for seek if provoked
     speed = Speed.Normal,
     groundhugger = True,
-    rarity = Rarity( freq = 100 ),
+    rarity = Rarity( freq = 1, maxLevel = 4 ),
     hitpoints = 5,
     meleePower = 1,
     attackVerb = Verb( "bite", "bites" ),
@@ -195,7 +195,7 @@ lastMon = Culargotte = Mobile(
     fgColour = "green",
     ai = ChokepointSleeperAnimal(radius = 5),
     speed = Speed.VeryQuick,
-    rarity = Rarity( freq = 100 ),
+    rarity = Rarity( freq = 1, maxLevel = 5 ),
     hitpoints = 20,
     meleePower = 1,
     attackVerb = Verb( "scratch", "scratches" ),
@@ -223,7 +223,7 @@ lastMon = Ufflian = Mobile(
     fgColour = "blue",
     ai = SpawnProtectorAnimal(radius = 7),
     speed = Speed.Normal,
-    rarity = Rarity( worth = 2, freq = 1000 ),
+    rarity = Rarity( worth = 2, freq = 1, minLevel = 3, maxLevel = 7 ),
     hitpoints = 30,
     meleePower = 4,
     attackVerb = Verb( "bite", "bites" ),
