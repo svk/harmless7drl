@@ -37,7 +37,7 @@ Items.append( lastItem )
 
 lastItem = Tome = magic.Tome(
     Noun( "a", "scroll of magic", "scrolls of magic" ),
-    rarity = Rarity( worth = 10,freq = 2 )
+    rarity = Rarity( worth = 10,freq = 4 )
 )
 Items.append( lastItem )
 
@@ -58,7 +58,7 @@ Items.append( lastItem )
 lastItem = Treasure = magic.Treasure(
     Noun( "a", "heavy spellbook", "heavy spellbooks" ),
     weight = 10,
-    rarity = Rarity(worth = 10, freq = 1)
+    rarity = Rarity(worth = 10, freq = 1, minLevel = 4)
 )
 Items.append( lastItem )
 
@@ -69,7 +69,7 @@ lastItem = HealPotion = Item(
     'magenta',
     itemType = "healing",
     weight = 5,
-    rarity = Rarity( worth = 8, freq = 2 ),
+    rarity = Rarity( worth = 8, freq = 4 ),
 )
 Items.append( lastItem )
 

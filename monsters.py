@@ -197,7 +197,7 @@ lastMon = Culargotte = Mobile(
     fgColour = "green",
     ai = ChokepointSleeperAnimal(radius = 5),
     speed = Speed.VeryQuick,
-    rarity = Rarity( freq = 1, maxLevel = 5 ),
+    rarity = Rarity( freq = 1, minLevel = 2, maxLevel = 7 ),
     hitpoints = 20,
     meleePower = 1,
     attackVerb = Verb( "scratch", "scratches" ),
