@@ -234,6 +234,42 @@ lastMon = Ufflian = Mobile(
 )
 Monsters.append( lastMon )
 
+#lastMon = Nurwel = Mobile(
+#    # the nurwel is just a badass monster that you need to deal with
+#    #  in the late game. there is no way to avoid it entirely.
+#    # if it cannot path to you, it will use its teleport spell to
+#    #  get within range. you will have to teleport it or yourself
+#    #  away.
+#    # it does not fly (but is not a groundhugger), it cannot see
+#    #  invisible.
+#    name = Noun( "a", "nurwel", "nurwels" ),
+#    symbol = "N",
+#    fgColour = "yellow",
+#    ai = TeleportingHarasser(radius = 5),
+#    speed = Speed.Quick,
+#    rarity = Rarity( worth = 3, freq = 1, minLevel = 9),
+#    hitpoints = 30,
+#    meleePower = 1,
+#    attackVerb = Verb( "strike", "strikes" ),
+#)
+#Monsters.append( lastMon )
+#
+#lastMon = Laschar = Mobile(
+#    # the laschari are self-reproducing warriors encountered
+#    # only in the ascent.
+#    name = Noun( "a", "laschar", "laschari" ),
+#    symbol = "L",
+#    fgColour = "magenta",
+#    ai = TeleportingHarasser(radius = 5),
+#    speed = Speed.Normal,
+#    rarity = Rarity( worth = 3, freq = 1, minLevel = 9),
+#    hitpoints = 10,
+#    meleePower = 2,
+#    nonalive = True,
+#    attackVerb = Verb( "strike", "strikes" ),
+#)
+
+
 # the ascent monsters should generally be aggressive monsters,
 # but not the instakill ones like the spectre
 # need more! TODO
