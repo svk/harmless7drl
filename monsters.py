@@ -105,7 +105,7 @@ lastMon = Alfon = Mobile(
     ai = PursueWoundedAnimal( radius = 6 ),
     speed = Speed.Normal,
     groundhugger = False,
-    rarity = Rarity( freq = 100 ),
+    rarity = Rarity( freq = 1 ),
     hitpoints = 10,
     meleePower = 3,
     attackVerb = Verb( "attack", "attacks" ),

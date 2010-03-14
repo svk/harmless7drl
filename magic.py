@@ -168,7 +168,7 @@ class TeleportOther (Spell):
     def __init__(self):
         Spell.__init__( self, 't', 'Teleport Other', [ "Move", "Other" ] )
     def cost(self):
-        return 5
+        return 15
     def cast(self, context):
         # teleport the player randomly. (greater teleport allows you to specify destination.)
         x, y = context.game.main.query( CursorWidget, context.game )
@@ -195,7 +195,7 @@ class Dig (Spell):
     def __init__(self):
         Spell.__init__( self, 'd', 'Dig', [ "Destroy", "Earth" ] )
     def cost(self):
-        return 5
+        return 15
     def cast(self, context):
         from level import makeFloor
         from traps import TrapDoor, clearTraps
@@ -265,7 +265,7 @@ class HealSelf (Spell):
     def __init__(self):
         Spell.__init__( self, 'h', 'Heal', [ "Negate", "Destroy", "Self" ] )
     def cost(self):
-        return 5
+        return 20
     def cast(self, context):
         # teleport the player randomly. (greater teleport allows you to specify destination.)
         context.log( "You feel invigorated." )
@@ -276,7 +276,7 @@ class LevitateSelf (Spell):
         Spell.__init__( self, 'f', 'Flight', [ "Air", "Self" ] )
         self.buffName = "flight"
     def cost(self):
-        return 10
+        return 25
     def cast(self, context):
         minduration, maxduration = 1000, 2000
         if context.player.flying:
@@ -301,7 +301,7 @@ class Invisibility (Spell):
         Spell.__init__( self, 'i', 'Invisibility', [ "Negate", "See", "Self" ] )
         self.buffName = "invisibility"
     def cost(self):
-        return 10
+        return 25
     def cast(self, context):
         minduration, maxduration = 400, 800
         if context.player.flying:
@@ -324,7 +324,7 @@ class MagicMap (Spell):
     def __init__(self):
         Spell.__init__( self, 'm', 'Reveal Map', [ "See", "Earth" ] )
     def cost(self):
-        return 10
+        return 20
     def cast(self, context):
         for tile in context.player.tile.level.tiles.values():
             tile.remembered = True
@@ -334,7 +334,7 @@ class FlyerKnockback (Spell): # might be really useful against imps
     def __init__(self):
         Spell.__init__( self, 'g', 'Windblast', [ "Move", "Air" ] )
     def cost(self):
-        return 3
+        return 5
     def cast(self, context):
         from level import expandingCircle
         cx, cy = cxcy = context.player.tile.x, context.player.tile.y
@@ -410,7 +410,7 @@ class Visions (Spell):
         Spell.__init__( self, 'v', 'Visions', [ "Self", "See" ] )
         self.buffName = "visions"
     def cost(self):
-        return 10
+        return 15
     def cast(self, context):
         minduration, maxduration = 400, 800
         if context.player.flying:
@@ -453,6 +453,7 @@ class Pacify (Spell):
             mob.ai.provoked = False
     def debuff(self, mob):
         mob.pacified = False
+        del mob.buffs[ self ]
 
 class CalmAirSpell (Spell):
     def __init__(self):
@@ -470,7 +471,7 @@ class SummonBoulder (Spell):
     def __init__(self):
         Spell.__init__( self, 'b', 'Create Boulder', [ "Create", "Earth" ] )
     def cost(self):
-        return 10
+        return 5
     def cast(self, context):
         from monsters import Boulder
         spots = [ neighbour for neighbour in context.player.tile.neighbours() if not neighbour.cannotEnterBecause( Boulder ) ]
@@ -500,7 +501,7 @@ class DetectLivingMonsters (Spell):
         Spell.__init__( self, 'l', 'Lifesense', [ "See", "Other" ] )
         self.buffName = "lifesense"
     def cost(self):
-        return 10
+        return 20
     def cast(self, context):
         minduration, maxduration = 500, 1000
         context.player.addBuff( self, random.randint( minduration, maxduration ) )
@@ -513,6 +514,7 @@ class DetectLivingMonsters (Spell):
     def debuff(self, mob):
         mob.context.log( "Your spell subsides and you lose your extrasensory awareness of the creatures around you." )
         mob.lifesense = False
+        del mob.buffs[ self ]
 
 Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther(), SummonBoulder(), Pacify(), CalmAirSpell(), Rockform(), DetectLivingMonsters() ]
 
