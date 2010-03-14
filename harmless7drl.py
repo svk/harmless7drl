@@ -1,5 +1,11 @@
 import copy
 
+Signature = "Harmless7DRL"
+Version = "Version 1.0 (7DRL)"
+Author = "kaw"
+Date = "March 14 2010"
+Email = "kaw.dev@gmail.com"
+
 class Widget:
     def __init__(self, main = None, ui = None):
         self.done = False

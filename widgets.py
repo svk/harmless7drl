@@ -278,8 +278,14 @@ class RootMenuWidget(Widget):
         Widget.__init__(self, *args, **kwargs)
     def draw(self):
         # display a splash screen
-        self.ui.putString( 0, 0, "Harmless7DRL", "bold-white", "black")
-        self.ui.putString( 0, 1, "Press any key to continue", "white", "black" )
+        from harmless7drl import Signature, Version, Date, Author, Email
+        lines = [ Signature, Version, Date, "", "by %s" % Author, Email, "", "For the 2010 7DRL challenge", "", "Press any key to continue" ]
+        screenw, screenh = self.ui.dimensions()
+        y = ( screenh-len(lines) ) // 2 
+        for line in lines[:-1]:
+            self.ui.putString( 0, y, line.center( screenw ), "bold-white", "black" )
+            y += 1
+        self.ui.putString( 0, y, lines[-1].center( screenw ), "bold-white", "black" )
     def keyboard(self, key):
         from gamewidget import GameWidget
         self.hidden = True # remember: that's the _splash_ screen

@@ -15,9 +15,6 @@ from grammar import capitalizeFirst
 # this means that e.g. one class for each AI is absolutely
 # required.
 
-Signature = "Harmless7DRL"
-Version = 1.0
-
 class InvalidSaveException: pass
 
 
@@ -58,6 +55,7 @@ class GameContext:
     def save(self, filename ):
         unsaved = self.neuter()
         try:
+            from harmless7drl import Signature, Version
             f = gzip.GzipFile( filename, "wb" )
             c.dump( Signature, f )
             c.dump( Version, f )
@@ -68,6 +66,7 @@ class GameContext:
     def load(self, filename ):
         unsaved = self.neuter() # used to unneuter the restored object
         try:
+            from harmless7drl import Signature, Version
             f = gzip.GzipFile( filename, "rb" )
             if c.load( f ) != Signature: raise InvalidSaveException()
             if c.load( f ) != Version: raise InvalidSaveException()
