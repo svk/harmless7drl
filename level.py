@@ -636,7 +636,7 @@ class Mobile:
                 self.scheduledAction.cancel()
                 self.scheduledAction = None
             self.tile = tile
-            self.greatestDepth = max( self.greatestDepth, self.tile.level )
+            self.greatestDepth = max( self.greatestDepth, self.tile.level.depth )
             self.schedule()
         else:
             if self.tile and self.tile.level == tile.level and self.isPlayer():
