@@ -47,7 +47,7 @@ Items.append( lastItem )
 
 lastItem = Tome = magic.Tome(
     Noun( "a", "scroll of magic", "scrolls of magic" ),
-    rarity = Rarity( worth = 15,freq = 3 )
+    rarity = Rarity( worth = 15,freq = 3 ),
     weight = 5,
 )
 Items.append( lastItem )
