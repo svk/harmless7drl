@@ -430,7 +430,7 @@ class PlayerTrailFollower:
             if tile and tile.mobile and tile.mobile.isPlayer() and tile.mobile.canBeMeleeAttackedBy( mob ):
                 mob.meleeAttack( tile.mobile )
             else:
-                doRandomWalk( mob )
+                doRandomWalk( mob, avoidTraps = False )
         else:
             mob.moveto( tile )
 
