@@ -884,7 +884,7 @@ def mapFromGenerator( context, ancestor = None):
             tile.items.append( item )
     for room in lg.dangerRooms:
         generateTrapsForRoom( rv, context, room )
-    monsterValueTarget = random.randint( 8, 12 )
+    monsterValueTarget = random.randint( 10, 16 )
     potentialMonsters = [ thing for thing in context.protomonsters if thing.rarity.eligible( rv.depth ) ]
     populateLevel( rv, context, monsterValueTarget, potentialMonsters, excludeRoom = lg.entryRoom )
     from monsters import Boulder
