@@ -65,7 +65,10 @@ def loadOldGame( name ):
     context = GameContext()
     context.levels = []
     filename = savefileName( name )
-    return context.load( filename )
+    rv = context.load( filename )
+    import os
+    os.unlink( filename )
+    return rv
 
 def beginNewGame( context, name, gender, cheat = True ):
     from gamewidget import GameWidget
