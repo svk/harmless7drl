@@ -198,7 +198,37 @@ lastMon = Culargotte = Mobile(
     rarity = Rarity( freq = 100 ),
     hitpoints = 20,
     meleePower = 1,
+    attackVerb = Verb( "scratch", "scratches" ),
+    attackElaboration = " with its sharp claws",
+)
+Monsters.append( lastMon )
+
+UfflianSpawn = Mobile(
+    name = Noun( "an", "ufflian whelp", "ufflian whelps" ),
+    symbol = "u",
+    fgColour = "blue",
+    ai = SpawnAnimal(radius = 5),
+    speed = Speed.Quick,
+    rarity = Rarity( freq = 0 ), # generated with the mother
+    hitpoints = 1,
+    meleePower = 1,
+    groundhugger = True,
+    attackVerb = Verb( "claw at", "claws at" ),
+    attackElaboration = " your feet",
+    
+)
+lastMon = Ufflian = Mobile(
+    name = Noun( "an", "ufflian", "ufflians" ),
+    symbol = "U",
+    fgColour = "blue",
+    ai = SpawnProtectorAnimal(radius = 7),
+    speed = Speed.Normal,
+    rarity = Rarity( worth = 2, freq = 1000 ),
+    hitpoints = 30,
+    meleePower = 4,
     attackVerb = Verb( "bite", "bites" ),
+    spawner = UfflianSpawn,
+    noChildren = (3,6)
 )
 Monsters.append( lastMon )
 

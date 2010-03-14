@@ -491,3 +491,61 @@ class ChokepointSleeperAnimal:
                 makeFloor( step )
             else:
                 mob.moveto( step )
+
+class SpawnProtectorAnimal:
+    def __init__(self, radius):
+        self.radius = radius
+        self.provoked = False
+    def trigger(self, mob):
+        if mob.childrenAttacked and not self.provoked:
+            mob.logVisualMon( "%s bares its teeth!" )
+            self.provoked = True
+            for spawn in mob.children:
+                spawn.ai.provoked = True
+        if self.provoked and playerAccessibleForMelee( mob ) and not mob.context.player.invisible:
+            path = seekPlayer( mob, self.radius )
+            if not path:
+                doRandomWalk( mob )
+            else:
+                doMeleeAlongPath( mob, mob.context.player, path )
+        else:
+            doRandomWalk( mob )
+
+class SpawnAnimal:
+    def __init__(self, radius):
+        self.radius = radius
+        self.provoked = False
+    def trigger(self, mob):
+        if self.provoked and playerAccessibleForMelee( mob ) and not mob.context.player.invisible:
+            path = seekPlayer( mob, self.radius )
+            if not path:
+                self.wander( mob )
+            else:
+                doMeleeAlongPath( mob, mob.context.player, path )
+        else:
+            self.wander( mob )
+    def wander(self, mob):
+        maxdist = 8
+        goodtiles = []
+        halfwaytiles = []
+        besttiles = []
+        for tile in mob.tile.neighbours():
+            if not tile.cannotEnterBecause( mob ):
+                if tile.trap:
+                    continue
+                halfwaytiles.append( tile )
+                if not tile.withinRadiusFrom( mob.protector.tile, 8):
+                    continue
+                goodtiles.append( tile )
+                if not tile.withinRadiusFrom( mob.context.player.tile, 1.5 ):
+                    continue
+                besttiles.append( tile ) # they're curious.. and annoying
+        tile = None
+        if besttiles:
+            tile = random.choice( besttiles )
+        elif goodtiles:
+            tile = random.choice( goodtiles )
+        elif halfwaytiles:
+            tile = random.choice( halfwaytiles )
+        if tile:
+            mob.moveto( tile )

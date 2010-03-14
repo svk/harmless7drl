@@ -403,6 +403,8 @@ class Mobile:
                  isBoulder = False,
                  essential = False,
                  chesspiece = False,
+                 spawner = None,
+                 noChildren = None,
                 ):
         assert fgColour != 'red' # used for traps
         self.rarity = rarity
@@ -462,6 +464,11 @@ class Mobile:
         self.directKillCount = 0
         self.protomonster = self
         self.lifesense = False
+        self.spawner = spawner
+        self.noChildren = noChildren
+        self.protector = None
+        self.childrenAttacked = False
+        self.children = []
         if onDeath:
             self.deathHooks.append( onDeath )
         if not proto:
@@ -484,6 +491,14 @@ class Mobile:
         rv.context = context
         rv.sim = tile.level.sim
         rv.moveto( tile )
+        if rv.spawner:
+            noCh = random.randint( *rv.noChildren )
+            rv.children = []
+            for i in range(noCh):
+                tile = rv.tile.level.getClearTileAround( rv.tile )
+                rrv = rv.spawner.spawn( context, tile )
+                rrv.protector = rv
+                rv.children.append( rrv )
         return rv
     def hasMacGuffin(self):
         mgs = [ item for item in self.inventory if item.isMacGuffin ]
@@ -560,6 +575,8 @@ class Mobile:
         if target.ai:
             if self.isPlayer(): # infighting: not a 7DRL feature
                 target.ai.provoked = True
+                if target.protector:
+                    target.protector.childrenAttacked = True
         if self.weapon:
             target.damage( self.weapon.damage, noMessage = target.chesspiece )
         else:
