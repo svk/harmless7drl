@@ -445,6 +445,7 @@ class Mobile:
         self.pacified = False
         self.destroyedByDigging = destroyedByDigging
         self.invisible = False
+        self.unattackable = False
         self.visions = False
         self.stunned = False
         self.generated = 0
@@ -523,6 +524,8 @@ class Mobile:
             statuses = ", " + statuses
         return capitalizeFirst( "%s (%d/%d hp%s)." % (self.name.indefiniteSingular(), self.hitpoints, self.maxHitpoints, statuses ) )
     def damage(self, n, fromPlayer = False, noMessage = False):
+        if self.unattackable:
+            return
         if self.essential:
             return
         self.hitpoints -= n
@@ -532,6 +535,8 @@ class Mobile:
             self.kill()
     def canBeMeleeAttackedBy(self, mobile):
         # levitating creatures are out of reach for groundhuggers
+        if self.unattackable:
+            return False
         if self.flying and (mobile.groundhugger and not mobile.flying):
             return False
         return True

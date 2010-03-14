@@ -406,7 +406,8 @@ class GameWidget ( Widget ):
                 self.main.query( CursorWidget, self )
             elif key == 'q':
                 from core import savefileName
-                self.log( "Quitting, please wait." )
+                self.log( "Quitting, please wait..." )
+                self.main.query( DelayWidget, 0 )
                 self.context.save( savefileName( self.context.player.rawname ) )
                 self.done = True
             elif key == 'Q':

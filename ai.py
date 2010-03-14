@@ -170,6 +170,8 @@ class IncorporealSeeker:
     # simply walk in the right dx, dy if you can
     # doesn't need to be used for an incorporeal mob, but it's
     #   a really stupid and robot-like way to move if not
+    # rockform does not work against this monster -- it simply
+    # waits right beside you
     def __init__(self):
         self.frustration = 0
     def trigger(self, mob):
@@ -207,7 +209,7 @@ class MeleeMagicHater:
             return 0
         return mob.context.player.weapon.mana
     def trigger(self, mob):
-        if mob.context.player.invisible:
+        if mob.context.player.invisible or not playerAccessibleForMelee( mob ):
             doRandomWalk( mob )
             return
         if playerIsAdjacent( mob ):
@@ -237,6 +239,8 @@ class Rook:
         # straight line to the player. If it does, moves 8 (radius)
         # tiles
         pl = mob.context.player
+        if playerAccessibleForMelee( mob ):
+            return
         if pl.invisible:
             return
         dx, dy = sign(pl.tile.x - mob.tile.x), sign(pl.tile.y - mob.tile.y)
@@ -353,7 +357,7 @@ class DigAnimal:
         self.provoked = False
     def trigger(self, mob):
         # not affected by invisibility, since a mole navigates by smell (or what do I know, atleast not sight)
-        if self.provoked:
+        if self.provoked and playerAccessibleForMelee( mob ):
             path = seekPlayer( mob, self.radius )
             if not path:
                 self.randomDigWalk( mob )
@@ -410,7 +414,7 @@ class PlayerTrailFollower:
         self.provoked = False
         self.radius = 5
     def trigger(self, mob):
-        if self.provoked:
+        if self.provoked and playerAccessibleForMelee( mob ):
             path = seekPlayer( mob, self.radius )
             if not path:
                 self.doTryTrail( mob )
@@ -438,6 +442,8 @@ class PursueWoundedAnimal:
             return 0
         return mob.context.player.weapon.mana
     def trigger(self, mob):
+        if not playerAccessibleFOrMelee( mob ):
+            doRandomWalk( mob )
         path = None
         if mob.context.player.hitpoints < mob.context.player.maxHitpoints:
             path = seekPlayer( mob, self.radius )

@@ -481,7 +481,21 @@ class SummonBoulder (Spell):
             spot = random.choice( spots )
             Boulder.spawn( context, spot )
 
-Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther(), SummonBoulder(), Pacify(), CalmAirSpell() ]
+class Rockform (Spell):
+    def __init__(self):
+        Spell.__init__( self, 'r', 'Rockform', [ "Earth", "Self" ] )
+    def cost(self):
+        return 10
+    def cast(self, context):
+        context.log( "You freeze in place and turn to stone." )
+        context.player.unattackable = True
+        for i in range(10):
+            context.game.tookAction( 1 )
+            context.game.main.query( DelayWidget, 0 )
+        context.log( "Your spell subsides." )
+        context.log( "You regain the ability to move around." )
+
+Spells = [ TeleportSelf(), HealSelf(), Dig(), LevitateSelf(), Invisibility(), Visions(), MagicMap(), FlyerKnockback(), TeleportOther(), SummonBoulder(), Pacify(), CalmAirSpell(), Rockform() ]
 
 if __name__ == '__main__':
     counts = {}
