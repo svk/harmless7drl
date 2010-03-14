@@ -1,5 +1,6 @@
                       Harmless
                A seven-day roguelike
+                       by kaw
 
     == CONCEPT ==
 
@@ -15,6 +16,21 @@ and figuring out ways to deal with them (not
 necessarily kill them) is a large part of the game.
 
 Good luck!
+
+    == STARTING THE GAME ==
+
+To start the Windows binary, simply extract all the
+files in a directory the executable will be able to
+write to (for save files and win/loss reports), and
+execute harmless7drl.exe.
+
+To start the game from source (on Linux or another
+platform that supports curses in Python), simply type
+    python harmless7drl.py
+at the console. (Substitute appropriately if your
+"python" does not point to a version of Python 2.
+The game was tested on Python 2.5 for Linux and
+Python 2.6 for Windows.)
 
     == MAGIC SYSTEM ==
 
@@ -64,6 +80,42 @@ files in the main game directory.
 If you win, or just play an interesting game, please
 do share these -- I'd find it intestesting to see how
 other people are playing the game.
+
+During testing I have _almost_ finished the game, so
+I feel confident saying that it's theoretically
+completable, just pretty difficult. (If it sounds
+amazing that I haven't even finished my own game,
+please do consider that there's not a lot of time to
+test a 7DRL.)
+
+    == KNOWN ISSUES ==
+
+Bug- and annoyance-fix versions may or may not be
+released later. Here are a few issues that are known
+to me:
+
+Saving and loading takes a long time, and the files
+may grow large. (This is not likely to be fixed
+since it's a direct result of programmer-time saving
+simplifications.)
+
+The game may on occasion appear to freeze for a
+moment; this is related to level generation and
+should only happen once for each dungeon floor.
+(It might happen before the player actually
+descends.)
+
+In some situations, it's easy to miss console messages.
+A solution to this is likely to be worked out in
+an annoyance-fix release.
+
+There are also probably a few straight-out bugs remaining;
+if you experience weird behaviour or crashes, please send
+me a bug report. If the game crashes, the error output
+from Python will likely be very useful to me: this is
+output to the console if you're executing from source
+and put in a ".log" file if you're executing the packaged
+Windows binary.
 
     == ABOUT THE SOURCE ==
 
@@ -127,6 +179,9 @@ Stuff included in this package that is not my own work:
     http://home.gna.org/oomadness/en/cerealizer/index.html
     Python License
     Jean-Baptiste Lamy "Jiba"
+
+    (with the Windows binary)
+    The Python 2.6 interpreter, as packaged by Py2Exe.
 
     == DEVELOPMENT TIME ==
 
