@@ -878,16 +878,19 @@ def mapFromGenerator( context, ancestor = None):
         # should be in chests: that way it's hard to
         # distinguish between danger rooms and reward rooms
         valueTarget = random.randint(40,70) # per room, people!
-        if rv.depth == 1:
-            valueTarget *= 2
         for protoitem in selectThings( rv.depth, valueTarget, context.protoitems ):
             item = protoitem.spawn()
-            print >> sys.stderr, item.name.indefiniteSingular()
             tile = rv.tiles[ room.internalFloorpoint() ]
             tile.items.append( item )
+        if rv.depth == 1:
+            for protoitem in selectThings( rv.depth, 70 - valueTarget, context.protorunes ):
+                item = protoitem.spawn()
+                tile = rv.tiles[ room.internalFloorpoint() ]
+                tile.items.append( item )
+
     for room in lg.dangerRooms:
         generateTrapsForRoom( rv, context, room )
-    monsterValueTarget = random.randint( 10, 16 )
+    monsterValueTarget = random.randint( 6, 12 )
     potentialMonsters = [ thing for thing in context.protomonsters if thing.rarity.eligible( rv.depth ) ]
     populateLevel( rv, context, monsterValueTarget, potentialMonsters, excludeRoom = lg.entryRoom )
     from monsters import Boulder
