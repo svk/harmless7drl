@@ -189,6 +189,7 @@ class GameWidget ( Widget ):
         else:
             if not tile.cannotEnterBecause( self.player ):
                 self.player.moveto( tile )
+                self.player.tile.describeHere()
                 self.tookAction( 1 )
             elif tile.isPortal:
                 if self.player.hasMacGuffin():

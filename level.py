@@ -641,8 +641,6 @@ class Mobile:
                 self.tile.playerTrail = tile
             self.tile = tile
         self.tile.enters( self, turbulenceProbability = turbulenceProbability )
-        if self.isPlayer():
-            self.tile.describeHere()
     def isPlayer(self):
         try:
             return self.context.player == self

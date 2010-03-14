@@ -104,7 +104,7 @@ class ExplodingMine (Trap):
         return "A mine."
 
 class TrapDoor (Trap):
-    rarity = Rarity( freq = 1, minLevel = 2 )
+    rarity = Rarity( freq = 100, minLevel = 1 ) # minlevel 2
     def __init__(self, tile, *args, **kwargs):
         Trap.__init__(self, difficulty = 4, *args, **kwargs)
         self.blastSize = 5
@@ -137,7 +137,7 @@ class CannotPlaceTrap:
     pass
 
 class ArrowTrap (Trap):
-    rarity = Rarity( freq = 1 )
+    rarity = Rarity( freq = 1, maxLevel = 5 )
     def __init__(self, tile, *args, **kwargs):
         directions = {
             'west': (-1,0),
@@ -193,7 +193,7 @@ class ArrowTrap (Trap):
         arrowHit.damage( self.power )
 
 class TeleportationTrap (Trap):
-    rarity = Rarity( freq = 1, maxLevel = 5 )
+    rarity = Rarity( freq = 1, maxLevel = 8 )
     def __init__(self, tile, *args, **kwargs):
         Trap.__init__(self, difficulty = 10, *args, **kwargs)
         installStepTrigger( tile, self )
@@ -222,7 +222,7 @@ class RockslideTrap (Trap):
     # when moving about below level 5, you need to have digging,
     # teleportation, OR good trap detection. Otherwise you risk
     # an effective instadeath.
-    rarity = Rarity( freq = 100 ) # TODO should have minLevel set
+    rarity = Rarity( freq = 1, minLevel = 5 )
     def __init__(self, tile, *args, **kwargs):
         Trap.__init__(self, difficulty = 6, *args, **kwargs)
         installStepTrigger( tile, self )
@@ -252,7 +252,7 @@ class RockslideTrap (Trap):
         self.remove()
 
 class NonlethalPit (Trap):
-    rarity = Rarity( freq = 100 )
+    rarity = Rarity( freq = 1 )
     def __init__(self, tile, *args, **kwargs):
         Trap.__init__(self, difficulty = 0, fillable = True, *args, **kwargs)
         installStepTrigger( tile, self )
