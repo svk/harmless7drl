@@ -283,10 +283,13 @@ Harmless7DRL was kaw's entry for the 2010 seven-day roguelike challenge,\
  a game development challenge where entrants create a roguelike in 168\
  hours.\
 \n
+The sources for the project (in Python) are released under the MIT license.\
+ They can be obtained from GitHub at http://github.com/svk/harmless7drl .
+\n
 kaw has previously made 7DRLs "Seven Weeks", "Tribe", and "Emperor Engine",\
  as well as the almost-a-7DRL "Faerie's Lair". (Out of these, only Tribe and\
  Faerie's Lair can really be recommended as games.)\
 \n
-For questions or comments he can be reached on #rgrd on QuakeNet\
- on IRC -- a friendly hangout for roguelike developers and others interested\
+For questions or comments kaw can be reached on #rgrd on QuakeNet\
+ on IRC -- a hangout for roguelike developers and others interested\
  in roguelikes -- or on kaw.dev@gmail.com .""")
