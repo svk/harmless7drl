@@ -132,7 +132,7 @@ Having saved the day and lived to tell the tale, you breathe\
 Congratulations on your victory! A log file has been written to\
  the game directory. (not really yet)""")
 
-def writeReport( game, won, books = 0 ):
+def writeReport( game, won, books = 0, didQuit = False ):
     import time
     unfriendlytime = time.strftime( "%Y-%m-%d-%H-%M-%S-%Z" )
     friendlytime = time.strftime( "%d/%m/%Y %H:%M" )
@@ -148,6 +148,8 @@ def writeReport( game, won, books = 0 ):
                 print >>f, "%s also returned a valuable books to the library." % (Psub)
             else:
                 print >>f, "%s also returned %d valuable books to the library." % (Psub, books)
+    elif didQuit:
+        print >>f, "%s quit the game at %s." % (name, friendlytime)
     else:
         print >>f, "%s perished in the dungeon at %s." % (name, friendlytime)
     print >>f
@@ -155,7 +157,7 @@ def writeReport( game, won, books = 0 ):
     print >>f, "%s spent %d ticks in the dungeon." % (Psub, game.context.totalTime)
     print >>f, "%s reached dungeon level %d." % (Psub, game.player.greatestDepth )
     print >>f, "%s drained %d points' worth of magical energy from artifacts while in the dungeon." % (Psub, game.player.manaUsed)
-    print >>f, "%s had %d/%d hit points." % (Psub, game.player.hitpoints, game.player.maxHitpoints )
+    print >>f, "%s had %d hit points, out of a maximum of %d." % (Psub, game.player.hitpoints, game.player.maxHitpoints )
     if game.player.weapon:
         print >>f, "%s was wielding %s." % (Psub, game.player.weapon.name.indefiniteSingular() )
     print >>f
@@ -165,7 +167,7 @@ def writeReport( game, won, books = 0 ):
         for protorune in identifiedProtorunes:
             print >>f, "%s had identified the \"%s\" rune as \"%s\"." % (Psub, protorune.arcaneName, protorune.englishName )
     else:
-        print >>f, "%s hadn't identified any runes."
+        print >>f, "%s hadn't identified any runes." % Psub
 
     if game.player.inventory:
         print >>f, "%s was carrying:" % Psub
@@ -182,7 +184,7 @@ def writeReport( game, won, books = 0 ):
                 x = "(never cast)"
             else:
                 if spell.castCount == 1:
-                    x = "(cast one time)"
+                    x = "(cast once)"
                 else:
                     x = "(cast %d times)" % spell.castCount
             print >>f, "\t", spell.name, x
@@ -207,3 +209,67 @@ def writeReport( game, won, books = 0 ):
         print >>f, "\t", protomonster.name.amount( protomonster.spawnCount ), x
 
     f.close()
+
+def displayInstructions( main ):
+    # thses are instructions for people who are new to roguelikes,
+    # or people who really like help text.
+    # the '?' keymap should be more concise.
+    main.query( WallOfTextWidget, width = 78, center = True, text = """\
+Harmless7DRL is a rogue-like game. As is conventional in the genre, the\
+ letters and symbols on the main screen represent a top-down view of\
+ a dungeon level. The player character is the green @.\
+\n
+Letters in general represent monsters. Hashes (#) are walls, and periods (.) are floor tiles.\
+ Most dungeon levels contain stairs down (>) and stairs up (<). Boulders\
+ (0) are scattered around the dungeon. Other symbols usually represent\
+ items. Floor tiles highlighted with a red background indicate that your\
+ character has noticed a trap trigger. You can press the "look" key, ':',\
+ to enter look mode, allowing you  to get a description of any visible tile\
+ by placing your cursor over it. (The cursor is controlled with the same keys\
+ as the player character.  You can exit look-mode by pressing space or Enter.)\
+\n
+In a roguelike, when a character dies the game is permanently over.\
+ It is not intended that you reload after a lost game -- instead,\
+ start over with a new character. For this reason, there is no need\
+ to save the game explicitly. Whenever you quit the game with 'q',\
+ your game will be saved automatically. The next time you play with\
+ the same character name, your old game will be loaded and the save\
+ file will be deleted.""")
+    main.query( WallOfTextWidget, width = 78, center = True, text = """\
+To move about, use the numeric keypad keys, or if you prefer, the vi keys\
+ (h/l for west/east, j/k for south/north, y/n for northwest/southeast, b/u\
+ for northeast/southwest). If you use the arrow keys to move, you will be\
+ disadvantaged by an inability to move diagonally.\
+\n
+To attack a monster at close range, simply attempt to move into it.
+To pick up an item, move over it and press ',' (comma).
+To use an item, or wield or sheathe a weapon, press 'i' to bring up your inventory\
+ and select the appropriate item with the Enter key.
+To cast a spell, press 'm' and select the spell from the menu or using its\
+ hotkey (displayed on the menu).
+To construct a new spell from collected runes, press 'w'. You will need to collect runes\
+ and identify them by using scrolls of magic before you can do this successfully.\
+\n
+During play, you can press '?' to get a detailed list of keys recognized by\
+ the game.""")
+    main.query( WallOfTextWidget, width = 78, center = True, text = """\
+Harmless7DRL may appear to be a very traditional hack-and-slash roguelike, with\
+ a linear dungeon, hostile monsters, melee combat, spells and traps.\
+ However, if you play it as you would play a normal roguelike, you are likely to\
+ find it very hard. The player character is not a warrior, or even a\
+ warrior mage. Most of the monsters are much stronger than you are,\
+ you have very few hit points, and several things can kill you in just one\
+ hit.\
+\n
+To succeed, you must make every effort to avoid fighting. Study the behaviour of\
+ the monsters you encounter and modify your own behaviour accordingly.\
+ Make use of the hazardous dungeon environment. Make sure you collect items,\
+ identify runes, and construct spells to grow in power as you descend through the dungeon,\
+ as otherwise you will lack the capabilities to deal with the dangers of\
+ the deeper parts.\
+\n
+If you play carelessly, you may end up in a state where you are alive, but\
+ trapped. If this happens and you see no way out of the situation,\
+ you can press 'Q' to give up on a character.\
+\n
+Good luck!""")

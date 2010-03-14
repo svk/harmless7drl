@@ -53,7 +53,8 @@ class PlayerWonException:
     pass
 
 class PlayerKilledException:
-    pass
+    def __init__(self, didQuit = False):
+        self.didQuit = didQuit
 
 def countItems( l ):
     rv = {}

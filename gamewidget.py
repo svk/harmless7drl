@@ -98,9 +98,10 @@ class GameWidget ( Widget ):
         displayOutro( self, self.player.itemTypeCount( 'spellbook' ) )
         self.done = True
         self.result = False
-    def playerDied(self):
-        writeReport( self, False )
-        self.main.query( HitEnterWidget )
+    def playerDied(self, pke):
+        writeReport( self, False, didQuit = pke.didQuit )
+        if not pke.didQuit: # if we quit, we just confirmed in a menu
+            self.main.query( HitEnterWidget )
         self.done = True
         self.result = False
     def playerVisibility(self, fov):
@@ -420,7 +421,12 @@ class GameWidget ( Widget ):
                 self.context.save( savefileName( self.context.player.rawname ) )
                 self.done = True
             elif key == 'Q':
-                self.done = True
+                if self.main.query( SelectionMenuWidget, choices = [
+                    (False, "No"),
+                    (True, "Yes, quit without saving"),
+                ], title = "Really give up on this character?", padding = 5 ):
+                    raise PlayerKilledException( didQuit = True )
+            # XXX debugging and cheats past this point
             elif key == 'W':
                 raise PlayerWonException()
             elif key == 'V':
@@ -461,8 +467,8 @@ Than to love and be loved by me.""", width = 60 )
                 self.showExplosion( (0,0), 8 )
             elif key == 'X':
                 self.player.damage( 100 )
-        except PlayerKilledException:
-            self.playerDied()
+        except PlayerKilledException, pke:
+            self.playerDied( pke )
         except PlayerWonException:
             self.playerWon()
     def showEffects(self, effects, t = 0.05):
