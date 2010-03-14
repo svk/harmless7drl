@@ -216,7 +216,11 @@ class GameWidget ( Widget ):
                 openDoor( tile )
                 self.tookAction( 1 )
             else:
-                self.log( "You can't move there because %s." % tile.cannotEnterBecause( self.player ) )
+                reason = tile.cannotEnterBecause( self.player )
+                if reason == "tile is impassable":
+                    self.log( "There's a wall in the way." )
+                else:
+                    self.log( "You can't move there because %s." % reason )
     def pickup(self):
         if self.player.tile.items:
             if len( self.player.tile.items ) == 1:
