@@ -101,7 +101,7 @@ class VisionField:
             (0,1): ( (-1,0), (0,1), (1,0) ),
             (1,1): ( (0,1), (1,0) ),
         }
-        initialAngles = [ 0.125, 0.375, 0.625, 0.825 ]
+        initialAngles = [ 0.125, 0.375, 0.625, 0.875 ]
         for i in range(4):
             a0 = initialAngles[i-1]  #notice that this works with 0 and -1
             a1 = initialAngles[i]
