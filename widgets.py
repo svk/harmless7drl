@@ -287,6 +287,7 @@ class RootMenuWidget(Widget):
             result = self.main.query( SelectionMenuWidget, choices = [
                 ('new', "Play Harmless7DRL"),
                 ('instructions', "Instructions"),
+                ('about', "About"),
                 ('quit', "Quit"),
             ], padding = 5, centered = True, noInvert = True )
             if result == 'quit':
@@ -297,3 +298,6 @@ class RootMenuWidget(Widget):
             elif result == 'instructions':
                 from plot import displayInstructions
                 displayInstructions( self.main )
+            elif result == 'about':
+                from plot import displayAbout
+                displayAbout( self.main )

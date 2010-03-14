@@ -273,3 +273,20 @@ If you play carelessly, you may end up in a state where you are alive, but\
  you can press 'Q' to give up on a character.\
 \n
 Good luck!""")
+
+def displayAbout( main ):
+    # thses are instructions for people who are new to roguelikes,
+    # or people who really like help text.
+    # the '?' keymap should be more concise.
+    main.query( WallOfTextWidget, width = 78, center = True, text = """\
+Harmless7DRL was kaw's entry for the 2010 seven-day roguelike challenge,\
+ a game development challenge where entrants create a roguelike in 168\
+ hours.\
+\n
+kaw has previously made 7DRLs "Seven Weeks", "Tribe", and "Emperor Engine",\
+ as well as the almost-a-7DRL "Faerie's Lair". (Out of these, only Tribe and\
+ Faerie's Lair can really be recommended as games.)\
+\n
+For questions or comments he can be reached on #rgrd on QuakeNet\
+ on IRC -- a friendly hangout for roguelike developers and others interested\
+ in roguelikes -- or on kaw.dev@gmail.com .""")
