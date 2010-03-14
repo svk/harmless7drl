@@ -31,7 +31,7 @@ lastItem = SteelStaff = magic.Staff(
     minMana = 0,
     maxMana = 0,
     weight = 15,
-    rarity = Rarity( worth = 20, freq = 1, minLevel = 8 )
+    rarity = Rarity( worth = 5, freq = 1, minLevel = 1, maxLevel = 3 )
 )
 Items.append( lastItem )
 
