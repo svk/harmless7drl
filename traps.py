@@ -263,7 +263,7 @@ class NonlethalPit (Trap):
     def describe(self):
         return "A pit."
 
-class UncoveredHole (Trap):
+class UncoveredHole (TrapDoor):
     rarity = Rarity( freq = 100, minLevel = 1, maxLevel = 4 )
     def __init__(self, tile, *args, **kwargs):
         TrapDoor.__init__(self, tile, *args, **kwargs)
