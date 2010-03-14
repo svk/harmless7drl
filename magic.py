@@ -96,13 +96,13 @@ class HealthTalisman (Item):
         mobile.damage(0)
 
 class Tome (Item):
-    def __init__(self, name, rarity):
+    def __init__(self, name, rarity, weight):
         Item.__init__(self,
                       name,
                       '?',
                       'white',
                       itemType = "tome",
-                      weight = 10,
+                      weight = weight,
                       rarity = rarity)
     def identifyRune(self, context, inventory):
         unidentifiedRunes = list( filter( lambda rune : rune.itemType == "rune" and not rune.protorune.identified, inventory ) )
