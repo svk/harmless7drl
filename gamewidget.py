@@ -168,13 +168,16 @@ class GameWidget ( Widget ):
         target = pushable.tile.getRelative( dx, dy )
         if pushable.ai.inMotion():
             self.context.log( "You can't push %s while %s's in motion!" % ( pushable.name.definiteSingular(), pushable.name.pronounObject() ) )
-        elif (not target) or target.cannotEnterBecause( pushable ):
+        elif (not target) or (target.cannotEnterBecause( pushable ) and not (target.mobile and target.mobile.trappedFor > 0 and not target.mobile.essential)):
             self.context.log( "You try to push %s but can't budge it." % pushable.name.definiteSingular() )
             self.tookAction( 1 )
         else:
             self.context.log( "You push %s." % pushable.name.definiteSingular() )
+            if target.mobile:
+                target.mobile.logVisual( "You are crushed beneath the boulder!", "%s is crushed beneath the boulder!" )
+                target.mobile.kill()
             tile = pushable.tile
-            pushable.moveto( target )
+            pushable.moveto( target, neverfail = True )
             if not tile.cannotEnterBecause( self.player ):
                 self.player.moveto( tile )
             self.tookAction( 1 )
@@ -253,7 +256,7 @@ class GameWidget ( Widget ):
         if self.player.tile.name == "stairs up":
             if self.player.tile.level.previousLevel:
                 spot = self.player.tile.level.previousLevel.getPlayerSpawnSpot( upwards = True )
-                self.player.moveto( spot )
+                self.player.moveto( spot, neverfail = True )
                 self.tookAction( 1 )
             else:
                 self.log( "For unspecified plot reasons, you don't want to turn back." )
@@ -262,7 +265,7 @@ class GameWidget ( Widget ):
                 self.log( "You can't reach the hole in the ceiling." )
             else:
                 spot = self.player.tile.ceilingHole.level.getClearTileAround( self.player.tile.ceilingHole )
-                self.player.moveto( spot )
+                self.player.moveto( spot, neverfail = True )
                 self.log( "You fly through the hole in the ceiling." )
                 self.tookAction( 1 )
         else:
@@ -271,7 +274,7 @@ class GameWidget ( Widget ):
         if self.player.tile.name == "stairs down":
             nextLev = self.player.tile.level.generateDeeperLevel()
             spot = nextLev.getPlayerSpawnSpot()
-            self.player.moveto( spot )
+            self.player.moveto( spot, neverfail = True )
             self.tookAction( 1 )
         elif self.player.flying and self.player.tile.trap and self.player.tile.trap.trapname == "trapdoor":
             if not self.player.flying:
@@ -282,7 +285,7 @@ class GameWidget ( Widget ):
                 below = self.player.tile.trap.getTarget()
                 spot = below.level.getClearTileAround( below )
                 self.log( "You fly through the hole in the floor." )
-                self.player.moveto( spot )
+                self.player.moveto( spot, neverfail = True )
                 self.tookAction( 1 )
         else:
             self.log( "You can't see any way to go down right here." )
@@ -461,8 +464,8 @@ Than to love and be loved by me.""", width = 60 )
                         self.player.spellbook.append( spell )
                 self.player.weapon.mana += 500
             elif key == 'H':
-                self.player.hitpoints -= 1
-                self.tookAction(1)
+                self.player.hitpoints += 1
+                self.player.maxHitpoints += 1
             elif key == 'C':
                 self.showExplosion( (0,0), 8 )
             elif key == 'X':

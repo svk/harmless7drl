@@ -119,7 +119,7 @@ class TrapDoor (Trap):
         mob.logVisual( "You fall through a hole in the floor!", "%s falls down a hole in the floor!" )
         self.getTarget()
         tile = self.target.level.getClearTileAround( self.target, lambda tile : not tile.impassable and not tile.mobile )
-        mob.moveto( tile )
+        mob.moveto( tile, neverfail = True )
         mob.damage( 1 )
         self.difficulty = 0
     def getTarget(self):
@@ -207,7 +207,7 @@ class TeleportationTrap (Trap):
         mob.logVisual( "Your surroundings suddenly shift!", "%s disappears!" )
         self.getTarget()
         tile = self.target.level.getClearTileAround( self.target, lambda tile : not tile.impassable and not tile.mobile )
-        mob.moveto( tile )
+        mob.moveto( tile, neverfail = True )
         if not mob.isPlayer():
             mob.logVisualMon( "%s reappears!" )
     def getTarget(self):
@@ -242,7 +242,7 @@ class RockslideTrap (Trap):
                 moveAway.append( nb.mobile )
         for mb in moveAway:
             tile = mob.tile.level.getClearTileAround( mb.tile, lambda tile : not tile.cannotEnterBecause( mb ) )
-            mb.moveto( tile )
+            mb.moveto( tile, neverfail = True )
         for nb in mob.tile.neighbours():
             from level import makeWall
             makeWall( nb )
@@ -251,7 +251,19 @@ class RockslideTrap (Trap):
                 mob.context.log( "The dungeon collapses around %s!" % mob.definiteSingular() )
         self.remove()
 
-Traps = [ SpikePit, ExplodingMine, ArrowTrap, TrapDoor, TeleportationTrap, RockslideTrap ]
+class NonlethalPit (Trap):
+    rarity = Rarity( freq = 100 )
+    def __init__(self, tile, *args, **kwargs):
+        Trap.__init__(self, difficulty = 0, fillable = True, *args, **kwargs)
+        installStepTrigger( tile, self )
+    def __call__(self, mob):
+        turnsReq = random.randint( 30, 60 )
+        mob.webtrap( turnsReq )
+        mob.logVisual( "You fall into the pit!", "%s falls into the pit!" )
+    def describe(self):
+        return "A pit."
+
+Traps = [ SpikePit, NonlethalPit, ExplodingMine, ArrowTrap, TrapDoor, TeleportationTrap, RockslideTrap ]
         
         
 # 21:20

@@ -183,7 +183,7 @@ class Tile:
             elif random.random() < turbulenceProbability and not self.turbulenceRedirect.cannotEnterBecause( mobile ):
                 if turbulenceProbability == 1.0:
                     self.context.log( "You are blown away by a gust of magical wind!" )
-                mobile.moveto( self.turbulenceRedirect, turbulenceProbability = turbulenceProbability / 2.0 )
+                mobile.moveto( self.turbulenceRedirect, turbulenceProbability = turbulenceProbability / 2.0, neverfail = True )
     def appearance(self):
         rv = {
             'ch': self.symbol,
@@ -468,12 +468,13 @@ class Mobile:
         self.noChildren = noChildren
         self.protector = None
         self.childrenAttacked = False
+        self.trappedFor = 0
         self.children = []
         if onDeath:
             self.deathHooks.append( onDeath )
         if not proto:
             self.context = context
-            self.moveto( tile )
+            self.moveto( tile, neverfail = True )
     def itemTypeCount(self, kind):
         return len( list( filter( lambda item: item.itemType == kind, self.inventory ) ) )
     def spawn(self, context, tile ):
@@ -490,7 +491,7 @@ class Mobile:
         rv.buffs = {}
         rv.context = context
         rv.sim = tile.level.sim
-        rv.moveto( tile )
+        rv.moveto( tile, neverfail = True )
         if rv.spawner:
             noCh = random.randint( *rv.noChildren )
             rv.children = []
@@ -607,9 +608,25 @@ class Mobile:
             rv.append( "Visions" )
         if self.lifesense:
             rv.append( "Lifesense" )
+        if self.trappedFor > 0:
+            rv.append( "Trapped" )
         return " ".join( rv )
-    def moveto(self, tile, turbulenceProbability = 1.0):
+    def webtrap(self, turns):
+        self.trappedFor += turns
+    def moveto(self, tile, turbulenceProbability = 1.0, neverfail = False):
         assert not tile.cannotEnterBecause( self )
+        if neverfail:
+            self.trappedFor = 0
+        if self.trappedFor > 0:
+            if self.flying:
+                self.trappedFor = 0
+                self.logVisual( "You fly out of the pit.", "%s flies out of the pit." )
+            else:
+                self.trappedFor -= 1
+                if self.trappedFor > 0:
+                    self.logVisual( "You struggle to get out of the pit.", "%s struggles to get out of the pit." )
+                    return
+                self.logVisual( "You manage to get out of the pit.", "%s manages to get out of the pit." )
         if self.tile:
             self.tile.leaves()
         if not self.tile or self.tile.level != tile.level:

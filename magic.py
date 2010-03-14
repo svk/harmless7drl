@@ -162,7 +162,7 @@ class TeleportSelf (Spell):
         # teleport the player randomly. (greater teleport allows you to specify destination.)
         context.log( "You cast the Escape spell and teleport away!" )
         tile = context.player.tile.level.randomTile( lambda tile : not tile.trap and not tile.cannotEnterBecause( context.player ) )
-        context.player.moveto( tile )
+        context.player.moveto( tile, neverfail = True )
 
 class TeleportOther (Spell):
     def __init__(self):
@@ -188,7 +188,7 @@ class TeleportOther (Spell):
         mob = tile.mobile
         tile = context.player.tile.level.randomTile( lambda tile : not tile.cannotEnterBecause( mob ) )
         mob.logVisualMon( "%s disappears!" )
-        mob.moveto( tile )
+        mob.moveto( tile, neverfail = True )
         mob.logVisualMon( "%s reappears." )
 
 class Dig (Spell):
@@ -389,7 +389,7 @@ class FlyerKnockback (Spell): # might be really useful against imps
                         step = tile
                 if not step:
                     break
-                mover.moveto( step )
+                mover.moveto( step, neverfail = True )
                 actuallyMoved += 1
             if actuallyMoved:
                 duration = random.randint( actuallyMoved * 20, actuallyMoved * 40 )
