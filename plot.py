@@ -300,3 +300,46 @@ kaw has previously made 7DRLs "Seven Weeks", "Tribe", and "Emperor Engine",\
 For questions or comments kaw can be reached on #rgrd on QuakeNet\
  on IRC -- a hangout for roguelike developers and others interested\
  in roguelikes -- or on kaw.dev@gmail.com .""")
+
+def displayHelp( main ):
+    # thses are instructions for people who are new to roguelikes,
+    # or people who really like help text.
+    # the '?' keymap should be more concise.
+    main.query( WallOfTextWidget, width = 60, center = False, text = """\
+Movement (use any of the listed keys)
+
+                    Vi      Numpad      Arrow
+    north           k       8           up
+    south           j       2           down
+    east            l       6           right
+    west            h       4           left
+    northeast       u       9
+    northwest       y       7
+    southeast       n       3
+    southwest       b       1
+
+Menu system
+    up              k       8           up
+    down            j       2           down
+
+    select              enter, space""")
+    main.query( WallOfTextWidget, width = 60, center = False, text = """\
+Other game keys
+    wait                .
+    pick up             ,
+    drop                d
+    close door          c
+    down                >
+    up                  <
+    write spell         w
+    cast spell          m
+    inventory           i
+    look-mode           :
+
+Game management keys
+    quit and save       q
+    abandon game        Q
+    help                ?
+
+More help and hints on how to play the game can
+be found under "Instructions" from the main menu.""")

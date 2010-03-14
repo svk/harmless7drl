@@ -1,3 +1,42 @@
+    == CONTROLS ==
+
+Movement (use any of the listed keys)
+
+                    Vi      Numpad      Arrow
+    north           k       8           up
+    south           j       2           down
+    east            l       6           right
+    west            h       4           left
+    northeast       u       9
+    northwest       y       7
+    southeast       n       3
+    southwest       b       1
+
+Menu system
+    up              k       8           up
+    down            j       2           down
+
+    select              enter, space
+
+Other game keys
+    wait                .
+    pick up             ,
+    drop                d
+    close door          c
+    down                >
+    up                  <
+    write spell         w
+    cast spell          m
+    inventory           i
+    look-mode           :
+
+Game management keys
+    quit and save       q
+    abandon game        Q
+    help                ?
+
+    == ACKNOWLEDGEMENTS ==
+
 Stuff included in this package that is not my own work:
     Cerealizer 0.7
     http://home.gna.org/oomadness/en/cerealizer/index.html

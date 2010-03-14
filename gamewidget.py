@@ -439,6 +439,9 @@ class GameWidget ( Widget ):
                     (True, "Yes, quit without saving"),
                 ], title = "Really give up on this character?", padding = 5 ):
                     raise PlayerKilledException( didQuit = True )
+            elif key == '?':
+                from plot import displayHelp
+                displayHelp( self.main )
             # XXX debugging and cheats past this point
             elif key == 'W':
                 raise PlayerWonException()
