@@ -1,3 +1,11 @@
+# This makefile builds the Windows executable.
+# It's very specific to my own Windows environment;
+#  if you need to do a Windows build tailor as needed.
+
+# If you want to play the game and you're on Linux, 
+# you do not need to build anything: simply run
+#   python harmless7drl.py
+
 WPY26="C:\Program Files\Python26\python.exe"
 P2E_EXTRAS=SDL.dll libtcod-mingw.dll arial12x12.png
 # may need msvcr80.dll
