@@ -137,9 +137,10 @@ Having saved the day and lived to tell the tale, you breathe\
 ))
     game.main.query( WallOfTextWidget, width = 60, center = True, text = """\
 Congratulations on your victory! A log file has been written to\
- the game directory. (not really yet)""")
+ the game directory.""")
 
 def writeReport( game, won, books = 0, didQuit = False ):
+    import core
     import time
     unfriendlytime = time.strftime( "%Y-%m-%d-%H-%M-%S-%Z" )
     friendlytime = time.strftime( "%d/%m/%Y %H:%M" )
