@@ -241,7 +241,7 @@ class Rook:
         # straight line to the player. If it does, moves 8 (radius)
         # tiles
         pl = mob.context.player
-        if playerAccessibleForMelee( mob ):
+        if not playerAccessibleForMelee( mob ):
             return
         if pl.invisible:
             return
