@@ -343,7 +343,6 @@ class GameWidget ( Widget ):
                 self.log( "The rune is useless on its own. (Press 'w' to combine runes into spells.)" )
             elif chosen.itemType == 'tome':
                 if chosen.identifyRune( self.context, self.player.inventory ):
-                    self.player.inventoryTake( chosen )
                     self.tookAction( 1 )
             elif chosen.itemType == 'healing':
                 self.log( "You chug down the small vial of purple liquid." )

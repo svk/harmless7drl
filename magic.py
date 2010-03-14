@@ -119,6 +119,7 @@ class Tome (Item):
         rune.identify()
         context.log( "You learn that \"%s\" means \"%s\"." % (rune.arcaneName, rune.englishName) )
         context.log( "The scroll disappears in a puff of smoke." )
+        context.player.inventoryTake( self )
         return True
         
 
