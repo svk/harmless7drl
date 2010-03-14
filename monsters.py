@@ -187,6 +187,22 @@ MacGuffinMobileFemale = Mobile(
     essential = True,
 )
 
+lastMon = Culargotte = Mobile(
+    # a strong but non-aggressive animal that likes to sleep at
+    # choke-points... tempts the player to attack
+    name = Noun( "a", "culargotte", "culargottes" ),
+    symbol = "C",
+    fgColour = "green",
+    ai = ChokepointSleeperAnimal(radius = 5),
+    speed = Speed.VeryQuick,
+    rarity = Rarity( freq = 100 ),
+    hitpoints = 20,
+    meleePower = 1,
+    attackVerb = Verb( "bite", "bites" ),
+)
+Monsters.append( lastMon )
+
+
 
 if __name__ == '__main__':
     from level import DungeonDepth

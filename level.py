@@ -358,6 +358,7 @@ def makeFloor( tile ):
     tile.spawnItems = True
     tile.hindersLOS = False
     tile.tileTypeDesc = ""
+    tile.isDoor = False
 
 def makeWall( tile ):
     tile.name = "wall"
@@ -369,6 +370,7 @@ def makeWall( tile ):
     tile.spawnItems = False
     tile.hindersLOS = True
     tile.tileTypeDesc = "A wall."
+    tile.isDoor = False
 
 class Mobile:
     # this class is a mess, there are several player-specific fields

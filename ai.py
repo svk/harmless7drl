@@ -2,10 +2,10 @@ import random
 import sys
 from level import sign
 
-def seekGoal(mob, target, radius):
+def seekGoal(mob, target, radius, openDoors = False):
     from pathfind import Pathfinder, infinity
     import math
-    pf = Pathfinder(cost = lambda tile : infinity if tile.cannotEnterBecause( mob ) and not target(tile) else 1,
+    pf = Pathfinder(cost = lambda tile : infinity if tile.cannotEnterBecause( mob ) and not target(tile) and not (openDoors and tile.name == "closed door") else 1,
                     goal = target,
                     heuristic = lambda tile : 0,
                     limit = radius,
@@ -27,7 +27,7 @@ def seekMob(mob, target, radius):
     path = pf.seek()
     return path
 
-def doRandomWalk( mob, avoidTraps = False ):
+def doRandomWalk( mob, avoidTraps = True ):
     goodtiles = []
     for tile in mob.tile.neighbours():
         if not tile.cannotEnterBecause( mob ):
@@ -107,10 +107,10 @@ def doMeleePlayerOrFlee(mob):
             tile = random.choice( goodtiles )
             mob.moveto( tile )
         
-def doTrySpecialMeleePlayer(mob, radius):
+def doTrySpecialMeleePlayer(mob, radius, avoidTrapsRandomWalking = True):
     path = seekPlayer( mob, radius )
     if not path:
-        doRandomWalk( mob )
+        doRandomWalk( mob, avoidTraps = avoidTrapsRandomWalking )
     else:
         target = mob.context.player
         if len( path ) > 2:
@@ -124,7 +124,7 @@ def doTrySpecialMeleePlayer(mob, radius):
     return False
 
 class RandomWalker:
-    def __init__(self, avoidTraps = False):
+    def __init__(self, avoidTraps = True):
         self.avoidTraps = avoidTraps
     def trigger(self, mob):
         doRandomWalk( mob, avoidTraps = self.avoidTraps )
@@ -425,7 +425,7 @@ class PlayerTrailFollower:
     def doTryTrail(self, mob):
         tile = mob.tile.playerTrail
         if not tile or tile.cannotEnterBecause( mob ):
-            if tile and tile.mobile.isPlayer() and tile.mobile.canBeMeleeAttackedBy( mob ):
+            if tile and tile.mobile and tile.mobile.isPlayer() and tile.mobile.canBeMeleeAttackedBy( mob ):
                 mob.meleeAttack( tile.mobile )
             else:
                 doRandomWalk( mob )
@@ -459,3 +459,35 @@ class PursueWoundedAnimal:
                 doRandomWalk( mob )
         else:
             doMeleeAlongPath( mob, mob.context.player, path )
+
+class ChokepointSleeperAnimal:
+    def __init__(self, radius):
+        self.radius = radius
+        self.provoked = False
+    def trigger(self, mob):
+        if self.provoked and playerAccessibleForMelee( mob ) and not mob.context.player.invisible:
+            path = seekPlayer( mob, self.radius )
+            if not path:
+                self.doChokepointSleeping( mob )
+            else:
+                doMeleeAlongPath( mob, mob.context.player, path )
+        else:
+            self.doChokepointSleeping( mob )
+    def doChokepointSleeping(self, mob ):
+        isChokepoint = lambda tile : (tile.mobile == mob or not tile.cannotEnterBecause(mob)) and len([n for n in tile.neighbours() if not n.impassable]) == 2
+        if isChokepoint( mob.tile ):
+            return
+        path = seekGoal(mob, isChokepoint, self.radius, openDoors = True )
+        if not path:
+            doRandomWalk( mob )
+        else:
+            try:
+                step = path[1]
+            except IndexeError:
+                return
+            if step.isDoor:
+                from level import makeFloor
+                mob.logVisualMon( "%s knocks down the door." )
+                makeFloor( step )
+            else:
+                mob.moveto( step )

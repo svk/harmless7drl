@@ -226,7 +226,6 @@ class RockslideTrap (Trap):
     def __init__(self, tile, *args, **kwargs):
         Trap.__init__(self, difficulty = 6, *args, **kwargs)
         installStepTrigger( tile, self )
-        self.target = None
         self.trapname = "teletrap"
     def describe(self):
         return "A rockslide trap."
@@ -242,7 +241,7 @@ class RockslideTrap (Trap):
             if nb.mobile:
                 moveAway.append( nb.mobile )
         for mb in moveAway:
-            tile = self.target.level.getClearTileAround( mb.tile, lambda tile : not tile.cannotEnterBecause( mb ) )
+            tile = mob.tile.level.getClearTileAround( mb.tile, lambda tile : not tile.cannotEnterBecause( mb ) )
             mb.moveto( tile )
         for nb in mob.tile.neighbours():
             from level import makeWall
