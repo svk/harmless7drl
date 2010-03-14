@@ -443,46 +443,53 @@ class GameWidget ( Widget ):
                 from plot import displayHelp
                 displayHelp( self.main )
             # XXX debugging and cheats past this point
-            elif key == 'W':
-                raise PlayerWonException()
-            elif key == 'V':
-                self.restrictVisionByFov = not self.restrictVisionByFov
-            elif key == 'T':
-                self.main.query( WallOfTextWidget, text = """\
+            elif key == '!':
+                if self.main.query( SelectionMenuWidget, choices = [
+                    (False, "No"),
+                    (True, "Yes"),
+                ], title = "Enter debugging mode?", padding = 5 ):
+                    self.context.debugmode = True
+            elif self.context.debugmode:
+                if key == 'W':
+                    raise PlayerWonException()
+                elif key == 'V':
+                    self.restrictVisionByFov = not self.restrictVisionByFov
+                elif key == 'T':
+                    self.main.query( WallOfTextWidget, text = """\
 It was many and many a year ago,
 In a kingdom by the sea,
 That a maiden there lived whom you may know
 By the name of ANNABEL LEE;
 And this maiden she lived with no other thought
 Than to love and be loved by me.""", width = 60 )
-            elif key == 'N':
-                from widgets import TextInputWidget
-                import string
-                self.name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: " )
-            elif key == 'M':
-                self.main.query( SelectionMenuWidget, [
-                    (1, "Team Cake"),
-                    (2, "Team Pie"),
-                    (3, "Team Edward"),
-                    (4, "Team Jacob"),
-                    (5, "Team Bella"),
-                    (6, "Team Buffy"),
-                ], title = "Choose your team", padding = 5)
-            elif key == 'D':
-                self.player.trapDetection += 1000
-            elif key == 'S':
-                from magic import Spells
-                for spell in Spells:
-                    if spell not in self.player.spellbook:
-                        self.player.spellbook.append( spell )
-                self.player.weapon.mana += 500
-            elif key == 'H':
-                self.player.hitpoints += 1
-                self.player.maxHitpoints += 1
-            elif key == 'C':
-                self.showExplosion( (0,0), 8 )
-            elif key == 'X':
-                self.player.damage( 100 )
+                elif key == 'N':
+                    from widgets import TextInputWidget
+                    import string
+                    self.name = self.main.query( TextInputWidget, 32, okay = string.letters, query = "Please enter your name: " )
+                elif key == 'M':
+                    self.main.query( SelectionMenuWidget, [
+                        (1, "Team Cake"),
+                        (2, "Team Pie"),
+                        (3, "Team Edward"),
+                        (4, "Team Jacob"),
+                        (5, "Team Bella"),
+                        (6, "Team Buffy"),
+                    ], title = "Choose your team", padding = 5)
+                elif key == 'D':
+                    self.player.trapDetection += 1000
+                elif key == 'S':
+                    from magic import Spells
+                    for spell in Spells:
+                        if spell not in self.player.spellbook:
+                            self.player.spellbook.append( spell )
+                    self.player.weapon.mana += 500
+                elif key == 'H':
+                    self.player.hitpoints += 1
+                    self.player.maxHitpoints += 1
+                elif key == 'C':
+                    self.showExplosion( (0,0), 8 )
+                elif key == 'X':
+                    self.player.damage( 100 )
         except PlayerKilledException, pke:
             self.playerDied( pke )
         except PlayerWonException:

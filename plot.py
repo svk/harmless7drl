@@ -161,6 +161,10 @@ def writeReport( game, won, books = 0, didQuit = False ):
         print >>f, "%s perished in the dungeon at %s." % (name, friendlytime)
     print >>f
     
+    if game.context.debugmode:
+        print >>f, "%s was playing in debugging mode." % (Psub)
+        print >>f
+
     print >>f, "%s spent %d ticks in the dungeon." % (Psub, game.context.totalTime)
     print >>f, "%s reached dungeon level %d." % (Psub, game.player.greatestDepth )
     print >>f, "%s drained %d points' worth of magical energy from artifacts while in the dungeon." % (Psub, game.player.manaUsed)
