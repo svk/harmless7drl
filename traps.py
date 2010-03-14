@@ -106,7 +106,7 @@ class ExplodingMine (Trap):
 class TrapDoor (Trap):
     rarity = Rarity( freq = 1, minLevel = 2 ) # minlevel 2
     def __init__(self, tile, *args, **kwargs):
-        Trap.__init__(self, difficulty = 4, *args, **kwargs)
+        Trap.__init__(self, difficulty = 3, *args, **kwargs)
         self.blastSize = 5
         installStepTrigger( tile, self )
         self.target = None
