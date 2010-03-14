@@ -257,7 +257,7 @@ class NonlethalPit (Trap):
         Trap.__init__(self, difficulty = 0, fillable = True, *args, **kwargs)
         installStepTrigger( tile, self )
     def __call__(self, mob):
-        turnsReq = random.randint( 30, 60 )
+        turnsReq = random.randint( 3, 6 )
         mob.webtrap( turnsReq )
         mob.logVisual( "You fall into the pit!", "%s falls into the pit!" )
     def describe(self):
