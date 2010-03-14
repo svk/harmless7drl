@@ -102,6 +102,7 @@ def registerClasses():
     c.register( R.TeleportationTrap )
     c.register( R.RockslideTrap )
     c.register( R.NonlethalPit )
+    c.register( R.UncoveredHole )
     import ai as A
     c.register( A.RandomWalker )
     c.register( A.TurnerBot )
