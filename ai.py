@@ -248,7 +248,8 @@ class Rook:
         dx, dy = sign(pl.tile.x - mob.tile.x), sign(pl.tile.y - mob.tile.y)
         if dx != 0 and dy != 0:
             return # not a straight line, stationary
-        lastTile = tile = mob.tile.getRelative( dx, dy )
+        lastTile = None
+        tile = mob.tile.getRelative( dx, dy )
         dist = 0
         while not tile.mobile == pl:
             if not tile:
@@ -260,7 +261,7 @@ class Rook:
             tile = tile.getRelative( dx, dy )
         tile = lastTile
         # target acquired!
-        if dist > self.radius:
+        if dist >= self.radius:
             tile = mob.tile.getRelative( dx * self.radius, dy * self.radius )
             doAttack = False
         else:
@@ -272,7 +273,8 @@ class Rook:
         # show an animation, a ray from mob.tile to aniTarget
         raylen = max( abs(aniTarget.x - mob.tile.x), abs(aniTarget.y - mob.tile.y) )
         mob.context.game.showStraightRay( (mob.tile.x, mob.tile.y), (dx,dy), raylen, 'white', 'black' )
-        mob.moveto( tile )
+        if not tile.cannotEnterBecause( mob ): # notably, can't move to its own square
+            mob.moveto( tile )
         if doAttack:
             mob.meleeAttack( pl )
 
