@@ -5,6 +5,8 @@ from ai import *
 from grammar import *
 from timing import Speed
 
+from harmless7drl import ForegroundBlack
+
 Monsters = []
 
 Nibblefish = Mobile(
@@ -118,7 +120,7 @@ Monsters.append( lastMon )
 lastMon = BomberBug = Mobile(
     name = Noun( "a", "bomber beetle", "bomber beetles" ),
     symbol = "b",
-    fgColour = "black",
+    fgColour = ForegroundBlack,
     ai = MeleeSeeker( radius = 7 ),
     speed = Speed.Slow,
     groundhugger = True,
@@ -167,7 +169,7 @@ from items import MacGuffinMale, MacGuffinFemale
 MacGuffinMobileMale = Mobile(
     name = MacGuffinMale.name,
     symbol = MacGuffinMale.symbol,
-    fgColour = "black",
+    fgColour = ForegroundBlack,
     ai = RandomWalker( avoidTraps = True ),
     speed = Speed.Slow,
     swimming = False,
@@ -179,7 +181,7 @@ MacGuffinMobileMale = Mobile(
 MacGuffinMobileFemale = Mobile(
     name = MacGuffinFemale.name,
     symbol = MacGuffinFemale.symbol,
-    fgColour = "black",
+    fgColour = ForegroundBlack,
     ai = RandomWalker( avoidTraps = True ),
     speed = Speed.Slow,
     swimming = False,

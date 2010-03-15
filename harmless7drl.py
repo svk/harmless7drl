@@ -6,6 +6,8 @@ Author = "kaw"
 Date = "March 14 2010"
 Email = "kaw.dev@gmail.com"
 
+ForegroundBlack = "blue" # set to e.g. blue if bold black on black is hard to see
+
 class Widget:
     def __init__(self, main = None, ui = None):
         self.done = False
