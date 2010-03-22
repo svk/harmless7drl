@@ -1,12 +1,24 @@
 import copy
 
 Signature = "Harmless7DRL"
-Version = "Version 1.0 (7DRL)"
+Version = "Version 1.1"
 Author = "kaw"
-Date = "March 14 2010"
+Date = "?"
 Email = "kaw.dev@gmail.com"
 
-ForegroundBlack = "blue" # set to e.g. blue if bold black on black is hard to see
+from ConfigParser import RawConfigParser, NoOptionError
+Cfg = RawConfigParser()
+Cfg.read( "harmless7drl.cfg" )
+
+def getCfg( section, setting, default = None ):
+    try:
+        return Cfg.get( section, setting )
+    except NoOptionError:
+        return default
+
+ForegroundBlack = getCfg( "colours", "blackOnBlack", "black" )
+DebugMode = getCfg( "general", "debug", "no" ) == "yes"
+
 
 class Widget:
     def __init__(self, main = None, ui = None):

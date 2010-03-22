@@ -421,6 +421,7 @@ class GameWidget ( Widget ):
                 }[key]
             except KeyError:
                 pass
+            from harmless7drl import DebugMode
             if standardAction:
                 self.clearlog()
                 standardAction()
@@ -442,7 +443,7 @@ class GameWidget ( Widget ):
                 from plot import displayHelp
                 displayHelp( self.main )
 #            elif False:
-            elif key == '!':
+            elif DebugMode and key == '!':
                 if self.main.query( SelectionMenuWidget, choices = [
                     (False, "No"),
                     (True, "Yes"),
