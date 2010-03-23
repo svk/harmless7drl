@@ -78,17 +78,18 @@ def windowsGetRoot():
     # Using a separate dir to write to means that people can install to
     # "Program Files" without Vista complaining at them. (_Unless_
     # they want to modify the config file, but that's on them, honestly.)
-    import os
+    import os, sys
     appdata = os.environ['APPDATA']
     drive, head = os.path.splitdrive( appdata )
+    head = head.replace( "\\", "/" ) #hack
     comps = []
-    while head:
-        head, tail = os.path.split( tail )
+    while head and head != "/" and head != "\\":
+        head, tail = os.path.split( head )
         if tail:
             comps.append( tail )
     comps.reverse()
     comps.append( "Harmless7DRL" )
-    return drive + "/".join( comps )
+    return drive + "/" + "/".join( comps )
     
 def getRoot():
     return {
