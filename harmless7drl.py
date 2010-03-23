@@ -20,7 +20,6 @@ ForegroundBlack = getCfg( "colours", "blackOnBlack", "black" )
 DebugMode = getCfg( "general", "debug", "no" ) == "yes"
 RootMode = getCfg( "general", "writedir", "gamedir" )
 
-
 class Widget:
     def __init__(self, main = None, ui = None):
         self.done = False
@@ -75,10 +74,27 @@ class MainLoop:
             self.widgets[-1].focus()
         return w.result
 
+def windowsGetRoot():
+    # Using a separate dir to write to means that people can install to
+    # "Program Files" without Vista complaining at them. (_Unless_
+    # they want to modify the config file, but that's on them, honestly.)
+    import os
+    appdata = os.environ['APPDATA']
+    drive, head = os.path.splitdrive( appdata )
+    comps = []
+    while head:
+        head, tail = os.path.split( tail )
+        if tail:
+            comps.append( tail )
+    comps.reverse()
+    comps.append( "Harmless7DRL" )
+    return drive + "/".join( comps )
+    
 def getRoot():
     return {
         'gamedir' : '.',
         'linuxtemp': '/tmp/harmless7drl-data', # really just for testing!
+        'win32appdata': windowsGetRoot(),
     }[ RootMode ]
 
 def ensureDirPresent( dirname ):
