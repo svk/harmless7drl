@@ -18,6 +18,7 @@ def getCfg( section, setting, default = None ):
 
 ForegroundBlack = getCfg( "colours", "blackOnBlack", "black" )
 DebugMode = getCfg( "general", "debug", "no" ) == "yes"
+RootMode = getCfg( "general", "writedir", "gamedir" )
 
 
 class Widget:
@@ -74,12 +75,29 @@ class MainLoop:
             self.widgets[-1].focus()
         return w.result
 
+def getRoot():
+    return {
+        'gamedir' : '.',
+        'linuxtemp': '/tmp/harmless7drl-data', # really just for testing!
+    }[ RootMode ]
+
+def ensureDirPresent( dirname ):
+    import os
+    fulldirname = "/".join( [getRoot(), dirname] )
+    if os.path.exists( fulldirname ):
+        return
+    os.makedirs( fulldirname )
+
+def fullFilename( dirname, filename ):
+    return "/".join( [ getRoot(), dirname, filename ] )
+
 def savefileName( name ):
     import string
+    ensureDirPresent( "savegame" )
     for ch in name:
         if ch not in string.letters:
             return None
-    return "savegame-%s-harmless7drl.gz" % name
+    return fullFilename( "savegame", "savegame-%s-harmless7drl.gz" % name )
 
 def loadOldGame( name ):
     context = GameContext()

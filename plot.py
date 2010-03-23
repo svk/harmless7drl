@@ -136,19 +136,19 @@ Having saved the day and lived to tell the tale, you breathe\
     game.context.macGuffin.name.singular,
 ))
     game.main.query( WallOfTextWidget, width = 60, center = True, text = """\
-Congratulations on your victory! A log file has been written to\
- the game directory.""")
+Congratulations on your victory! A log file will be written to disk.""")
 
 def writeReport( game, won, books = 0, didQuit = False ):
     import harmless7drl
     import time
-    unfriendlytime = time.strftime( "%Y-%m-%d-%H-%M-%S-%Z" )
+    unfriendlytime = time.strftime( "%Y-%m-%d-%H-%M-%S-%z" )
     friendlytime = time.strftime( "%d/%m/%Y %H:%M" )
     name = game.player.name.singular
     Psub = capitalizeFirst( game.player.name.pronounSubject() )
     reportName = "harmless7drl-%s-%s.txt" % (name, unfriendlytime )
+    harmless7drl.ensureDirPresent( "logs" )
+    reportName = harmless7drl.fullFilename( "logs", reportName )
     f = open( reportName, "w" )
-    
     if won:
         print >>f, "%s successfully retrieved the Professor at %s." % (name, friendlytime)
         if books > 0:
