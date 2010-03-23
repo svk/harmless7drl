@@ -92,10 +92,10 @@ def windowsGetRoot():
     
 def getRoot():
     return {
-        'gamedir' : '.',
-        'linuxtemp': '/tmp/harmless7drl-data', # really just for testing!
-        'win32appdata': windowsGetRoot(),
-    }[ RootMode ]
+        'gamedir' : lambda : '.',
+        'linuxtemp': lambda : '/tmp/harmless7drl-data', # really just for testing!
+        'win32appdata': windowsGetRoot,
+    }[ RootMode ]()
 
 def ensureDirPresent( dirname ):
     import os
