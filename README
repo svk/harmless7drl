@@ -186,11 +186,12 @@ Stuff included in this package that is not my own work:
     Python License
     Jean-Baptiste Lamy "Jiba"
 
+    Fonts derived from Bitstream Vera (for the license,
+    see LICENSE.Bitstream).
+
     (with the Windows binary)
     The Python 2.6 interpreter, as packaged by Py2Exe.
 
-    Fonts derived from Bitstream Vera (for the license,
-    see LICENSE.Bitstream).
 
     == DEVELOPMENT TIME ==
 

@@ -7,11 +7,11 @@
 #   python harmless7drl.py
 
 WPY26="C:\Program Files\Python26\python.exe"
-P2E_EXTRAS=SDL.dll libtcod-mingw.dll harmless-font-13x23.png LICENSE.Bitstream
+P2E_EXTRAS=SDL.dll libtcod-mingw.dll
 # may need msvcr80.dll
 SZIP="C:\Program Files\7-Zip\7z.exe"
 
-ALL_EXTRAS=README LICENSE
+ALL_EXTRAS=README LICENSE LICENSE.Bitstream
 
 clean:
 	rm -f errars
