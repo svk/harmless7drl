@@ -28,9 +28,9 @@ class TcodInterface:
         self.fps_limit = 20
         self.font_name = getCfg( "tcod", "font", "harmless-font.png" )
         self.font_layout = {
-            "tcod":  libtcod.LAYOUT_TCOD,
-            "ascii_incol":  libtcod.LAYOUT_ASCII_INCOL,
-            "ascii_inrow":  libtcod.LAYOUT_ASCII_INROW,
+            "tcod":  libtcod.FONT_LAYOUT_TCOD,
+            "ascii_incol":  libtcod.FONT_LAYOUT_ASCII_INCOL,
+            "ascii_inrow":  libtcod.FONT_LAYOUT_ASCII_INROW,
         }[getCfg( "tcod", "fontlayout", "tcod" )]
         self.title = 'Harmless7DRL'
         self.colours = {
