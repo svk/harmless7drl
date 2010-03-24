@@ -25,7 +25,7 @@ class TcodInterface:
         self.width = 100
         self.height = 60
         self.fps_limit = 20
-        self.font_name = 'arial12x12.png'
+        self.font_name = 'myfont.png'
         self.title = 'Harmless7DRL'
         self.colours = {
             'white': libtcod.white,
