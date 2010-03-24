@@ -8,7 +8,10 @@ p2e_options = dict (
         compressed = True,
 )
 
-setup(windows=['harmless7drl.py'],
+setup(windows=[{
+        'script': 'harmless7drl.py',
+        'icon_resources': [(1, 'harmless7drl.ico')],
+      }],
       bundle_files=1,
       zipfile = None,
       name = 'Harmless7DRL',

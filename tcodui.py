@@ -2,8 +2,9 @@ import libtcodpy as libtcod
 import time
 
 def main( rootwidget, *args, **kwargs ):
-    from harmless7drl import MainLoop
+    from harmless7drl import MainLoop, windowsSetIcon
     rv = None
+    windowsSetIcon()
     try:
         tui = TcodInterface( debug = True )
         rv = MainLoop( tui ).query( rootwidget, *args, **kwargs )

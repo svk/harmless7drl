@@ -90,7 +90,17 @@ def windowsGetRoot():
     comps.reverse()
     comps.append( "Harmless7DRL" )
     return drive + "/" + "/".join( comps )
-    
+
+def windowsSetIcon():
+    return # FFFFFFFFU this does not actually work
+    import ctypes
+    sdl = ctypes.cdll['./SDL.dll']
+    import sys
+    rw = sdl.SDL_RWFromFile( "./harmless7drl-16.bmp" )
+    bmp = sdl.SDL_LoadBMP_RW( rw , 1 )
+    rv = sdl.SDL_WM_SetIcon( bmp, 0 )
+    print >> sys.stderr, rv
+
 def getRoot():
     return {
         'gamedir' : lambda : '.',
