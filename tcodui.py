@@ -23,10 +23,10 @@ class WindowClosedException:
 class TcodInterface:
     def __init__(self, debug = False):
         from harmless7drl import getCfg
-        self.width = getCfg( "tcod", "width", 100, int )
-        self.height = getCfg( "tcod", "height", 60, int )
+        self.width = getCfg( "tcod", "width", 80, int )
+        self.height = getCfg( "tcod", "height", 25, int )
         self.fps_limit = 20
-        self.font_name = getCfg( "tcod", "font", "font/harmless-font.png" )
+        self.font_name = getCfg( "tcod", "font", "fonts/harmless-font-13x23.png" )
         self.font_layout = {
             "tcod":  libtcod.FONT_LAYOUT_TCOD,
             "ascii_incol":  libtcod.FONT_LAYOUT_ASCII_INCOL,
