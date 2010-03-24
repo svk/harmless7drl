@@ -113,7 +113,7 @@ class Tome (Item):
             return False
         rune = context.game.main.query( SelectionMenuWidget, choices = [
             (protorune, protorune.arcaneName) for protorune in unidentifiedRunes
-        ] + [ (None, "cancel") ], title = "Identify which rune?", padding = 5 )
+        ] + [ (None, "cancel") ], title = "Identify which rune?", padding = 5, cancelable = True )
         if not rune:
             return False
         rune.identify()

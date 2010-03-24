@@ -227,9 +227,10 @@ class CursorWidget (Widget):
                 self.done = True
 
 class SelectionMenuWidget (Widget):
-    def __init__(self, choices = [], title = None, centered = False, noInvert = False, padding = 0, *args, **kwargs):
+    def __init__(self, choices = [], title = None, centered = False, noInvert = False, padding = 0, cancelable = False, *args, **kwargs):
         Widget.__init__(self, *args, **kwargs)
         self.title = title
+        self.cancelable = cancelable
         self.choices = choices # symbol, description
         self.selection = 0
         self.noInvert = noInvert
@@ -248,7 +249,10 @@ class SelectionMenuWidget (Widget):
     def resize(self, w = None, h = None):
         self.dialog = centeredSubwindow( self.ui, self.width, self.height )
     def keyboard(self, key):
-        if key == '\n':
+        if key == 'escape' and self.cancelable:
+            self.result = None
+            self.done = True
+        elif key == '\n':
             sym, desc = self.choices[ self.selection ]
             self.result = sym
             self.done = True

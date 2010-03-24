@@ -228,7 +228,7 @@ class GameWidget ( Widget ):
                 stacked = countItems( self.player.tile.items )
                 item = self.main.query( SelectionMenuWidget, choices = [
                     (items[0], name.amount( len(items), informal = True )) for name, items in stacked.items()
-                ] + [ (None, "nothing") ], title = "Pick up what?", padding = 5 )
+                ] + [ (None, "nothing") ], title = "Pick up what?", padding = 5, cancelable = True )
                 if not item:
                     return
             if (self.player.inventoryWeight() + item.weight) < self.player.weightLimit:
@@ -303,7 +303,7 @@ class GameWidget ( Widget ):
             stacked = countItems( self.player.inventory )
             item = self.main.query( SelectionMenuWidget, choices = [
                 (items[0], name.amount( len(items), informal = True )) for name, items in stacked.items()
-            ] + [ (None, "nothing") ], title = "Drop what?", padding = 5 )
+            ] + [ (None, "nothing") ], title = "Drop what?", padding = 5, cancelable = True )
             if not item:
                 return
             self.log( "You drop %s." % item.name.definiteSingular() )
@@ -331,7 +331,7 @@ class GameWidget ( Widget ):
             (('unwield', weapon.name.indefiniteSingular() + " (wielded)")) for weapon in [self.player.weapon] if weapon
         ] + [
             (items[0], name.amount( len(items), informal = True )) for name, items in stacked.items()
-        ] + [ (None, "cancel") ], padding = 5 )
+        ] + [ (None, "cancel") ], padding = 5, cancelable = True )
         if chosen:
             if chosen == 'unwield':
                 self.unequipWeapon()
@@ -370,7 +370,7 @@ class GameWidget ( Widget ):
         else:
             chosen = self.main.query( SelectionMenuWidget, choices = [
                 (spell,spell.description) for spell in goodSpells
-            ] + [ (None, "cancel") ], title = "Which spell do you want to write?", padding = 5 )
+            ] + [ (None, "cancel") ], title = "Which spell do you want to write?", padding = 5, cancelable = True )
             if chosen:
                 chosen.build( self.context.player.inventory )
                 self.log( "You enter a magical trance as you begin scribing the %s spell..." % chosen.name )
@@ -386,7 +386,7 @@ class GameWidget ( Widget ):
                 hotkeys[spell.hotkey] = spell
             chosen = self.main.query( SpellSelectionMenuWidget, choices = [
                 (spell,"%c: %s (%d)" % (spell.hotkey,spell.name,spell.cost())) for spell in self.context.player.spellbook
-            ] + [ (None, "cancel") ], title = "Which spell do you want to cast?", padding = 5,
+            ] + [ (None, "cancel") ], title = "Which spell do you want to cast?", padding = 5, cancelable = True,
             hotkeys = hotkeys,
             )
             if chosen:
@@ -437,7 +437,7 @@ class GameWidget ( Widget ):
                 if self.main.query( SelectionMenuWidget, choices = [
                     (False, "No"),
                     (True, "Yes, quit without saving"),
-                ], title = "Really give up on this character?", padding = 5 ):
+                ], title = "Really give up on this character?", padding = 5, cancelable = True ):
                     raise PlayerKilledException( didQuit = True )
             elif key == '?':
                 from plot import displayHelp
@@ -447,7 +447,7 @@ class GameWidget ( Widget ):
                 if self.main.query( SelectionMenuWidget, choices = [
                     (False, "No"),
                     (True, "Yes"),
-                ], title = "Enter debugging mode?", padding = 5 ):
+                ], title = "Enter debugging mode?", padding = 5, cancelable = True):
                     self.context.debugmode = True
             elif self.context.debugmode:
                 if key == 'W':
