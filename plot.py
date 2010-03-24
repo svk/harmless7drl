@@ -141,7 +141,7 @@ Congratulations on your victory! A log file will be written to disk.""")
 def writeReport( game, won, books = 0, didQuit = False ):
     import harmless7drl
     import time
-    unfriendlytime = time.strftime( "%Y-%m-%d-%H-%M-%S-%z" )
+    unfriendlytime = time.strftime( "%Y-%m-%d-%H-%M-%S" )
     friendlytime = time.strftime( "%d/%m/%Y %H:%M" )
     name = game.player.name.singular
     Psub = capitalizeFirst( game.player.name.pronounSubject() )
