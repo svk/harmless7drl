@@ -6,7 +6,7 @@ def main( rootwidget, *args, **kwargs ):
     from harmless7drl import MainLoop
     rv = None
     try:
-        cui = CursesInterface( debug=False )
+        cui = CursesInterface( debug=True )
         rv = MainLoop( cui ).query( rootwidget, *args, **kwargs )
         cui.shutdown()
     except:
@@ -65,6 +65,7 @@ class CursesInterface:
         self.keymap[ curses.KEY_A3 ] = 'northeast'
         self.keymap[ curses.KEY_C1 ] = 'southwest'
         self.keymap[ curses.KEY_C3 ] = 'southeast'
+        self.keymap[ 27 ] = 'escape'
         del self.keymap[ ord('\t') ] # hack because tab is bound to cause
                                      # trouble in various text input stuff
     def setupColours(self):
