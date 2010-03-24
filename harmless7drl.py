@@ -3,7 +3,7 @@ import copy
 Signature = "Harmless7DRL"
 Version = "Version 1.1"
 Author = "kaw"
-Date = "?"
+Date = "March 24 2010"
 Email = "kaw.dev@gmail.com"
 
 from ConfigParser import RawConfigParser, NoOptionError, NoSectionError

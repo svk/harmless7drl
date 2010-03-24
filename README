@@ -186,11 +186,18 @@ Stuff included in this package that is not my own work:
     (with the Windows binary)
     The Python 2.6 interpreter, as packaged by Py2Exe.
 
+    Fonts derived from Bitstream Vera (for the license,
+    see LICENSE.Bitstream).
+
     == DEVELOPMENT TIME ==
 
-This game was coded entirely in 168 hours starting from
-18:00 on Sunday March 7 2010, UTC+1. It was an entry
-in the 2010 7DRL challenge.
+The first released version of this game was coded entirely
+in 168 hours starting from 18:00 on Sunday March 7 2010,
+UTC+1. It was an entry in the 2010 7DRL challenge.
+
+This release fixes bugs (including one crash bug) and
+enhances the UI in several ways, but does not change
+any of the gameplay.
 
     == THINGS I'VE LEARNED DURING THE CODING OF THIS GAME ==
 

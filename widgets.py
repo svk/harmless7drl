@@ -302,7 +302,7 @@ class RootMenuWidget(Widget):
     def draw(self):
         # display a splash screen
         from harmless7drl import Signature, Version, Date, Author, Email
-        lines = [ Signature, Version, Date, "", "by %s" % Author, Email, "", "For the 2010 7DRL challenge", "", "Press any key to continue" ]
+        lines = [ Signature, Version, Date, "", "by %s" % Author, Email, "", "Originally created for the 2010 7DRL challenge", "", "Press any key to continue" ]
         screenw, screenh = self.ui.dimensions()
         y = ( screenh-len(lines) ) // 2 
         for line in lines[:-1]:
