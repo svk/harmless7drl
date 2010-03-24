@@ -6,14 +6,14 @@ Author = "kaw"
 Date = "?"
 Email = "kaw.dev@gmail.com"
 
-from ConfigParser import RawConfigParser, NoOptionError
+from ConfigParser import RawConfigParser, NoOptionError, NoSectionError
 Cfg = RawConfigParser()
 Cfg.read( "harmless7drl.cfg" )
 
-def getCfg( section, setting, default = None ):
+def getCfg( section, setting, default = None, conversion = str ):
     try:
-        return Cfg.get( section, setting )
-    except NoOptionError:
+        return conversion( Cfg.get( section, setting ) )
+    except (NoOptionError, NoSectionError):
         return default
 
 ForegroundBlack = getCfg( "colours", "blackOnBlack", "black" )
