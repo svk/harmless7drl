@@ -44,6 +44,7 @@ harmless7drl:
 	cp -r fonts dist
 	cp $(ALL_EXTRAS) dist
 	cp standard.cfg dist/harmless7drl.cfg
+	cp windows.cfg dist/tcod.cfg
 	mv dist harmless7drl
 
 harmless7drl.tar.gz: harmless7drl
