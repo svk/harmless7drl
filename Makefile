@@ -15,6 +15,7 @@ ALL_EXTRAS=README LICENSE
 
 clean:
 	rm -f errars
+	rm -f cerealizer/*.pyc
 	rm -f *.pyc
 	rm -f savegame-*-harmless7drl.gz
 	rm -rf harmless7drl-win32
@@ -29,6 +30,7 @@ harmless7drl-win32:
 	$(WPY26) py2exe_setup.py py2exe
 	cp $(P2E_EXTRAS) dist
 	cp $(ALL_EXTRAS) dist
+	cp -r fonts dist
 	cp windows.cfg dist/harmless7drl.cfg
 	mv dist harmless7drl-win32
 	upx harmless7drl-win32\python26.dll
@@ -39,6 +41,7 @@ harmless7drl:
 	mkdir dist
 	cp *.py dist
 	cp -r cerealizer dist
+	cp -r fonts dist
 	cp $(ALL_EXTRAS) dist
 	cp standard.cfg dist/harmless7drl.cfg
 	mv dist harmless7drl

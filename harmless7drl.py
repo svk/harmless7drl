@@ -19,6 +19,7 @@ def getCfg( section, setting, default = None, conversion = str ):
 ForegroundBlack = getCfg( "colours", "blackOnBlack", "black" )
 DebugMode = getCfg( "general", "debug", "no" ) == "yes"
 RootMode = getCfg( "general", "writedir", "gamedir" )
+ForceTcod = getCfg( "tcod", "force", "no" ) == "yes"
 
 class Widget:
     def __init__(self, main = None, ui = None):
@@ -212,6 +213,8 @@ if __name__ == '__main__':
 #    context.levelGenerator = GeneratorQueue( 2, 100, 100 )
     try:
         try:
+            if ForceTcod:
+                raise ImportError()
             import cursesui
             main = cursesui.main
         except ImportError:
