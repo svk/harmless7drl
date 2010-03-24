@@ -7,7 +7,7 @@
 #   python harmless7drl.py
 
 WPY26="C:\Program Files\Python26\python.exe"
-P2E_EXTRAS=SDL.dll libtcod-mingw.dll harmless-font.png
+P2E_EXTRAS=SDL.dll libtcod-mingw.dll harmless-font-13x23.png
 # may need msvcr80.dll
 
 ALL_EXTRAS=README LICENSE

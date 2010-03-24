@@ -27,8 +27,26 @@ def blinkphase(n = 2, phaselength = 0.5):
     import time
     return int( (time.time() % (n * phaselength)) / phaselength )
 
-PrimaryColour = 'white'
-SecondaryColour = 'blue'
+from harmless7drl import getCfg
+
+prettymenu = getCfg( "tcod", "prettymenu" ) == "yes"
+if prettymenu:
+    PrimaryColour = 'tcod-primary'
+    SecondaryColour = 'tcod-secondary'
+    BorderColour = 'tcod-border'
+    HighlightPrimaryColour = 'tcod-primary-hl'
+    HighlightSecondaryColour = 'tcod-secondary-hl'
+else:
+    PrimaryColour = 'white'
+    SecondaryColour = 'blue'
+    BorderColour = SecondaryColour
+    HighlightPrimaryColour, HighlightSecondaryColour = SecondaryColour, PrimaryColour
+
+PrimaryColourRGB = 158, 0, 156
+BorderColourRGB = 106, 0, 105
+SecondaryColourRGB = 182,151,91
+HighlightPrimaryColourRGB = PrimaryColourRGB
+HighlightSecondaryColourRGB = 255, 255, 255
 
 class ClippedException: pass
 
@@ -116,7 +134,7 @@ class TextInputWidget (Widget):
     def draw(self):
         bg = PrimaryColour
         fg = SecondaryColour
-        self.dialog.decorate( fg, bg )
+        self.dialog.decorate( BorderColour, bg )
         y = 1
         if self.query:
             x = self.dialog.putString( 1, y, self.query.center( self.width + 1 ) if self.centered else self.query, fg, bg )
@@ -154,7 +172,7 @@ class WallOfTextWidget (HitEnterWidget):
         tw.feed( self.text )
         height = min( tw.numberOfLines() + 2, screenh )
         dialog = centeredSubwindow( self.ui, self.width, height )
-        dialog.decorate( fg, bg )
+        dialog.decorate( BorderColour, bg )
         i = 0
         for i in range(1, height-1):
             s = tw.line(i-1)
@@ -246,7 +264,7 @@ class SelectionMenuWidget (Widget):
     def draw(self):
         bg = PrimaryColour
         fg = SecondaryColour
-        self.dialog.decorate( fg, bg )
+        self.dialog.decorate( BorderColour, bg )
         i = 0
         if self.title:
             self.dialog.putString( 1, 1, self.title.center( self.width - 2 ), fg, bg )
@@ -254,7 +272,8 @@ class SelectionMenuWidget (Widget):
             bga, fga = bg, fg
             if i == self.selection:
                 if not self.noInvert:
-                    bga, fga = fg, bg
+                    bga = HighlightPrimaryColour
+                    fga = HighlightSecondaryColour
                 desc = " ".join( [ ">", desc, "<" ] )
             if self.centered:
                 desc = desc.center( self.width - 2)

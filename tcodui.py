@@ -49,6 +49,12 @@ class TcodInterface:
             if "bold" not in key:
                 c = self.colours[key]
                 self.colours[key] = libtcod.Color( c.r & 0x80, c.g & 0x80, c.b & 0x80 )
+        from widgets import PrimaryColourRGB, SecondaryColourRGB, BorderColourRGB, HighlightPrimaryColourRGB, HighlightSecondaryColourRGB
+        self.colours[ "tcod-primary" ] = libtcod.Color( *PrimaryColourRGB )
+        self.colours[ "tcod-secondary" ] = libtcod.Color( *SecondaryColourRGB )
+        self.colours[ "tcod-primary-hl" ] = libtcod.Color( *HighlightPrimaryColourRGB )
+        self.colours[ "tcod-secondary-hl" ] = libtcod.Color( *HighlightSecondaryColourRGB )
+        self.colours[ "tcod-border" ] = libtcod.Color( *BorderColourRGB )
         self.colours["bold-black"] = libtcod.Color( 0x80, 0x80, 0x80 )
         self.keymap = {
             libtcod.KEY_BACKSPACE: 'backspace',
