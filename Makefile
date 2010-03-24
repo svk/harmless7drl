@@ -9,6 +9,7 @@
 WPY26="C:\Program Files\Python26\python.exe"
 P2E_EXTRAS=SDL.dll libtcod-mingw.dll harmless-font-13x23.png LICENSE.Bitstream
 # may need msvcr80.dll
+SZIP="C:\Program Files\7-Zip\7z.exe"
 
 ALL_EXTRAS=README LICENSE
 
@@ -41,3 +42,9 @@ harmless7drl:
 	cp $(ALL_EXTRAS) dist
 	cp standard.cfg dist/harmless7drl.cfg
 	mv dist harmless7drl
+
+harmless7drl.tar.gz: harmless7drl
+	tar cvfz harmless7drl.tar.gz harmless7drl
+
+harmless7drl-win32.zip: harmless7drl-win32
+	$(SZIP) a -r harmless7drl-win32.zip harmless7drl-win32
